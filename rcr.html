@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seimei — Réanimation RCR | Sunagakure</title>
+<script src="vendor/supabase.js"></script>
+<script src="config.js"></script>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="back-btn"><a href="index.html">← Retour au menu</a></div>
+  <header>
+    <div class="crest"><svg viewBox="0 0 100 100" fill="none">
+      <circle cx="50" cy="50" r="30" stroke="#b5712b" stroke-width="4"/>
+      <path d="M50 22 L58 44 L50 50 L42 44 Z" fill="#b5712b"/>
+      <path d="M50 78 L42 56 L50 50 L58 56 Z" fill="#b5712b"/>
+      <circle cx="50" cy="50" r="6" fill="#8a4f1a"/>
+    </svg></div>
+    <h1>Réanimation RCR</h1>
+    <div class="sub">Section Médicale — Seimei · Sunagakure</div>
+    <div class="divider"></div>
+  </header>
+
+  <div id="intro">
+    <div class="panel">
+      <h2>Briefing</h2>
+      <p class="lead">Un shinobi est en arrêt cardiaque. Tu dois maintenir la circulation sanguine par des <strong>compressions thoraciques rythmées</strong>.</p>
+      <p class="hint" style="margin-top:8px;">🎯 <strong>Objectif</strong> : maintenir un rythme de <strong>100 à 120 compressions par minute</strong> (soit une toutes les 0,5 à 0,6 seconde).</p>
+      <p class="hint" style="margin-top:6px;">⌨️ <strong>Comment jouer</strong> : appuie sur <strong>la touche ESPACE</strong> ou <strong>clique sur le thorax</strong> au bon tempo. Suis le métronome qui pulse — quand le cercle est vert, c'est le moment.</p>
+      <p class="hint" style="margin-top:6px;color:var(--blood-light);">⚠ 30 compressions à enchaîner. Trop lent ou trop rapide = compressions inefficaces.</p>
+    </div>
+    <div class="panel">
+      <h2>Identification</h2>
+      <div class="field">
+        <label for="nameInput">Nom de shinobi</label>
+        <input type="text" id="nameInput" placeholder="Ex : Artel Gaïa" maxlength="28" autocomplete="off">
+      </div>
+      <div style="margin-top:16px;text-align:center;">
+        <button class="btn" id="startBtn">Commencer</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="game" style="display:none;">
+    <div class="panel">
+      <div class="metric-bar">
+        <span>Compressions : <span class="val" id="countLbl">0/30</span></span>
+        <span>Cadence : <span class="val" id="bpmLbl">— bpm</span></span>
+        <span>Bonnes : <span class="val good" id="goodLbl">0</span></span>
+      </div>
+      <div class="game-area" id="gameArea" style="height:380px;cursor:pointer;">
+        <canvas id="cvs"></canvas>
+      </div>
+      <div class="instr" id="instr">Appuie sur ESPACE ou clique au bon tempo (cercle vert = appuie maintenant)</div>
+      <div class="feedback" id="feedback"></div>
+      <div class="controls">
+        <button class="btn" id="stopBtn">Terminer</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="result">
+    <div class="panel">
+      <h2>Rapport d'évaluation</h2>
+      <div class="grade" id="gradeLetter">—</div>
+      <div class="verdict" id="verdict"></div>
+      <div id="reportBox" style="background:rgba(20,12,4,.55);border:1px dashed var(--ocre);border-radius:12px;padding:16px;margin:14px 0;text-align:left;"></div>
+      <div class="cloud" id="cloudStatus">⏳ Envoi...</div>
+      <div style="text-align:center;font-style:italic;color:var(--sand-deep);margin-top:12px;">Cachet — Seimei, Sunagakure</div>
+      <div class="controls" style="margin-top:14px;">
+        <button class="btn ghost" id="retryBtn">Recommencer</button>
+        <button class="btn" id="newPlayerBtn">Nouvel apprenti</button>
+      </div>
+    </div>
+  </div>
+  <footer>Outil pédagogique · <span class="seal">Seimei</span> · Sunagakure</footer>
+</div>
+
+<script>
+(function(){
+var el=function(id){return document.getElementById(id);};
+var CVS,CTX,W,H;
+var TARGET_BPM=110; // target
+var TARGET_INTERVAL=60000/TARGET_BPM; // ms between compressions
+var TOLERANCE_MS=150; // good window
+var PERFECT_MS=70;
+var NB_COMP=30;
+var ST={name:"",compressions:0,goodCount:0,perfectCount:0,
+  lastTime:0,intervals:[],animId:null,active:false,
+  pulsePhase:0,playerName:""};
+
+function initCanvas(){
+  CVS=el('cvs'); CTX=CVS.getContext('2d');
+  resize(); window.addEventListener('resize',resize);
+}
+function resize(){
+  var a=el('gameArea'); W=a.clientWidth; H=a.clientHeight;
+  CVS.width=W; CVS.height=H;
+}
+
+function startGame(){
+  var nm=el('nameInput').value.trim();
+  if(!nm){el('nameInput').style.borderColor='var(--blood-light)';
+    setTimeout(function(){el('nameInput').style.borderColor='';},900);return;}
+  ST.name=nm;
+  ST.compressions=0; ST.goodCount=0; ST.perfectCount=0;
+  ST.lastTime=0; ST.intervals=[]; ST.active=true; ST.pulsePhase=0;
+  el('intro').style.display='none'; el('result').style.display='none';
+  el('game').style.display='block';
+  initCanvas();
+  // input handlers
+  CVS.addEventListener('click',doCompression);
+  document.addEventListener('keydown',keyHandler);
+  el('instr').textContent='Appuie sur ESPACE ou clique au tempo. Le cercle vert = moment idéal.';
+  el('countLbl').textContent='0/'+NB_COMP;
+  el('bpmLbl').textContent='— bpm';
+  el('goodLbl').textContent='0';
+  updateUI();
+  loop(performance.now());
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function keyHandler(e){
+  if(!ST.active)return;
+  if(e.code==='Space'){e.preventDefault();doCompression();}
+}
+
+function doCompression(){
+  if(!ST.active)return;
+  var now=performance.now();
+  if(ST.lastTime>0){
+    var dt=now-ST.lastTime;
+    ST.intervals.push(dt);
+    var diff=Math.abs(dt-TARGET_INTERVAL);
+    var quality;
+    if(diff<=PERFECT_MS){quality='perfect';ST.perfectCount++;ST.goodCount++;}
+    else if(diff<=TOLERANCE_MS){quality='good';ST.goodCount++;}
+    else if(dt<TARGET_INTERVAL-TOLERANCE_MS){quality='fast';}
+    else{quality='slow';}
+    showFeedback(quality);
+  }
+  ST.lastTime=now;
+  ST.compressions++;
+  ST.pulsePhase=1; // visual feedback on press
+  updateUI();
+  if(ST.compressions>=NB_COMP){
+    setTimeout(stopGame,400);
+  }
+}
+
+function showFeedback(q){
+  var fb=el('feedback');
+  if(q==='perfect'){fb.className='feedback ok';fb.textContent='✓ Parfait !';}
+  else if(q==='good'){fb.className='feedback ok';fb.textContent='✓ Bon rythme.';}
+  else if(q==='fast'){fb.className='feedback no';fb.textContent='✗ Trop rapide — ralentis.';}
+  else{fb.className='feedback no';fb.textContent='✗ Trop lent — accélère.';}
+  setTimeout(function(){if(ST.active)fb.className='feedback';},600);
+}
+
+function updateUI(){
+  el('countLbl').textContent=ST.compressions+'/'+NB_COMP;
+  el('goodLbl').textContent=ST.goodCount;
+  if(ST.intervals.length>=2){
+    var last3=ST.intervals.slice(-3);
+    var avg=last3.reduce(function(a,b){return a+b;},0)/last3.length;
+    var bpm=Math.round(60000/avg);
+    var lblEl=el('bpmLbl');
+    lblEl.textContent=bpm+' bpm';
+    lblEl.className='val '+(bpm>=100&&bpm<=120?'good':(bpm>=80&&bpm<=140?'warn':'bad'));
+  }
+}
+
+function loop(t){
+  if(!ST.active){if(ST.animId)cancelAnimationFrame(ST.animId);return;}
+  CTX.clearRect(0,0,W,H);
+  // torso/heart visual
+  var cx=W/2, cy=H/2;
+  // body silhouette
+  CTX.fillStyle='rgba(232,192,153,.92)';
+  CTX.beginPath();
+  CTX.ellipse(cx,cy,W*0.32,H*0.42,0,0,Math.PI*2);
+  CTX.fill();
+  CTX.strokeStyle='rgba(110,60,20,.5)'; CTX.lineWidth=2; CTX.stroke();
+  // neck/head hint
+  CTX.beginPath();
+  CTX.arc(cx,cy-H*0.38,W*0.09,0,Math.PI*2);
+  CTX.fillStyle='rgba(232,192,153,.85)'; CTX.fill();
+  CTX.stroke();
+  // sternum target marker
+  CTX.beginPath();
+  CTX.rect(cx-W*0.04,cy-H*0.1,W*0.08,H*0.2);
+  CTX.fillStyle='rgba(154,40,32,.15)'; CTX.fill();
+  CTX.strokeStyle='rgba(154,40,32,.4)'; CTX.lineWidth=1.5;
+  CTX.setLineDash([4,4]); CTX.stroke(); CTX.setLineDash([]);
+
+  // metronome circle
+  var phase=ST.lastTime>0? ((t-ST.lastTime)/TARGET_INTERVAL) : (t/TARGET_INTERVAL);
+  phase=phase%1;
+  // perfect zone = phase ~0.95-1.05 i.e. near phase=0/1
+  var inGood = (phase>0.85)||(phase<0.15);
+  var inPerfect = (phase>0.92)||(phase<0.08);
+  var ringR = 60 + Math.sin(phase*Math.PI*2)*8;
+  CTX.beginPath();
+  CTX.arc(cx,cy,ringR,0,Math.PI*2);
+  if(inPerfect){
+    CTX.strokeStyle='#3ddc84'; CTX.lineWidth=5;
+    CTX.shadowColor='#3ddc84'; CTX.shadowBlur=20;
+  } else if(inGood){
+    CTX.strokeStyle='#ffd86b'; CTX.lineWidth=4; CTX.shadowBlur=0;
+  } else {
+    CTX.strokeStyle='rgba(200,155,94,.5)'; CTX.lineWidth=3; CTX.shadowBlur=0;
+  }
+  CTX.stroke();
+  CTX.shadowBlur=0;
+
+  // hands icon (pulse animation)
+  var hScale=1-ST.pulsePhase*0.25;
+  ST.pulsePhase=Math.max(0,ST.pulsePhase-0.04);
+  CTX.save();
+  CTX.translate(cx,cy);
+  CTX.scale(hScale,hScale);
+  CTX.font='44px serif'; CTX.textAlign='center'; CTX.textBaseline='middle';
+  CTX.fillText('🤲',0,0);
+  CTX.restore();
+
+  // instruction text
+  CTX.font='14px Cinzel, serif'; CTX.fillStyle='rgba(244,228,193,.7)';
+  CTX.textAlign='center';
+  CTX.fillText(inPerfect?'APPUIE !':(inGood?'Presque...':'Attends...'),cx,H-20);
+
+  ST.animId=requestAnimationFrame(loop);
+}
+
+function stopGame(){
+  ST.active=false;
+  if(ST.animId)cancelAnimationFrame(ST.animId);
+  CVS.removeEventListener('click',doCompression);
+  document.removeEventListener('keydown',keyHandler);
+  finish();
+}
+
+function finish(){
+  var total=ST.compressions;
+  var goodRate=total>0?Math.round(ST.goodCount/total*100):0;
+  var perfRate=total>0?Math.round(ST.perfectCount/total*100):0;
+  // overall score: blend completion + accuracy
+  var completion=Math.min(100,Math.round(total/NB_COMP*100));
+  var score=Math.round(goodRate*0.6+perfRate*0.2+completion*0.2);
+  var g=gradeFor(score);
+  el('gradeLetter').textContent=g.l; el('gradeLetter').className='grade '+g.cls;
+  el('verdict').textContent=g.txt;
+  var avgBpm = ST.intervals.length>0 ? Math.round(60000/(ST.intervals.reduce(function(a,b){return a+b;},0)/ST.intervals.length)) : 0;
+  var box=el('reportBox'); box.innerHTML='';
+  addRow(box,'Apprenti',ST.name);
+  addRow(box,'Compressions effectuées',total+' / '+NB_COMP);
+  addRow(box,'Cadence moyenne',avgBpm+' bpm (cible 100-120)');
+  addRow(box,'Compressions parfaites',ST.perfectCount+' ('+perfRate+'%)');
+  addRow(box,'Compressions dans la cible',ST.goodCount+' ('+goodRate+'%)');
+  addRow(box,'SCORE',score+' / 100');
+  save({name:ST.name,correct:ST.goodCount,total:NB_COMP,score:score,grade:g.l});
+  el('game').style.display='none'; el('result').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function addRow(p,k,v){var d=document.createElement('div');d.className='rrow';
+  d.innerHTML='<span class="k">'+k+'</span><span class="v">'+v+'</span>';p.appendChild(d);}
+
+function gradeFor(s){
+  if(s>=90)return {l:"S",cls:"s",txt:"Rythme parfait. Le cœur de la victime te remercie."};
+  if(s>=75)return {l:"A",cls:"a",txt:"Très bonne cadence. RCR efficace."};
+  if(s>=60)return {l:"B",cls:"b",txt:"Cadence correcte mais perfectible."};
+  if(s>=45)return {l:"C",cls:"c",txt:"Rythme irrégulier. À travailler."};
+  return {l:"D",cls:"f",txt:"RCR inefficace. Reprends les bases."};
+}
+
+function save(row){
+  var note=el('cloudStatus');
+  var URL=(typeof SUPABASE_URL!=='undefined')?SUPABASE_URL:null;
+  var KEY=(typeof SUPABASE_KEY!=='undefined')?SUPABASE_KEY:null;
+  if(!URL||!KEY){note.textContent="⚠ Mode hors-ligne.";note.className="cloud warn";return;}
+  note.textContent="⏳ Envoi..."; note.className="cloud";
+  try{
+    var sb=window.supabase.createClient(URL,KEY);
+    sb.from('rcr_scores').insert([row]).then(function(res){
+      if(res.error){note.textContent="⚠ Erreur : "+res.error.message;note.className="cloud warn";}
+      else{note.textContent="✓ Score transmis au formateur.";note.className="cloud ok";}
+    },function(){note.textContent="⚠ Erreur réseau.";note.className="cloud warn";});
+  }catch(e){note.textContent="⚠ Erreur.";note.className="cloud warn";}
+}
+
+el('startBtn').addEventListener('click',startGame);
+el('nameInput').addEventListener('keydown',function(e){if(e.key==='Enter')startGame();});
+el('stopBtn').addEventListener('click',stopGame);
+el('retryBtn').addEventListener('click',startGame);
+el('newPlayerBtn').addEventListener('click',function(){
+  el('nameInput').value='';
+  el('result').style.display='none';el('game').style.display='none';el('intro').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+})();
+</script>
+</body>
+</html>

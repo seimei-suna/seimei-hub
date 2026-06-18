@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seimei — Réduction d'Épaule | Sunagakure</title>
+<script src="vendor/supabase.js"></script>
+<script src="config.js"></script>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="back-btn"><a href="index.html">← Retour au menu</a></div>
+  <header>
+    <div class="crest"><svg viewBox="0 0 100 100" fill="none">
+      <circle cx="50" cy="50" r="30" stroke="#b5712b" stroke-width="4"/>
+      <path d="M50 22 L58 44 L50 50 L42 44 Z" fill="#b5712b"/>
+      <path d="M50 78 L42 56 L50 50 L58 56 Z" fill="#b5712b"/>
+      <circle cx="50" cy="50" r="6" fill="#8a4f1a"/>
+    </svg></div>
+    <h1>Réduction d'Épaule</h1>
+    <div class="sub">Section Médicale — Seimei · Sunagakure</div>
+    <div class="divider"></div>
+  </header>
+
+  <div id="intro">
+    <div class="panel">
+      <h2>Briefing</h2>
+      <p class="lead">Un shinobi présente une luxation de l'épaule. Tu dois replacer la tête de l'humérus dans son logement en 3 étapes :</p>
+      <p class="hint" style="margin-top:8px;">🤝 <strong>1. Stabiliser</strong> : maintiens fermement l'épaule (clic prolongé sur la zone de stabilisation).</p>
+      <p class="hint" style="margin-top:6px;">⬇️ <strong>2. Tirer</strong> : glisse doucement le bras vers le bas en traction continue (pas trop fort, pas trop vite).</p>
+      <p class="hint" style="margin-top:6px;">🔄 <strong>3. Replacer</strong> : guide la tête de l'humérus dans son logement par une rotation interne.</p>
+      <p class="hint" style="margin-top:6px;color:var(--blood-light);">⚠ Mouvements brusques = blessure aggravée.</p>
+    </div>
+    <div class="panel">
+      <h2>Identification</h2>
+      <div class="field">
+        <label for="nameInput">Nom de shinobi</label>
+        <input type="text" id="nameInput" placeholder="Ex : Artel Gaïa" maxlength="28" autocomplete="off">
+      </div>
+      <div style="margin-top:16px;text-align:center;">
+        <button class="btn" id="startBtn">Commencer</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="game" style="display:none;">
+    <div class="panel">
+      <div class="step-pills">
+        <div class="step-pill active" id="pill1">① Stabiliser</div>
+        <div class="step-pill" id="pill2">② Tirer</div>
+        <div class="step-pill" id="pill3">③ Replacer</div>
+      </div>
+      <div class="metric-bar">
+        <span id="metric1Lbl">Stabilisation :</span>
+        <span class="val" id="metric1Val">0%</span>
+      </div>
+      <div class="game-area" id="gameArea" style="height:380px;">
+        <canvas id="cvs"></canvas>
+      </div>
+      <div class="instr" id="instr">Clique et maintiens sur la zone de stabilisation (épaule).</div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+  </div>
+
+  <div id="result">
+    <div class="panel">
+      <h2>Rapport d'évaluation</h2>
+      <div class="grade" id="gradeLetter">—</div>
+      <div class="verdict" id="verdict"></div>
+      <div id="reportBox" style="background:rgba(20,12,4,.55);border:1px dashed var(--ocre);border-radius:12px;padding:16px;margin:14px 0;text-align:left;"></div>
+      <div class="cloud" id="cloudStatus">⏳ Envoi...</div>
+      <div class="controls" style="margin-top:14px;">
+        <button class="btn ghost" id="retryBtn">Recommencer</button>
+        <button class="btn" id="newPlayerBtn">Nouvel apprenti</button>
+      </div>
+    </div>
+  </div>
+  <footer>Outil pédagogique · <span class="seal">Seimei</span> · Sunagakure</footer>
+</div>
+
+<script>
+(function(){
+var el=function(id){return document.getElementById(id);};
+var CVS,CTX,W,H;
+var ST={name:"",phase:1,scores:[0,0,0],
+  // phase 1: hold timer
+  stabilizing:false, stabilizeStart:0, stabilizeTime:0, stabilizeDone:false,
+  // phase 2: traction
+  tractionPos:0, tractionStart:0, tractionSpeed:0, tractionPath:[], 
+  dragging:false, lastY:0, lastTime:0,
+  tractionGood:0, tractionBad:0,
+  // phase 3: rotation
+  rotation:0, rotationGood:false,
+  // humérus position
+  humerusOffset:1, // 1=luxé (sorti), 0=replacé
+  animId:null};
+
+var STABILIZE_TARGET=2500; // ms hold
+
+function initCanvas(){
+  CVS=el('cvs'); CTX=CVS.getContext('2d');
+  resize(); window.addEventListener('resize',resize);
+}
+function resize(){
+  var a=el('gameArea'); W=a.clientWidth; H=a.clientHeight;
+  CVS.width=W; CVS.height=H;
+}
+
+function startGame(){
+  var nm=el('nameInput').value.trim();
+  if(!nm){el('nameInput').style.borderColor='var(--blood-light)';
+    setTimeout(function(){el('nameInput').style.borderColor='';},900);return;}
+  ST.name=nm; ST.phase=1; ST.scores=[0,0,0];
+  ST.stabilizing=false; ST.stabilizeTime=0; ST.stabilizeDone=false;
+  ST.tractionPos=0; ST.tractionGood=0; ST.tractionBad=0;
+  ST.rotation=0; ST.rotationGood=false;
+  ST.humerusOffset=1;
+  el('intro').style.display='none'; el('result').style.display='none';
+  el('game').style.display='block';
+  setPhase(1);
+  initCanvas();
+  bindEvents();
+  loop();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function bindEvents(){
+  CVS.addEventListener('mousedown',onDown);
+  CVS.addEventListener('mousemove',onMove);
+  CVS.addEventListener('mouseup',onUp);
+  CVS.addEventListener('mouseleave',onUp);
+  CVS.addEventListener('touchstart',onDown,{passive:false});
+  CVS.addEventListener('touchmove',onMove,{passive:false});
+  CVS.addEventListener('touchend',onUp,{passive:false});
+}
+
+function getPos(e){
+  var r=CVS.getBoundingClientRect();
+  var sx=W/r.width, sy=H/r.height;
+  var src=e.touches?(e.touches[0]||e.changedTouches[0]):e;
+  return {x:(src.clientX-r.left)*sx, y:(src.clientY-r.top)*sy};
+}
+
+function setPhase(p){
+  ST.phase=p;
+  for(var i=1;i<=3;i++){
+    var pill=el('pill'+i);
+    pill.classList.remove('active','done');
+    if(i<p)pill.classList.add('done');
+    else if(i===p)pill.classList.add('active');
+  }
+  el('feedback').className='feedback'; el('feedback').textContent='';
+  if(p===1){
+    el('metric1Lbl').textContent='Stabilisation :';
+    el('metric1Val').textContent='0%';
+    el('instr').textContent='Maintiens le clic sur la zone bleue (épaule) pendant 2.5 secondes.';
+  } else if(p===2){
+    el('metric1Lbl').textContent='Traction :';
+    el('metric1Val').textContent='0%';
+    el('instr').textContent='Glisse le bras vers le BAS lentement et régulièrement. Pas trop vite !';
+    ST.tractionStart=performance.now();
+  } else if(p===3){
+    el('metric1Lbl').textContent='Rotation :';
+    el('metric1Val').textContent='0°';
+    el('instr').textContent='Tourne le bras vers l\'intérieur (clic-glisse circulaire) pour replacer la tête.';
+  }
+}
+
+function onDown(e){
+  e.preventDefault();
+  var pos=getPos(e);
+  if(ST.phase===1){
+    var sh=getShoulderPos();
+    if(Math.hypot(pos.x-sh.x,pos.y-sh.y)<H*0.13){
+      ST.stabilizing=true;
+      ST.stabilizeStart=performance.now()-ST.stabilizeTime;
+    }
+  } else if(ST.phase===2){
+    var arm=getArmEndPos();
+    if(Math.hypot(pos.x-arm.x,pos.y-arm.y)<H*0.12){
+      ST.dragging=true;
+      ST.lastY=pos.y; ST.lastTime=performance.now();
+    }
+  } else if(ST.phase===3){
+    var arm=getArmEndPos();
+    if(Math.hypot(pos.x-arm.x,pos.y-arm.y)<H*0.15){
+      ST.dragging=true;
+      var sh=getShoulderPos();
+      ST.lastAngle=Math.atan2(pos.y-sh.y,pos.x-sh.x);
+    }
+  }
+}
+
+function onMove(e){
+  if(!ST.dragging && !ST.stabilizing)return;
+  e.preventDefault();
+  var pos=getPos(e);
+  if(ST.phase===2 && ST.dragging){
+    var now=performance.now();
+    var dt=now-ST.lastTime;
+    var dy=pos.y-ST.lastY;
+    if(dt>0 && dy!==0){
+      var speed=Math.abs(dy)/dt; // px/ms
+      if(dy>0){ // moving down (correct direction)
+        if(speed>0.6) ST.tractionBad++; // too fast
+        else if(speed<0.05) {} // too slow but OK
+        else ST.tractionGood++;
+        ST.tractionPos+=dy*0.003;
+        ST.humerusOffset=Math.max(0.4,1-ST.tractionPos);
+      } else {
+        // moving up = wrong
+        ST.tractionBad++;
+      }
+      ST.lastY=pos.y; ST.lastTime=now;
+      var pct=Math.min(100,Math.round(ST.tractionPos*100));
+      el('metric1Val').textContent=pct+'%';
+      var mEl=el('metric1Val');
+      mEl.className='val '+(ST.tractionBad>ST.tractionGood?'bad':'good');
+      if(ST.tractionPos>=0.95){
+        // good traction achieved
+        ST.dragging=false;
+        ST.scores[1]=(ST.tractionGood>ST.tractionBad)?1:0;
+        var fb=el('feedback');
+        fb.className='feedback '+(ST.scores[1]?'ok':'no');
+        fb.textContent=ST.scores[1]?'✓ Traction réussie, en douceur.':'✗ Traction trop brusque ou mal contrôlée.';
+        setTimeout(function(){setPhase(3);},1200);
+      }
+    }
+  } else if(ST.phase===3 && ST.dragging){
+    var sh=getShoulderPos();
+    var ang=Math.atan2(pos.y-sh.y,pos.x-sh.x);
+    var dA=ang-ST.lastAngle;
+    while(dA>Math.PI)dA-=2*Math.PI;
+    while(dA<-Math.PI)dA+=2*Math.PI;
+    if(dA<0){ // rotation inward (counter-clockwise) — depends on side but here we accept
+      ST.rotation+=Math.abs(dA);
+      ST.humerusOffset=Math.max(0,0.6-ST.rotation/Math.PI);
+    }
+    ST.lastAngle=ang;
+    var deg=Math.round(ST.rotation*180/Math.PI);
+    el('metric1Val').textContent=deg+'°';
+    var mEl=el('metric1Val');
+    mEl.className='val '+(deg>=45&&deg<=120?'good':deg>120?'bad':'warn');
+    if(ST.rotation>=Math.PI*0.55 && ST.rotation<=Math.PI*0.85){
+      // good zone — replacement done
+      ST.scores[2]=1; ST.humerusOffset=0;
+      ST.dragging=false;
+      var fb=el('feedback');
+      fb.className='feedback ok';
+      fb.textContent='✓ Tête de l\'humérus replacée ! Réduction réussie.';
+      setTimeout(finish,1300);
+    } else if(ST.rotation>Math.PI*0.95){
+      // over-rotated
+      ST.scores[2]=0;
+      ST.dragging=false;
+      var fb=el('feedback');
+      fb.className='feedback no';
+      fb.textContent='✗ Sur-rotation. Tu risques d\'aggraver la luxation.';
+      setTimeout(finish,1300);
+    }
+  }
+}
+
+function onUp(e){
+  ST.dragging=false;
+  if(ST.phase===1 && ST.stabilizing){
+    ST.stabilizing=false;
+    if(!ST.stabilizeDone){
+      ST.stabilizeTime=performance.now()-ST.stabilizeStart;
+      // partial hold lost
+    }
+  }
+}
+
+function getShoulderPos(){return {x:W*0.35, y:H*0.32};}
+function getArmEndPos(){
+  // arm hangs down with offset based on traction
+  var sh=getShoulderPos();
+  var armLen=H*0.45;
+  return {x:sh.x+Math.sin(ST.rotation)*armLen*0.6, y:sh.y+armLen*(1+ST.tractionPos*0.1)};
+}
+
+function loop(){
+  CTX.clearRect(0,0,W,H);
+  drawBody();
+  drawArm();
+  drawIndicators();
+  // update stabilize progress
+  if(ST.phase===1 && ST.stabilizing && !ST.stabilizeDone){
+    ST.stabilizeTime=performance.now()-ST.stabilizeStart;
+    var pct=Math.min(100,Math.round(ST.stabilizeTime/STABILIZE_TARGET*100));
+    el('metric1Val').textContent=pct+'%';
+    el('metric1Val').className='val '+(pct>=100?'good':'warn');
+    if(ST.stabilizeTime>=STABILIZE_TARGET){
+      ST.stabilizeDone=true;
+      ST.stabilizing=false;
+      ST.scores[0]=1;
+      var fb=el('feedback');
+      fb.className='feedback ok';
+      fb.textContent='✓ Épaule stabilisée. Passe à la traction.';
+      setTimeout(function(){setPhase(2);},1100);
+    }
+  }
+  ST.animId=requestAnimationFrame(loop);
+}
+
+function drawBody(){
+  var cx=W/2, cy=H/2;
+  // torso
+  CTX.fillStyle='rgba(232,192,153,.9)';
+  CTX.beginPath();
+  CTX.ellipse(cx,cy+H*0.05,W*0.22,H*0.32,0,0,Math.PI*2);
+  CTX.fill();
+  CTX.strokeStyle='rgba(100,55,20,.4)'; CTX.lineWidth=2; CTX.stroke();
+  // head
+  CTX.beginPath();
+  CTX.arc(cx,H*0.13,H*0.09,0,Math.PI*2);
+  CTX.fillStyle='rgba(232,192,153,.9)'; CTX.fill(); CTX.stroke();
+  // shoulder socket (left = patient's right) - shows luxation
+  var sh=getShoulderPos();
+  CTX.beginPath(); CTX.arc(sh.x,sh.y,H*0.08,0,Math.PI*2);
+  CTX.fillStyle='#c08858'; CTX.fill();
+  CTX.strokeStyle='#5a3010'; CTX.lineWidth=2; CTX.stroke();
+  // socket indicator
+  CTX.beginPath(); CTX.arc(sh.x,sh.y,H*0.05,0,Math.PI*2);
+  CTX.fillStyle='rgba(60,30,10,.4)'; CTX.fill();
+  // hint zone phase 1
+  if(ST.phase===1 && !ST.stabilizeDone){
+    var t=Date.now()/400;
+    CTX.beginPath(); CTX.arc(sh.x,sh.y,H*0.13+Math.sin(t)*4,0,Math.PI*2);
+    CTX.strokeStyle='rgba(108,156,232,'+(0.4+0.3*Math.sin(t))+')';
+    CTX.lineWidth=3; CTX.setLineDash([6,4]); CTX.stroke(); CTX.setLineDash([]);
+  }
+}
+
+function drawArm(){
+  var sh=getShoulderPos();
+  // humerus position (displaced when luxated, replaced when offset=0)
+  var hx=sh.x-Math.cos(ST.rotation)*H*0.04;
+  var hy=sh.y+H*0.06+ST.humerusOffset*H*0.04;
+  // displacement angle
+  var dispX=ST.humerusOffset*H*0.06;
+  // arm
+  var armEnd=getArmEndPos();
+  CTX.strokeStyle='rgba(192,136,88,.9)'; CTX.lineWidth=H*0.07; CTX.lineCap='round';
+  CTX.beginPath();
+  CTX.moveTo(hx-dispX,hy);
+  CTX.lineTo(armEnd.x,armEnd.y);
+  CTX.stroke();
+  // humerus head (the bone we're replacing)
+  CTX.beginPath(); CTX.arc(hx-dispX,hy,H*0.06,0,Math.PI*2);
+  CTX.fillStyle=ST.humerusOffset<0.1?'#3ddc84':'#e8a070';
+  CTX.fill();
+  CTX.strokeStyle='#5a3010'; CTX.lineWidth=2; CTX.stroke();
+  // hand
+  CTX.beginPath(); CTX.arc(armEnd.x,armEnd.y,H*0.06,0,Math.PI*2);
+  CTX.fillStyle='#c08858'; CTX.fill(); CTX.stroke();
+}
+
+function drawIndicators(){
+  var arm=getArmEndPos();
+  if(ST.phase===2 && !ST.dragging && ST.tractionPos<0.05){
+    var t=Date.now()/400;
+    CTX.beginPath(); CTX.arc(arm.x,arm.y,H*0.1+Math.sin(t)*4,0,Math.PI*2);
+    CTX.strokeStyle='rgba(255,216,107,'+(0.4+0.3*Math.sin(t))+')';
+    CTX.lineWidth=3; CTX.setLineDash([6,4]); CTX.stroke(); CTX.setLineDash([]);
+    // arrow down
+    CTX.font='20px serif'; CTX.fillStyle='rgba(255,216,107,.7)';
+    CTX.textAlign='center'; CTX.fillText('⬇',arm.x,arm.y+H*0.18);
+  }
+  if(ST.phase===3 && !ST.dragging && ST.rotation<0.1){
+    var t=Date.now()/400;
+    CTX.beginPath(); CTX.arc(arm.x,arm.y,H*0.1+Math.sin(t)*4,0,Math.PI*2);
+    CTX.strokeStyle='rgba(255,216,107,'+(0.4+0.3*Math.sin(t))+')';
+    CTX.lineWidth=3; CTX.setLineDash([6,4]); CTX.stroke(); CTX.setLineDash([]);
+    CTX.font='18px serif'; CTX.fillStyle='rgba(255,216,107,.7)';
+    CTX.textAlign='center'; CTX.fillText('↻',arm.x,arm.y+H*0.16);
+  }
+}
+
+el('startBtn').addEventListener('click',startGame);
+el('nameInput').addEventListener('keydown',function(e){if(e.key==='Enter')startGame();});
+el('retryBtn').addEventListener('click',startGame);
+el('newPlayerBtn').addEventListener('click',function(){
+  el('nameInput').value='';
+  el('result').style.display='none';el('game').style.display='none';el('intro').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+function finish(){
+  if(ST.animId)cancelAnimationFrame(ST.animId);
+  var correct=ST.scores.reduce(function(a,b){return a+b;},0);
+  var total=3;
+  var score=Math.round(correct/total*100);
+  var g=gradeFor(score);
+  el('gradeLetter').textContent=g.l; el('gradeLetter').className='grade '+g.cls;
+  el('verdict').textContent=g.txt;
+  var box=el('reportBox'); box.innerHTML='';
+  addRow(box,'Apprenti',ST.name);
+  addRow(box,'Stabilisation',ST.scores[0]?'✓ Tenue 2.5s':'✗ Incomplète');
+  addRow(box,'Traction',ST.scores[1]?'✓ En douceur':'✗ Trop brusque');
+  addRow(box,'Replacement',ST.scores[2]?'✓ Tête replacée':'✗ Échec');
+  addRow(box,'SCORE',score+' / 100');
+  save({name:ST.name,correct:correct,total:total,score:score,grade:g.l});
+  el('game').style.display='none'; el('result').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function addRow(p,k,v){var d=document.createElement('div');d.className='rrow';
+  d.innerHTML='<span class="k">'+k+'</span><span class="v">'+v+'</span>';p.appendChild(d);}
+
+function gradeFor(s){
+  if(s>=95)return {l:"S",cls:"s",txt:"Réduction parfaite. Le patient ne sentira presque rien."};
+  if(s>=66)return {l:"A",cls:"a",txt:"Bonne réduction, technique solide."};
+  if(s>=33)return {l:"C",cls:"c",txt:"Réduction partielle. À reprendre."};
+  return {l:"D",cls:"f",txt:"Échec de la réduction. Risque de complications."};
+}
+
+function save(row){
+  var note=el('cloudStatus');
+  var URL=(typeof SUPABASE_URL!=='undefined')?SUPABASE_URL:null;
+  var KEY=(typeof SUPABASE_KEY!=='undefined')?SUPABASE_KEY:null;
+  if(!URL||!KEY){note.textContent="⚠ Mode hors-ligne.";note.className="cloud warn";return;}
+  note.textContent="⏳ Envoi..."; note.className="cloud";
+  try{
+    var sb=window.supabase.createClient(URL,KEY);
+    sb.from('epaule_scores').insert([row]).then(function(res){
+      if(res.error){note.textContent="⚠ Erreur : "+res.error.message;note.className="cloud warn";}
+      else{note.textContent="✓ Score transmis.";note.className="cloud ok";}
+    },function(){note.textContent="⚠ Erreur réseau.";note.className="cloud warn";});
+  }catch(e){note.textContent="⚠ Erreur.";note.className="cloud warn";}
+}
+})();
+</script>
+</body>
+</html>

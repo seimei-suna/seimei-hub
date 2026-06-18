@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seimei — Bandage Compressif | Sunagakure</title>
+<script src="vendor/supabase.js"></script>
+<script src="config.js"></script>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="back-btn"><a href="index.html">← Retour au menu</a></div>
+  <header>
+    <div class="crest"><svg viewBox="0 0 100 100" fill="none">
+      <circle cx="50" cy="50" r="30" stroke="#b5712b" stroke-width="4"/>
+      <path d="M50 22 L58 44 L50 50 L42 44 Z" fill="#b5712b"/>
+      <path d="M50 78 L42 56 L50 50 L58 56 Z" fill="#b5712b"/>
+      <circle cx="50" cy="50" r="6" fill="#8a4f1a"/>
+    </svg></div>
+    <h1>Bandage Compressif</h1>
+    <div class="sub">Section Médicale — Seimei · Sunagakure</div>
+    <div class="divider"></div>
+  </header>
+
+  <div id="intro">
+    <div class="panel">
+      <h2>Briefing</h2>
+      <p class="lead">Enroule la bande <strong>en spirale</strong> autour du membre avec une <strong>tension régulière</strong>. Trop lâche : la compression ne tient pas. Trop serré : tu provoques une ischémie.</p>
+      <p class="hint" style="margin-top:8px;">🎯 <strong>Comment jouer</strong> : maintiens le clic et glisse en spirale autour du membre. Suis le tracé guide. La barre de tension doit rester dans la zone verte.</p>
+      <p class="hint" style="margin-top:6px;color:var(--blood-light);">⚠ Si tu vas trop vite (tension forte) ou trop lentement (tension faible), tu perds des points.</p>
+    </div>
+    <div class="panel">
+      <h2>Identification</h2>
+      <div class="field">
+        <label for="nameInput">Nom de shinobi</label>
+        <input type="text" id="nameInput" placeholder="Ex : Artel Gaïa" maxlength="28" autocomplete="off">
+      </div>
+      <div style="margin-top:16px;text-align:center;">
+        <button class="btn" id="startBtn">Commencer</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="game" style="display:none;">
+    <div class="panel">
+      <div class="metric-bar">
+        <span>Progression : <span class="val" id="progLbl">0%</span></span>
+        <span>Tension : <span class="val" id="tensionLbl">—</span></span>
+        <span>Régularité : <span class="val good" id="regLbl">100%</span></span>
+      </div>
+      <div class="tempo-ring"><div class="tempo-cursor" id="tensionCursor" style="left:50%;"></div></div>
+      <div class="game-area" id="gameArea" style="height:380px;">
+        <canvas id="cvs"></canvas>
+      </div>
+      <div class="instr" id="instr">Maintiens le clic et suis le tracé en spirale. Vitesse régulière !</div>
+      <div class="feedback" id="feedback"></div>
+      <div class="controls">
+        <button class="btn ghost" id="resetBtn">Recommencer</button>
+        <button class="btn" id="finishBtn" disabled>Valider</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="result">
+    <div class="panel">
+      <h2>Rapport d'évaluation</h2>
+      <div class="grade" id="gradeLetter">—</div>
+      <div class="verdict" id="verdict"></div>
+      <div id="reportBox" style="background:rgba(20,12,4,.55);border:1px dashed var(--ocre);border-radius:12px;padding:16px;margin:14px 0;text-align:left;"></div>
+      <div class="cloud" id="cloudStatus">⏳ Envoi...</div>
+      <div class="controls" style="margin-top:14px;">
+        <button class="btn ghost" id="retryBtn">Recommencer</button>
+        <button class="btn" id="newPlayerBtn">Nouvel apprenti</button>
+      </div>
+    </div>
+  </div>
+  <footer>Outil pédagogique · <span class="seal">Seimei</span> · Sunagakure</footer>
+</div>
+
+<script>
+(function(){
+var el=function(id){return document.getElementById(id);};
+var CVS,CTX,W,H;
+var ST={name:"",path:[],samples:[],
+  drawing:false,lastTime:0,lastPos:null,
+  totalLength:0, targetLength:0,
+  speedSum:0,speedCount:0,tooFast:0,tooSlow:0,
+  animId:null};
+
+var GUIDE_POINTS=[]; // generated spiral
+
+function initCanvas(){
+  CVS=el('cvs'); CTX=CVS.getContext('2d');
+  resize(); window.addEventListener('resize',resize);
+}
+function resize(){
+  var a=el('gameArea'); W=a.clientWidth; H=a.clientHeight;
+  CVS.width=W; CVS.height=H;
+  generateGuide();
+}
+
+function generateGuide(){
+  GUIDE_POINTS=[];
+  // spiral around horizontal limb: forearm-like
+  var cy=H*0.5, lenW=W*0.7, lenX=W*0.15;
+  var radius=H*0.13;
+  var turns=4;
+  var steps=120;
+  for(var i=0;i<=steps;i++){
+    var t=i/steps;
+    var x=lenX+t*lenW;
+    var y=cy+Math.sin(t*turns*Math.PI*2)*radius*0.9;
+    GUIDE_POINTS.push({x:x,y:y,t:t});
+  }
+  // total guide length
+  var L=0;
+  for(var j=1;j<GUIDE_POINTS.length;j++){
+    L+=Math.hypot(GUIDE_POINTS[j].x-GUIDE_POINTS[j-1].x,GUIDE_POINTS[j].y-GUIDE_POINTS[j-1].y);
+  }
+  ST.targetLength=L;
+}
+
+function startGame(){
+  var nm=el('nameInput').value.trim();
+  if(!nm){el('nameInput').style.borderColor='var(--blood-light)';
+    setTimeout(function(){el('nameInput').style.borderColor='';},900);return;}
+  ST.name=nm;
+  ST.path=[]; ST.samples=[]; ST.drawing=false; ST.lastTime=0; ST.lastPos=null;
+  ST.totalLength=0; ST.speedSum=0; ST.speedCount=0; ST.tooFast=0; ST.tooSlow=0;
+  el('intro').style.display='none'; el('result').style.display='none';
+  el('game').style.display='block';
+  initCanvas();
+  bindEvents();
+  loop();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function bindEvents(){
+  CVS.addEventListener('mousedown',onDown);
+  CVS.addEventListener('mousemove',onMove);
+  CVS.addEventListener('mouseup',onUp);
+  CVS.addEventListener('mouseleave',onUp);
+  CVS.addEventListener('touchstart',onDown,{passive:false});
+  CVS.addEventListener('touchmove',onMove,{passive:false});
+  CVS.addEventListener('touchend',onUp,{passive:false});
+}
+
+function getPos(e){
+  var r=CVS.getBoundingClientRect();
+  var sx=W/r.width, sy=H/r.height;
+  var src=e.touches?(e.touches[0]||e.changedTouches[0]):e;
+  return {x:(src.clientX-r.left)*sx, y:(src.clientY-r.top)*sy};
+}
+
+function onDown(e){
+  e.preventDefault();
+  ST.drawing=true;
+  var pos=getPos(e);
+  ST.lastPos=pos; ST.lastTime=performance.now();
+  ST.path.push({x:pos.x,y:pos.y,t:ST.lastTime});
+}
+function onMove(e){
+  if(!ST.drawing)return;
+  e.preventDefault();
+  var pos=getPos(e); var now=performance.now();
+  if(ST.lastPos){
+    var dx=pos.x-ST.lastPos.x, dy=pos.y-ST.lastPos.y;
+    var dist=Math.hypot(dx,dy);
+    var dt=now-ST.lastTime;
+    if(dt>0 && dist>2){
+      var speed=dist/dt; // px/ms
+      ST.speedSum+=speed; ST.speedCount++;
+      // ideal speed: 0.15-0.45 px/ms
+      if(speed>0.55) ST.tooFast++;
+      else if(speed<0.10) ST.tooSlow++;
+      ST.totalLength+=dist;
+      ST.path.push({x:pos.x,y:pos.y,t:now,speed:speed});
+      ST.lastPos=pos; ST.lastTime=now;
+      // update UI
+      var prog=Math.min(100,Math.round(ST.totalLength/ST.targetLength*100));
+      el('progLbl').textContent=prog+'%';
+      var avgSpeed=ST.speedSum/ST.speedCount;
+      var tens=avgSpeed<0.10?'Trop faible':avgSpeed>0.55?'Trop forte':'Bonne';
+      var tEl=el('tensionLbl'); tEl.textContent=tens;
+      tEl.className='val '+(tens==='Bonne'?'good':'bad');
+      var cursorPos=Math.min(95,Math.max(5,avgSpeed/0.7*100));
+      el('tensionCursor').style.left=cursorPos+'%';
+      // regularity = % within good band
+      var goodCount=ST.speedCount-ST.tooFast-ST.tooSlow;
+      var reg=Math.round(goodCount/ST.speedCount*100);
+      var rEl=el('regLbl'); rEl.textContent=reg+'%';
+      rEl.className='val '+(reg>=70?'good':reg>=40?'warn':'bad');
+      if(prog>=95) el('finishBtn').disabled=false;
+    }
+  }
+}
+function onUp(e){
+  if(!ST.drawing)return;
+  ST.drawing=false;
+}
+
+function loop(){
+  CTX.clearRect(0,0,W,H);
+  // draw arm
+  var cy=H*0.5;
+  var g=CTX.createLinearGradient(0,cy-H*0.15,0,cy+H*0.15);
+  g.addColorStop(0,'#f0c89a'); g.addColorStop(1,'#c08858');
+  CTX.beginPath(); roundRect(CTX,W*0.08,cy-H*0.15,W*0.84,H*0.3,H*0.15);
+  CTX.fillStyle=g; CTX.fill();
+  CTX.strokeStyle='rgba(100,55,20,.4)'; CTX.lineWidth=2; CTX.stroke();
+  // wound area
+  CTX.beginPath(); CTX.ellipse(W/2,cy,W*0.1,H*0.08,0,0,Math.PI*2);
+  CTX.fillStyle='rgba(154,40,32,.3)'; CTX.fill();
+  // guide spiral (faded)
+  CTX.strokeStyle='rgba(255,216,107,.25)'; CTX.lineWidth=8; CTX.lineCap='round';
+  CTX.beginPath();
+  GUIDE_POINTS.forEach(function(p,i){if(i===0)CTX.moveTo(p.x,p.y);else CTX.lineTo(p.x,p.y);});
+  CTX.stroke();
+  // animated guide cursor
+  var t=(Date.now()/2000)%1;
+  var gi=Math.floor(t*(GUIDE_POINTS.length-1));
+  var gp=GUIDE_POINTS[gi];
+  if(gp && !ST.drawing){
+    CTX.beginPath(); CTX.arc(gp.x,gp.y,8,0,Math.PI*2);
+    CTX.fillStyle='rgba(255,216,107,.7)'; CTX.fill();
+  }
+  // user path (bandage)
+  if(ST.path.length>1){
+    CTX.strokeStyle='#e8d8b0'; CTX.lineWidth=12; CTX.lineCap='round'; CTX.lineJoin='round';
+    CTX.beginPath();
+    ST.path.forEach(function(p,i){if(i===0)CTX.moveTo(p.x,p.y);else CTX.lineTo(p.x,p.y);});
+    CTX.stroke();
+    // texture
+    CTX.strokeStyle='rgba(180,150,90,.4)'; CTX.lineWidth=10;
+    CTX.beginPath();
+    ST.path.forEach(function(p,i){if(i===0)CTX.moveTo(p.x,p.y);else CTX.lineTo(p.x,p.y);});
+    CTX.stroke();
+  }
+  ST.animId=requestAnimationFrame(loop);
+}
+
+function roundRect(ctx,x,y,w,h,r){
+  if(ctx.roundRect){ctx.roundRect(x,y,w,h,r);return;}
+  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();
+}
+
+el('startBtn').addEventListener('click',startGame);
+el('nameInput').addEventListener('keydown',function(e){if(e.key==='Enter')startGame();});
+el('resetBtn').addEventListener('click',function(){
+  ST.path=[]; ST.totalLength=0; ST.speedSum=0; ST.speedCount=0; ST.tooFast=0; ST.tooSlow=0;
+  ST.drawing=false; ST.lastPos=null;
+  el('progLbl').textContent='0%'; el('tensionLbl').textContent='—'; el('regLbl').textContent='100%';
+  el('finishBtn').disabled=true;
+});
+el('finishBtn').addEventListener('click',finish);
+el('retryBtn').addEventListener('click',startGame);
+el('newPlayerBtn').addEventListener('click',function(){
+  el('nameInput').value='';
+  el('result').style.display='none';el('game').style.display='none';el('intro').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+function finish(){
+  if(ST.animId)cancelAnimationFrame(ST.animId);
+  var coverage=Math.min(100,Math.round(ST.totalLength/ST.targetLength*100));
+  // regularity score
+  var totalSamples=ST.speedCount||1;
+  var goodSamples=totalSamples-ST.tooFast-ST.tooSlow;
+  var reg=Math.round(goodSamples/totalSamples*100);
+  // path proximity to guide: sample-based
+  var prox=computeProximity();
+  // overall score
+  var score=Math.round(coverage*0.3+reg*0.4+prox*0.3);
+  var g=gradeFor(score);
+  el('gradeLetter').textContent=g.l; el('gradeLetter').className='grade '+g.cls;
+  el('verdict').textContent=g.txt;
+  var box=el('reportBox'); box.innerHTML='';
+  addRow(box,'Apprenti',ST.name);
+  addRow(box,'Couverture',coverage+'%');
+  addRow(box,'Tension régulière',reg+'%');
+  addRow(box,'Suivi du tracé',prox+'%');
+  addRow(box,'Tension trop forte',ST.tooFast+' fois');
+  addRow(box,'Tension trop faible',ST.tooSlow+' fois');
+  addRow(box,'SCORE',score+' / 100');
+  save({name:ST.name,correct:goodSamples,total:totalSamples,score:score,grade:g.l});
+  el('game').style.display='none'; el('result').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function computeProximity(){
+  if(ST.path.length===0||GUIDE_POINTS.length===0)return 0;
+  var total=0, count=0;
+  ST.path.forEach(function(p){
+    var minD=Infinity;
+    GUIDE_POINTS.forEach(function(g){
+      var d=Math.hypot(p.x-g.x,p.y-g.y);
+      if(d<minD)minD=d;
+    });
+    total+=Math.max(0,1-minD/60);
+    count++;
+  });
+  return Math.round(total/count*100);
+}
+
+function addRow(p,k,v){var d=document.createElement('div');d.className='rrow';
+  d.innerHTML='<span class="k">'+k+'</span><span class="v">'+v+'</span>';p.appendChild(d);}
+
+function gradeFor(s){
+  if(s>=90)return {l:"S",cls:"s",txt:"Bandage parfait. Tension idéale, tracé impeccable."};
+  if(s>=75)return {l:"A",cls:"a",txt:"Très bon bandage, efficace."};
+  if(s>=60)return {l:"B",cls:"b",txt:"Bandage correct, quelques irrégularités."};
+  if(s>=45)return {l:"C",cls:"c",txt:"Trop irrégulier. À refaire."};
+  return {l:"D",cls:"f",txt:"Bandage inefficace. Reprends la technique."};
+}
+
+function save(row){
+  var note=el('cloudStatus');
+  var URL=(typeof SUPABASE_URL!=='undefined')?SUPABASE_URL:null;
+  var KEY=(typeof SUPABASE_KEY!=='undefined')?SUPABASE_KEY:null;
+  if(!URL||!KEY){note.textContent="⚠ Mode hors-ligne.";note.className="cloud warn";return;}
+  note.textContent="⏳ Envoi..."; note.className="cloud";
+  try{
+    var sb=window.supabase.createClient(URL,KEY);
+    sb.from('bandage_scores').insert([row]).then(function(res){
+      if(res.error){note.textContent="⚠ Erreur : "+res.error.message;note.className="cloud warn";}
+      else{note.textContent="✓ Score transmis.";note.className="cloud ok";}
+    },function(){note.textContent="⚠ Erreur réseau.";note.className="cloud warn";});
+  }catch(e){note.textContent="⚠ Erreur.";note.className="cloud warn";}
+}
+})();
+</script>
+</body>
+</html>

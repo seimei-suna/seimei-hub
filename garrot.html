@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seimei — Pose de Garrot | Sunagakure</title>
+<script src="vendor/supabase.js"></script>
+<script src="config.js"></script>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="back-btn"><a href="index.html">← Retour au menu</a></div>
+  <header>
+    <div class="crest"><svg viewBox="0 0 100 100" fill="none">
+      <circle cx="50" cy="50" r="30" stroke="#b5712b" stroke-width="4"/>
+      <path d="M50 22 L58 44 L50 50 L42 44 Z" fill="#b5712b"/>
+      <path d="M50 78 L42 56 L50 50 L58 56 Z" fill="#b5712b"/>
+      <circle cx="50" cy="50" r="6" fill="#8a4f1a"/>
+    </svg></div>
+    <h1>Pose de Garrot</h1>
+    <div class="sub">Section Médicale — Seimei · Sunagakure</div>
+    <div class="divider"></div>
+  </header>
+
+  <div id="intro">
+    <div class="panel">
+      <h2>Briefing</h2>
+      <p class="lead">Un ninja saigne abondamment de la cuisse — hémorragie artérielle. Tu dois poser un garrot au <strong>point fémoral optimal</strong> puis le serrer en tournant le levier.</p>
+      <p class="hint" style="margin-top:8px;">🎯 <strong>Phase 1</strong> : glisse le garrot 5-10 cm AU-DESSUS de la blessure (pas plus haut, pas plus bas).</p>
+      <p class="hint" style="margin-top:6px;">🔄 <strong>Phase 2</strong> : tourne le levier (clique-glisse circulaire) jusqu'à arrêt du saignement, sans surcompresser.</p>
+      <p class="hint" style="margin-top:6px;color:var(--blood-light);">⚠ Trop serré = lésions des tissus. Pas assez = saignement persistant.</p>
+    </div>
+    <div class="panel">
+      <h2>Identification</h2>
+      <div class="field">
+        <label for="nameInput">Nom de shinobi</label>
+        <input type="text" id="nameInput" placeholder="Ex : Artel Gaïa" maxlength="28" autocomplete="off">
+      </div>
+      <div style="margin-top:16px;text-align:center;">
+        <button class="btn" id="startBtn">Commencer</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="game" style="display:none;">
+    <div class="panel">
+      <div class="step-pills">
+        <div class="step-pill active" id="pill1">① Placement</div>
+        <div class="step-pill" id="pill2">② Serrage</div>
+      </div>
+      <div class="metric-bar">
+        <span>Tension : <span class="val" id="tensionLbl">0%</span></span>
+        <span>Saignement : <span class="val bad" id="bleedLbl">100%</span></span>
+      </div>
+      <div class="game-area" id="gameArea" style="height:380px;">
+        <canvas id="cvs"></canvas>
+      </div>
+      <div class="instr" id="instr">Glisse le garrot 5-10 cm au-dessus de la blessure.</div>
+      <div class="feedback" id="feedback"></div>
+      <div class="controls">
+        <button class="btn" id="actionBtn" disabled>Valider le placement</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="result">
+    <div class="panel">
+      <h2>Rapport d'évaluation</h2>
+      <div class="grade" id="gradeLetter">—</div>
+      <div class="verdict" id="verdict"></div>
+      <div id="reportBox" style="background:rgba(20,12,4,.55);border:1px dashed var(--ocre);border-radius:12px;padding:16px;margin:14px 0;text-align:left;"></div>
+      <div class="cloud" id="cloudStatus">⏳ Envoi...</div>
+      <div class="controls" style="margin-top:14px;">
+        <button class="btn ghost" id="retryBtn">Recommencer</button>
+        <button class="btn" id="newPlayerBtn">Nouvel apprenti</button>
+      </div>
+    </div>
+  </div>
+  <footer>Outil pédagogique · <span class="seal">Seimei</span> · Sunagakure</footer>
+</div>
+
+<script>
+(function(){
+var el=function(id){return document.getElementById(id);};
+var CVS,CTX,W,H;
+var ST={name:"",phase:1,
+  garrotY:0.3, garrotPlaced:false,
+  tension:0, dragging:false, lastAngle:0,
+  bleedingScore:0, // 0=bad,1=good
+  placementScore:0,
+  animId:null};
+
+var WOUND_Y=0.55; // wound position normalised on leg
+var TARGET_MIN=WOUND_Y-0.22, TARGET_MAX=WOUND_Y-0.10; // 5-10 cm above
+
+function initCanvas(){
+  CVS=el('cvs'); CTX=CVS.getContext('2d');
+  resize(); window.addEventListener('resize',resize);
+}
+function resize(){
+  var a=el('gameArea'); W=a.clientWidth; H=a.clientHeight;
+  CVS.width=W; CVS.height=H;
+}
+
+function startGame(){
+  var nm=el('nameInput').value.trim();
+  if(!nm){el('nameInput').style.borderColor='var(--blood-light)';
+    setTimeout(function(){el('nameInput').style.borderColor='';},900);return;}
+  ST.name=nm; ST.phase=1; ST.garrotY=0.3; ST.garrotPlaced=false;
+  ST.tension=0; ST.dragging=false; ST.lastAngle=0;
+  ST.bleedingScore=0; ST.placementScore=0;
+  el('intro').style.display='none'; el('result').style.display='none';
+  el('game').style.display='block';
+  el('pill1').className='step-pill active';
+  el('pill2').className='step-pill';
+  el('actionBtn').textContent='Valider le placement';
+  el('actionBtn').disabled=true;
+  el('instr').textContent='Glisse le garrot 5-10 cm au-dessus de la blessure.';
+  el('tensionLbl').textContent='0%';
+  el('bleedLbl').textContent='100%';
+  el('bleedLbl').className='val bad';
+  initCanvas();
+  bindEvents();
+  loop();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function bindEvents(){
+  CVS.addEventListener('mousedown',onDown);
+  CVS.addEventListener('mousemove',onMove);
+  CVS.addEventListener('mouseup',onUp);
+  CVS.addEventListener('mouseleave',onUp);
+  CVS.addEventListener('touchstart',onDown,{passive:false});
+  CVS.addEventListener('touchmove',onMove,{passive:false});
+  CVS.addEventListener('touchend',onUp,{passive:false});
+}
+
+function getPos(e){
+  var r=CVS.getBoundingClientRect();
+  var sx=W/r.width, sy=H/r.height;
+  var src=e.touches?(e.touches[0]||e.changedTouches[0]):e;
+  return {x:(src.clientX-r.left)*sx, y:(src.clientY-r.top)*sy};
+}
+
+function onDown(e){
+  e.preventDefault();
+  var pos=getPos(e);
+  if(ST.phase===1){
+    ST.dragging=true;
+    el('actionBtn').disabled=false;
+  } else if(ST.phase===2){
+    // start lever rotation - track angle from center of lever
+    var lever=getLeverCenter();
+    var dx=pos.x-lever.x, dy=pos.y-lever.y;
+    if(Math.hypot(dx,dy)<H*0.18){
+      ST.dragging=true;
+      ST.lastAngle=Math.atan2(dy,dx);
+    }
+  }
+}
+
+function onMove(e){
+  if(!ST.dragging)return;
+  e.preventDefault();
+  var pos=getPos(e);
+  if(ST.phase===1){
+    var ly=H*0.08, lh=H*0.84;
+    ST.garrotY=Math.max(0.05,Math.min(0.95,(pos.y-ly)/lh));
+  } else if(ST.phase===2){
+    var lever=getLeverCenter();
+    var dx=pos.x-lever.x, dy=pos.y-lever.y;
+    var ang=Math.atan2(dy,dx);
+    var dAng=ang-ST.lastAngle;
+    // normalise diff to -PI..PI
+    while(dAng>Math.PI)dAng-=2*Math.PI;
+    while(dAng<-Math.PI)dAng+=2*Math.PI;
+    // only count clockwise rotation
+    if(dAng>0){
+      ST.tension=Math.min(1.2,ST.tension+dAng/(Math.PI*4));
+    }
+    ST.lastAngle=ang;
+    // update UI
+    var pct=Math.round(ST.tension*100);
+    el('tensionLbl').textContent=pct+'%';
+    var tEl=el('tensionLbl');
+    tEl.className='val '+(pct<60?'bad':pct<=95?'good':'warn');
+    var bleed=Math.max(0,Math.min(100,Math.round((1-ST.tension/0.85)*100)));
+    el('bleedLbl').textContent=bleed+'%';
+    el('bleedLbl').className='val '+(bleed===0?'good':bleed<30?'warn':'bad');
+    // when tension between 80-95% we consider perfect
+    if(ST.tension>=0.80 && ST.tension<=0.95){
+      el('actionBtn').disabled=false;
+      el('actionBtn').textContent='Saignement contrôlé — Valider';
+      el('instr').textContent='✓ Pression optimale atteinte ! Valide.';
+    } else if(ST.tension>0.95){
+      el('actionBtn').disabled=false;
+      el('actionBtn').textContent='Trop serré — Valider quand même';
+      el('instr').textContent='⚠ Tu surcompresses. Ne tourne plus.';
+    }
+  }
+}
+
+function onUp(e){
+  if(!ST.dragging)return;
+  ST.dragging=false;
+}
+
+function getLeverCenter(){
+  var ly=H*0.08, lh=H*0.84;
+  var gy=ly+lh*ST.garrotY;
+  return {x:W*0.62, y:gy};
+}
+
+function loop(){
+  CTX.clearRect(0,0,W,H);
+  drawLeg();
+  drawGarrot();
+  if(ST.phase===2) drawLever();
+  ST.animId=requestAnimationFrame(loop);
+}
+
+function drawLeg(){
+  // vertical leg
+  var mx=W*0.5, ly=H*0.08, lh=H*0.84, lw=W*0.22;
+  var g=CTX.createLinearGradient(mx-lw/2,0,mx+lw/2,0);
+  g.addColorStop(0,'#f0c89a'); g.addColorStop(1,'#c08858');
+  CTX.beginPath(); roundRect(CTX,mx-lw/2,ly,lw,lh,lw/2);
+  CTX.fillStyle=g; CTX.fill();
+  CTX.strokeStyle='rgba(100,55,20,.4)'; CTX.lineWidth=2; CTX.stroke();
+  // wound at WOUND_Y
+  var wy=ly+lh*WOUND_Y;
+  CTX.beginPath(); CTX.ellipse(mx,wy,lw*0.45,H*0.04,0,0,Math.PI*2);
+  CTX.fillStyle='#9a2820'; CTX.fill();
+  // active bleeding (depends on tension)
+  var bleedAmount=ST.phase===1?1:Math.max(0,1-ST.tension/0.85);
+  if(bleedAmount>0.05){
+    CTX.fillStyle='rgba(154,40,32,'+bleedAmount+')';
+    for(var i=0;i<5;i++){
+      var bx=mx+(Math.random()-0.5)*lw*0.6;
+      var by=wy+H*0.04+Math.random()*H*0.15*bleedAmount;
+      CTX.beginPath(); CTX.arc(bx,by,3+Math.random()*4,0,Math.PI*2); CTX.fill();
+    }
+    // pulsing drip
+    var t=Date.now()/300;
+    var dripY=wy+H*0.04+(Math.sin(t)+1)*H*0.05*bleedAmount;
+    CTX.beginPath(); CTX.arc(mx-lw*0.2,dripY,5,0,Math.PI*2); CTX.fill();
+  }
+  // target zone hint (phase 1)
+  if(ST.phase===1 && !ST.garrotPlaced){
+    var t1=ly+lh*TARGET_MIN, t2=ly+lh*TARGET_MAX;
+    var t=Date.now()/400;
+    CTX.fillStyle='rgba(255,216,107,'+(0.15+0.1*Math.sin(t))+')';
+    CTX.fillRect(mx-lw/2-8,t1,lw+16,t2-t1);
+  }
+}
+
+function drawGarrot(){
+  var mx=W*0.5, ly=H*0.08, lh=H*0.84, lw=W*0.22;
+  var gy=ly+lh*ST.garrotY;
+  var col=ST.phase===2?'#5a1810':'#9a2820';
+  CTX.fillStyle=col;
+  CTX.beginPath(); roundRect(CTX,mx-lw/2-10,gy-12,lw+20,24,6);
+  CTX.fill();
+  CTX.strokeStyle='#3a0808'; CTX.lineWidth=2; CTX.stroke();
+}
+
+function drawLever(){
+  var lev=getLeverCenter();
+  // rod
+  CTX.save();
+  CTX.translate(lev.x,lev.y);
+  CTX.rotate(ST.tension*Math.PI*4);
+  // bar
+  CTX.beginPath(); roundRect(CTX,-6,-60,12,120,4);
+  CTX.fillStyle='#8a6030'; CTX.fill();
+  CTX.strokeStyle='#5a3815'; CTX.lineWidth=1.5; CTX.stroke();
+  // handle knob
+  CTX.beginPath(); CTX.arc(0,-60,10,0,Math.PI*2);
+  CTX.fillStyle='#c8a060'; CTX.fill(); CTX.stroke();
+  CTX.restore();
+  // rotation hint
+  if(ST.tension<0.05){
+    var t=Date.now()/300;
+    CTX.font='13px Cinzel,serif'; CTX.fillStyle='rgba(255,216,107,'+(0.5+0.4*Math.sin(t))+')';
+    CTX.textAlign='center';
+    CTX.fillText('↻ Tourne le levier dans le sens horaire',lev.x,lev.y+H*0.16);
+  }
+}
+
+function roundRect(ctx,x,y,w,h,r){
+  if(ctx.roundRect){ctx.roundRect(x,y,w,h,r);return;}
+  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();
+}
+
+el('startBtn').addEventListener('click',startGame);
+el('nameInput').addEventListener('keydown',function(e){if(e.key==='Enter')startGame();});
+el('actionBtn').addEventListener('click',function(){
+  if(ST.phase===1){
+    // validate placement
+    var ok=ST.garrotY>=TARGET_MIN && ST.garrotY<=TARGET_MAX;
+    ST.placementScore=ok?1:0;
+    var fb=el('feedback');
+    fb.className='feedback '+(ok?'ok':'no');
+    fb.textContent=(ok?'✓ Garrot bien placé au point fémoral.':'✗ Position incorrecte. Le garrot doit être 5-10 cm AU-DESSUS de la blessure.');
+    ST.garrotPlaced=true;
+    ST.phase=2;
+    el('pill1').className='step-pill done';
+    el('pill2').className='step-pill active';
+    el('instr').textContent='Tourne le levier dans le sens horaire pour serrer.';
+    el('actionBtn').disabled=true;
+    el('actionBtn').textContent='Serre d\'abord le levier';
+  } else {
+    // finish
+    ST.bleedingScore=(ST.tension>=0.78 && ST.tension<=0.96)?1:0;
+    finish();
+  }
+});
+el('retryBtn').addEventListener('click',startGame);
+el('newPlayerBtn').addEventListener('click',function(){
+  el('nameInput').value='';
+  el('result').style.display='none';el('game').style.display='none';el('intro').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+function finish(){
+  if(ST.animId)cancelAnimationFrame(ST.animId);
+  var correct=ST.placementScore+ST.bleedingScore;
+  var total=2;
+  var score=Math.round(correct/total*100);
+  var g=gradeFor(score);
+  el('gradeLetter').textContent=g.l; el('gradeLetter').className='grade '+g.cls;
+  el('verdict').textContent=g.txt;
+  var box=el('reportBox'); box.innerHTML='';
+  addRow(box,'Apprenti',ST.name);
+  addRow(box,'Placement',ST.placementScore?'✓ Optimal (5-10 cm au-dessus)':'✗ Incorrect');
+  addRow(box,'Tension',ST.bleedingScore?'✓ Bonne (saignement contrôlé)':(ST.tension>0.95?'✗ Surcompression (lésions tissus)':'✗ Insuffisante (saignement persistant)'));
+  addRow(box,'Tension finale',Math.round(ST.tension*100)+'%');
+  addRow(box,'SCORE',score+' / 100');
+  save({name:ST.name,correct:correct,total:total,score:score,grade:g.l});
+  el('game').style.display='none'; el('result').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function addRow(p,k,v){var d=document.createElement('div');d.className='rrow';
+  d.innerHTML='<span class="k">'+k+'</span><span class="v">'+v+'</span>';p.appendChild(d);}
+
+function gradeFor(s){
+  if(s>=95)return {l:"S",cls:"s",txt:"Garrot posé à la perfection. Vie sauvée."};
+  if(s>=75)return {l:"A",cls:"a",txt:"Bonne pose, hémorragie maîtrisée."};
+  if(s>=50)return {l:"B",cls:"b",txt:"Pose correcte mais perfectible."};
+  return {l:"D",cls:"f",txt:"Garrot mal posé. Reprends la technique."};
+}
+
+function save(row){
+  var note=el('cloudStatus');
+  var URL=(typeof SUPABASE_URL!=='undefined')?SUPABASE_URL:null;
+  var KEY=(typeof SUPABASE_KEY!=='undefined')?SUPABASE_KEY:null;
+  if(!URL||!KEY){note.textContent="⚠ Mode hors-ligne.";note.className="cloud warn";return;}
+  note.textContent="⏳ Envoi..."; note.className="cloud";
+  try{
+    var sb=window.supabase.createClient(URL,KEY);
+    sb.from('garrot_scores').insert([row]).then(function(res){
+      if(res.error){note.textContent="⚠ Erreur : "+res.error.message;note.className="cloud warn";}
+      else{note.textContent="✓ Score transmis.";note.className="cloud ok";}
+    },function(){note.textContent="⚠ Erreur réseau.";note.className="cloud warn";});
+  }catch(e){note.textContent="⚠ Erreur.";note.className="cloud warn";}
+}
+})();
+</script>
+</body>
+</html>

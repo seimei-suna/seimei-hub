@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tableau de bord — Seimei | Sunagakure</title>
+<script src="vendor/supabase.js"></script>
+<script src="config.js"></script>
+<style>
+@import url('vendor/fonts.css');
+:root{--sand-1:#f4e4c1;--sand-deep:#c89b5e;--ocre:#b5712b;--ocre-deep:#8a4f1a;--rust:#7a3b15;
+  --parchment:#f0dfb8;--chakra:#6fcf97;--chakra-glow:#3ddc84;--blood-light:#c4453a;--gold:#ffd86b;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Cormorant Garamond',serif;color:var(--parchment);min-height:100vh;
+  background:radial-gradient(ellipse at 50% -10%,#5a3d1e 0%,transparent 55%),
+    linear-gradient(160deg,#2e1d0c 0%,#1c1106 60%,#140c04 100%);}
+body::before{content:"";position:fixed;inset:0;opacity:.05;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  z-index:1;}
+.wrap{position:relative;z-index:2;max-width:1100px;margin:0 auto;padding:30px 16px 70px;}
+.back-btn{text-align:right;margin-bottom:14px;}
+.back-btn a{font-family:'Cinzel',serif;font-weight:700;font-size:.82rem;letter-spacing:.05em;
+  padding:8px 16px;border:1px solid var(--ocre);border-radius:9px;color:var(--sand-1);
+  text-decoration:none;text-transform:uppercase;}
+header{text-align:center;margin-bottom:22px;}
+h1{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(1.6rem,4vw,2.4rem);
+  color:var(--sand-1);text-shadow:0 2px 0 var(--rust);letter-spacing:.05em;}
+.sub{color:var(--sand-deep);font-style:italic;font-size:1.1rem;margin-top:4px;}
+.divider{height:2px;width:55%;margin:14px auto 0;background:linear-gradient(90deg,transparent,var(--ocre),transparent);}
+.panel{background:linear-gradient(160deg,rgba(240,223,184,.07),rgba(60,41,20,.15));
+  border:1px solid rgba(181,113,43,.45);border-radius:14px;padding:22px;margin-bottom:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,.45);}
+#login{max-width:420px;margin:40px auto;}
+label{display:block;color:var(--sand-deep);margin-bottom:6px;}
+input[type=password],input[type=text]{width:100%;padding:13px 16px;font-family:inherit;font-size:1.1rem;
+  background:rgba(20,12,4,.6);color:var(--sand-1);border:1px solid var(--ocre);border-radius:8px;outline:none;}
+.btn{font-family:'Cinzel',serif;font-weight:700;letter-spacing:.05em;cursor:pointer;border:none;
+  border-radius:9px;padding:11px 22px;font-size:.9rem;text-transform:uppercase;
+  background:linear-gradient(160deg,var(--ocre),var(--ocre-deep));color:#fff5e6;
+  box-shadow:0 4px 0 var(--rust);transition:transform .12s;}
+.btn:hover{transform:translateY(-2px);}
+.btn.ghost{background:transparent;border:1px solid var(--ocre);box-shadow:none;color:var(--sand-1);}
+#dash{display:none;}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+.tab{font-family:'Cinzel',serif;font-weight:700;font-size:.85rem;letter-spacing:.05em;
+  padding:9px 18px;border-radius:8px;cursor:pointer;border:1px solid rgba(181,113,43,.4);
+  background:transparent;color:var(--sand-deep);text-transform:uppercase;transition:.2s;}
+.tab:hover{color:var(--sand-1);border-color:var(--ocre);}
+.tab.active{background:linear-gradient(160deg,var(--ocre),var(--ocre-deep));color:#fff5e6;border-color:var(--gold);box-shadow:0 4px 0 var(--rust);}
+.summary{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:18px;}
+.card{flex:1 1 130px;text-align:center;background:rgba(20,12,4,.5);
+  border:1px solid rgba(181,113,43,.4);border-radius:10px;padding:12px 6px;}
+.card .lbl{font-size:.82rem;color:var(--sand-deep);text-transform:uppercase;letter-spacing:.07em;}
+.card .num{font-family:'Cinzel',serif;font-size:1.7rem;font-weight:700;color:var(--sand-1);}
+.card .num.green{color:var(--chakra-glow);}
+.toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.search{padding:10px 14px;font-family:inherit;font-size:1rem;background:rgba(20,12,4,.6);
+  color:var(--sand-1);border:1px solid var(--ocre);border-radius:8px;outline:none;}
+table{width:100%;border-collapse:collapse;font-size:1.02rem;}
+th{font-family:'Cinzel',serif;font-weight:700;color:var(--ocre);text-align:left;
+  padding:10px 8px;border-bottom:2px solid rgba(181,113,43,.4);font-size:.88rem;cursor:pointer;}
+th:hover{color:var(--sand-1);}
+td{padding:9px 8px;border-bottom:1px solid rgba(181,113,43,.18);color:var(--parchment);}
+tr:hover td{background:rgba(181,113,43,.07);}
+.gradeTag{font-family:'Cinzel',serif;font-weight:700;padding:2px 9px;border-radius:6px;font-size:.9rem;}
+.g-S{background:rgba(61,220,132,.2);color:var(--chakra-glow);}
+.g-A{background:rgba(255,200,90,.2);color:var(--gold);}
+.g-B{background:rgba(244,228,193,.15);color:var(--sand-1);}
+.g-C{background:rgba(200,155,94,.15);color:var(--sand-deep);}
+.g-D{background:rgba(196,69,58,.2);color:var(--blood-light);}
+.scoreCell{font-family:'Cinzel',serif;font-weight:700;color:var(--chakra-glow);}
+.muted{color:var(--sand-deep);font-size:.92rem;}
+.empty{text-align:center;color:var(--sand-deep);font-style:italic;padding:30px;}
+.err{color:#ffcaa0;background:rgba(196,69,58,.12);border:1px solid rgba(196,69,58,.5);border-radius:8px;padding:12px;}
+.tablewrap{overflow-x:auto;}
+footer{text-align:center;margin-top:24px;color:var(--sand-deep);font-style:italic;}
+footer .seal{color:var(--ocre);font-family:'Cinzel',serif;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="back-btn"><a href="index.html">← Retour au menu</a></div>
+  <header>
+    <h1>Tableau de bord — Seimei</h1>
+    <div class="sub">Section Médicale · Sunagakure</div>
+    <div class="divider"></div>
+  </header>
+  <div id="login" class="panel">
+    <label for="pw">Mot de passe formateur</label>
+    <input type="password" id="pw" placeholder="••••••••" autocomplete="off">
+    <div style="margin-top:16px;text-align:center;">
+      <button class="btn" id="loginBtn">Accéder</button>
+    </div>
+    <div id="loginErr" class="err" style="display:none;margin-top:12px;">Mot de passe incorrect.</div>
+  </div>
+  <div id="dash">
+    <div class="tabs">
+      <button class="tab active" data-mod="sutures">🪡 Sutures</button>
+      <button class="tab" data-mod="brulures">🔥 Brûlures</button>
+      <button class="tab" data-mod="fractures">🦴 Fractures</button>
+      <button class="tab" data-mod="attelles">🩹 Attelles</button>
+      <button class="tab" data-mod="rcr">💓 RCR</button>
+      <button class="tab" data-mod="prelevement">💉 Prélèvement</button>
+      <button class="tab" data-mod="bandage">🧵 Bandage</button>
+      <button class="tab" data-mod="garrot">⛓️ Garrot</button>
+      <button class="tab" data-mod="epaule">💪 Épaule</button>
+    </div>
+    <div class="panel">
+      <div class="summary" id="summary"></div>
+      <div class="toolbar">
+        <input type="text" class="search" id="search" placeholder="Rechercher un apprenti...">
+        <div style="display:flex;gap:10px;">
+          <button class="btn ghost" id="refreshBtn">Actualiser</button>
+          <button class="btn ghost" id="csvBtn">Exporter CSV</button>
+        </div>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead id="thead"></thead>
+          <tbody id="tbody"><tr><td colspan="6" class="empty">Chargement...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <footer>Données en temps réel · <span class="seal">Seimei</span> · Sunagakure</footer>
+</div>
+<script>
+(function(){
+var el=function(id){return document.getElementById(id);};
+var rows=[],sortKey='created_at',sortDir=-1,sb=null,currentMod='sutures';
+
+// Module configurations
+var MODULES={
+  sutures:{table:'scores',columns:[
+    {k:'created_at',l:'Date',type:'date'},
+    {k:'name',l:'Apprenti'},
+    {k:'diff',l:'Difficulté'},
+    {k:'score',l:'Score',type:'score'},
+    {k:'grade',l:'Note',type:'grade'},
+    {k:'precision',l:'Précision'},
+    {k:'spacing',l:'Espacement'}
+  ]},
+  brulures:{table:'brulures_scores',columns:[
+    {k:'created_at',l:'Date',type:'date'},
+    {k:'name',l:'Apprenti'},
+    {k:'score',l:'Score',type:'score'},
+    {k:'grade',l:'Note',type:'grade'},
+    {k:'correct',l:'Cas parfaits'}
+  ]},
+  fractures:{table:'fractures_scores',columns:[
+    {k:'created_at',l:'Date',type:'date'},
+    {k:'name',l:'Apprenti'},
+    {k:'score',l:'Score',type:'score'},
+    {k:'grade',l:'Note',type:'grade'},
+    {k:'correct',l:'Cas parfaits'}
+  ]},
+  attelles:{table:'attelle_scores',columns:[
+    {k:'created_at',l:'Date',type:'date'},
+    {k:'name',l:'Apprenti'},
+    {k:'score',l:'Score',type:'score'},
+    {k:'grade',l:'Note',type:'grade'},
+    {k:'correct',l:'Cas parfaits'}
+  ]},
+  rcr:{table:'rcr_scores',columns:[
+    {k:'created_at',l:'Date',type:'date'},
+    {k:'name',l:'Apprenti'},
+    {k:'score',l:'Score',type:'score'},
+    {k:'grade',l:'Note',type:'grade'},
+    {k:'correct',l:'Compressions bonnes'}
+  ]},
+  prelevement:{table:'prelevement_scores',columns:[
+    {k:'created_at',l:'Date',type:'date'},
+    {k:'name',l:'Apprenti'},
+    {k:'score',l:'Score',type:'score'},
+    {k:'grade',l:'Note',type:'grade'},
+    {k:'correct',l:'Étapes réussies'}
+  ]},
+  bandage:{table:'bandage_scores',columns:[
+    {k:'created_at',l:'Date',type:'date'},
+    {k:'name',l:'Apprenti'},
+    {k:'score',l:'Score',type:'score'},
+    {k:'grade',l:'Note',type:'grade'},
+    {k:'correct',l:'Échantillons OK'}
+  ]},
+  garrot:{table:'garrot_scores',columns:[
+    {k:'created_at',l:'Date',type:'date'},
+    {k:'name',l:'Apprenti'},
+    {k:'score',l:'Score',type:'score'},
+    {k:'grade',l:'Note',type:'grade'},
+    {k:'correct',l:'Phases réussies'}
+  ]},
+  epaule:{table:'epaule_scores',columns:[
+    {k:'created_at',l:'Date',type:'date'},
+    {k:'name',l:'Apprenti'},
+    {k:'score',l:'Score',type:'score'},
+    {k:'grade',l:'Note',type:'grade'},
+    {k:'correct',l:'Phases réussies'}
+  ]}
+};
+
+function doLogin(){
+  var pw=el('pw').value;
+  var expected=(typeof FORMATEUR_PASSWORD!=='undefined')?FORMATEUR_PASSWORD:'seimei2024';
+  if(pw===expected){el('login').style.display='none';el('dash').style.display='block';init();load();}
+  else{el('loginErr').style.display='block';}
+}
+el('loginBtn').addEventListener('click',doLogin);
+el('pw').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+
+function init(){
+  if(typeof SUPABASE_URL==='undefined')return;
+  try{sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);}catch(e){sb=null;}
+}
+
+function load(){
+  if(!sb){el('tbody').innerHTML='<tr><td colspan="6" class="err">Configuration absente.</td></tr>';return;}
+  var mod=MODULES[currentMod];
+  el('tbody').innerHTML='<tr><td colspan="6" class="empty">Chargement...</td></tr>';
+  sb.from(mod.table).select('*').order('created_at',{ascending:false}).then(function(res){
+    if(res.error){el('tbody').innerHTML='<tr><td colspan="6" class="err">'+esc(res.error.message)+'</td></tr>';return;}
+    rows=res.data||[];render();
+  });
+}
+
+function render(){
+  var mod=MODULES[currentMod];
+  // header
+  var th=el('thead');
+  th.innerHTML='<tr>'+mod.columns.map(function(c){return '<th data-sort="'+c.k+'">'+c.l+'</th>';}).join('')+'</tr>';
+  th.querySelectorAll('th[data-sort]').forEach(function(thEl){
+    thEl.addEventListener('click',function(){
+      var k=thEl.dataset.sort;
+      if(sortKey===k){sortDir*=-1;}else{sortKey=k;sortDir=(k==='created_at')?-1:1;}
+      render();
+    });
+  });
+
+  // filter + sort
+  var q=el('search').value.toLowerCase().trim();
+  var list=rows.filter(function(r){return !q||(r.name||'').toLowerCase().indexOf(q)>=0;});
+
+  // summary
+  var sum=el('summary');
+  if(rows.length){
+    var n=list.length,avg=n?Math.round(list.reduce(function(a,r){return a+(r.score||0);},0)/n):0;
+    var best=n?Math.max.apply(null,list.map(function(r){return r.score||0;})):0;
+    var uniq=new Set(list.map(function(r){return (r.name||'').toLowerCase();})).size;
+    sum.innerHTML=card('Tentatives',n)+card('Apprentis',uniq)+card('Score moyen',avg,true)+card('Meilleur',best,true);
+  } else sum.innerHTML='';
+
+  // sort
+  list.sort(function(a,b){
+    var x=a[sortKey],y=b[sortKey];
+    if(sortKey==='created_at'){x=new Date(x);y=new Date(y);}
+    if(typeof x==='string'){x=x.toLowerCase();y=(y||'').toLowerCase();}
+    if(x<y)return -1*sortDir;if(x>y)return 1*sortDir;return 0;
+  });
+
+  var tb=el('tbody');
+  if(!list.length){tb.innerHTML='<tr><td colspan="'+mod.columns.length+'" class="empty">Aucun score.</td></tr>';return;}
+  tb.innerHTML='';
+  list.forEach(function(r){
+    var tr=document.createElement('tr');
+    tr.innerHTML=mod.columns.map(function(c){
+      var v=r[c.k];
+      if(c.type==='date') return '<td class="muted">'+fmtDate(v)+'</td>';
+      if(c.type==='score') return '<td class="scoreCell">'+(v!=null?v+'%':'-')+'</td>';
+      if(c.type==='grade') return '<td><span class="gradeTag g-'+esc(v)+'">'+esc(v)+'</span></td>';
+      return '<td>'+esc(v)+'</td>';
+    }).join('');
+    tb.appendChild(tr);
+  });
+}
+
+function card(l,n,g){return '<div class="card"><div class="lbl">'+l+'</div><div class="num'+(g?' green':'')+'">'+n+'</div></div>';}
+function fmtDate(d){if(!d)return '-';var dt=new Date(d);if(isNaN(dt))return d;var p=function(x){return(x<10?'0':'')+x;};return p(dt.getDate())+'/'+p(dt.getMonth()+1)+' '+p(dt.getHours())+':'+p(dt.getMinutes());}
+function esc(t){t=(t==null?'':''+t);return t.replace(/[&<>"']/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];});}
+
+// tabs
+document.querySelectorAll('.tab').forEach(function(t){
+  t.addEventListener('click',function(){
+    document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active');});
+    t.classList.add('active');
+    currentMod=t.dataset.mod;
+    sortKey='created_at'; sortDir=-1;
+    load();
+  });
+});
+
+el('search').addEventListener('input',render);
+el('refreshBtn').addEventListener('click',load);
+el('csvBtn').addEventListener('click',function(){
+  if(!rows.length)return;
+  var mod=MODULES[currentMod];
+  var cols=mod.columns.map(function(c){return c.k;});
+  var csv=cols.join(',')+'\n'+rows.map(function(r){return cols.map(function(c){var v=r[c]==null?'':(''+r[c]).replace(/"/g,'""');return /[",\n]/.test(v)?'"'+v+'"':v;}).join(',');}).join('\n');
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='seimei_'+currentMod+'.csv';a.click();
+});
+})();
+</script>
+</body>
+</html>

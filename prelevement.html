@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seimei — Prélèvement Sanguin | Sunagakure</title>
+<script src="vendor/supabase.js"></script>
+<script src="config.js"></script>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="back-btn"><a href="index.html">← Retour au menu</a></div>
+  <header>
+    <div class="crest"><svg viewBox="0 0 100 100" fill="none">
+      <circle cx="50" cy="50" r="30" stroke="#b5712b" stroke-width="4"/>
+      <path d="M50 22 L58 44 L50 50 L42 44 Z" fill="#b5712b"/>
+      <path d="M50 78 L42 56 L50 50 L58 56 Z" fill="#b5712b"/>
+      <circle cx="50" cy="50" r="6" fill="#8a4f1a"/>
+    </svg></div>
+    <h1>Prélèvement Sanguin</h1>
+    <div class="sub">Section Médicale — Seimei · Sunagakure</div>
+    <div class="divider"></div>
+  </header>
+
+  <div id="intro">
+    <div class="panel">
+      <h2>Briefing</h2>
+      <p class="lead">Tu vas effectuer un prélèvement sanguin en 4 étapes : <strong>1. Garrot · 2. Désinfection · 3. Piqûre à 20° · 4. Remplissage des fioles</strong>.</p>
+      <p class="hint" style="margin-top:8px;">Pour chaque étape, suis les instructions affichées et utilise les outils dans le bon ordre.</p>
+      <p class="hint" style="margin-top:6px;color:var(--blood-light);">⚠ Une erreur d'ordre ou de manipulation = échec de l'étape.</p>
+    </div>
+    <div class="panel">
+      <h2>Identification</h2>
+      <div class="field">
+        <label for="nameInput">Nom de shinobi</label>
+        <input type="text" id="nameInput" placeholder="Ex : Artel Gaïa" maxlength="28" autocomplete="off">
+      </div>
+      <div style="margin-top:16px;text-align:center;">
+        <button class="btn" id="startBtn">Commencer</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="game" style="display:none;">
+    <div class="panel">
+      <div class="step-pills">
+        <div class="step-pill active" id="pill1">① Garrot</div>
+        <div class="step-pill" id="pill2">② Désinfection</div>
+        <div class="step-pill" id="pill3">③ Piqûre</div>
+        <div class="step-pill" id="pill4">④ Fioles</div>
+      </div>
+      <div class="game-area" id="gameArea" style="height:340px;">
+        <canvas id="cvs"></canvas>
+      </div>
+      <div class="instr" id="instr">Place le garrot 5-10 cm au-dessus du pli du coude.</div>
+      <div class="tool-tray" id="toolTray"></div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+  </div>
+
+  <div id="result">
+    <div class="panel">
+      <h2>Rapport d'évaluation</h2>
+      <div class="grade" id="gradeLetter">—</div>
+      <div class="verdict" id="verdict"></div>
+      <div id="reportBox" style="background:rgba(20,12,4,.55);border:1px dashed var(--ocre);border-radius:12px;padding:16px;margin:14px 0;text-align:left;"></div>
+      <div class="cloud" id="cloudStatus">⏳ Envoi...</div>
+      <div class="controls" style="margin-top:14px;">
+        <button class="btn ghost" id="retryBtn">Recommencer</button>
+        <button class="btn" id="newPlayerBtn">Nouvel apprenti</button>
+      </div>
+    </div>
+  </div>
+  <footer>Outil pédagogique · <span class="seal">Seimei</span> · Sunagakure</footer>
+</div>
+
+<script>
+(function(){
+var el=function(id){return document.getElementById(id);};
+var CVS,CTX,W,H;
+var ST={name:"",step:1,scores:[0,0,0,0],
+  // step 1 (garrot)
+  garrotY:0.3, garrotPlaced:false, dragging:false,
+  // step 2 (disinfect): zone clicks count
+  disinfectClicks:0, disinfectPositions:[],
+  // step 3 (needle): angle 0-90
+  needleAngle:60, needlePlaced:false,
+  // step 4 (vials): fill clicks
+  vials:[0,0,0], currentVial:0, filling:false, fillTime:0, fillStart:0,
+  animId:null};
+
+function initCanvas(){
+  CVS=el('cvs'); CTX=CVS.getContext('2d');
+  resize(); window.addEventListener('resize',resize);
+}
+function resize(){
+  var a=el('gameArea'); W=a.clientWidth; H=a.clientHeight;
+  CVS.width=W; CVS.height=H;
+}
+
+function startGame(){
+  var nm=el('nameInput').value.trim();
+  if(!nm){el('nameInput').style.borderColor='var(--blood-light)';
+    setTimeout(function(){el('nameInput').style.borderColor='';},900);return;}
+  ST.name=nm; ST.step=1; ST.scores=[0,0,0,0];
+  ST.garrotY=0.3; ST.garrotPlaced=false; ST.dragging=false;
+  ST.disinfectClicks=0; ST.disinfectPositions=[];
+  ST.needleAngle=60; ST.needlePlaced=false;
+  ST.vials=[0,0,0]; ST.currentVial=0; ST.filling=false;
+  el('intro').style.display='none'; el('result').style.display='none';
+  el('game').style.display='block';
+  initCanvas();
+  bindEvents();
+  goToStep(1);
+  loop();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function bindEvents(){
+  CVS.addEventListener('mousedown',onDown);
+  CVS.addEventListener('mousemove',onMove);
+  CVS.addEventListener('mouseup',onUp);
+  CVS.addEventListener('touchstart',onDown,{passive:false});
+  CVS.addEventListener('touchmove',onMove,{passive:false});
+  CVS.addEventListener('touchend',onUp,{passive:false});
+}
+
+function getPos(e){
+  var r=CVS.getBoundingClientRect();
+  var sx=W/r.width, sy=H/r.height;
+  var src=e.touches?(e.touches[0]||e.changedTouches[0]):e;
+  return {x:(src.clientX-r.left)*sx, y:(src.clientY-r.top)*sy};
+}
+
+function goToStep(s){
+  ST.step=s;
+  for(var i=1;i<=4;i++){
+    var p=el('pill'+i);
+    p.classList.remove('active','done');
+    if(i<s) p.classList.add('done');
+    else if(i===s) p.classList.add('active');
+  }
+  var tray=el('toolTray'); tray.innerHTML='';
+  el('feedback').className='feedback'; el('feedback').textContent='';
+  if(s===1){
+    el('instr').textContent='Glisse le garrot sur le bras à 5-10 cm AU-DESSUS du pli du coude.';
+    addTool(tray,'⛓️','Valider la pose',function(){validateStep1();});
+  } else if(s===2){
+    el('instr').textContent='Désinfecte la zone de piqûre avec des mouvements circulaires (clique 4-6 fois sur la zone).';
+    addTool(tray,'🧴','Tampon désinfectant',null,'desinfectant');
+  } else if(s===3){
+    el('instr').textContent="Ajuste l'angle de l'aiguille à 20° (glisse pour incliner) puis valide la piqûre.";
+    addTool(tray,'💉','Piquer la veine',function(){validateStep3();});
+  } else if(s===4){
+    el('instr').textContent='Maintiens le clic enfoncé sur la fiole jusqu\'à remplissage (3 fioles à remplir).';
+    addTool(tray,'🧪','Fiole '+(ST.currentVial+1)+'/3',null,'fiole');
+  }
+}
+
+function addTool(tray,ico,name,onClick,kind){
+  var b=document.createElement('button');
+  b.innerHTML='<span class="ico">'+ico+'</span> '+name;
+  if(onClick){b.addEventListener('click',onClick);}
+  if(kind)b.dataset.kind=kind;
+  tray.appendChild(b);
+}
+
+// ── DRAWING ──
+function loop(){
+  CTX.clearRect(0,0,W,H);
+  drawArm();
+  if(ST.step===1) drawGarrot();
+  if(ST.step>=2) drawGarrotFixed();
+  if(ST.step===2) drawDisinfectZone();
+  if(ST.step>=3) drawNeedle();
+  if(ST.step===4) drawVials();
+  ST.animId=requestAnimationFrame(loop);
+}
+
+function drawArm(){
+  // horizontal arm
+  var ay=H*0.4, ah=H*0.25, ax=W*0.05, aw=W*0.9;
+  var g=CTX.createLinearGradient(ax,ay,ax,ay+ah);
+  g.addColorStop(0,'#f0c89a'); g.addColorStop(1,'#c08858');
+  CTX.beginPath(); roundRect(CTX,ax,ay,aw,ah,ah/2);
+  CTX.fillStyle=g; CTX.fill();
+  CTX.strokeStyle='rgba(100,55,20,.4)'; CTX.lineWidth=2; CTX.stroke();
+  // joints
+  CTX.beginPath(); CTX.arc(ax,ay+ah/2,ah*0.5,0,Math.PI*2);
+  CTX.fillStyle='#e4b890'; CTX.fill(); CTX.stroke();
+  CTX.beginPath(); CTX.arc(ax+aw,ay+ah/2,ah*0.4,0,Math.PI*2);
+  CTX.fillStyle='#e4b890'; CTX.fill(); CTX.stroke();
+  // veins
+  CTX.strokeStyle='rgba(40,80,140,.6)'; CTX.lineWidth=2;
+  CTX.beginPath();
+  CTX.moveTo(ax+aw*0.2,ay+ah*0.4);
+  CTX.bezierCurveTo(ax+aw*0.4,ay+ah*0.5,ax+aw*0.6,ay+ah*0.3,ax+aw*0.85,ay+ah*0.5);
+  CTX.stroke();
+  // pli du coude marker (mid)
+  CTX.fillStyle='rgba(154,40,32,.15)';
+  CTX.beginPath(); CTX.ellipse(ax+aw*0.55,ay+ah*0.5,W*0.06,ah*0.35,0,0,Math.PI*2);
+  CTX.fill();
+}
+
+function drawGarrot(){
+  // garrot is a band that the user drags horizontally on the arm
+  // ST.garrotY is normalised X position (0=elbow side, 1=shoulder side) — we use it as x on arm
+  var ay=H*0.4, ah=H*0.25, ax=W*0.05, aw=W*0.9;
+  var gx=ax+aw*ST.garrotY;
+  CTX.save();
+  CTX.fillStyle='#9a2820';
+  CTX.beginPath(); roundRect(CTX,gx-12,ay-8,24,ah+16,6);
+  CTX.fill();
+  CTX.strokeStyle='#5a1010'; CTX.lineWidth=2; CTX.stroke();
+  // hint pulsing line for target zone (around 0.3-0.4)
+  if(!ST.garrotPlaced){
+    var t=Date.now()/400;
+    CTX.globalAlpha=0.3+0.2*Math.sin(t);
+    CTX.fillStyle='#ffd86b';
+    CTX.fillRect(ax+aw*0.28,ay-12,aw*0.12,ah+24);
+  }
+  CTX.restore();
+}
+
+function drawGarrotFixed(){
+  var ay=H*0.4, ah=H*0.25, ax=W*0.05, aw=W*0.9;
+  var gx=ax+aw*ST.garrotY;
+  CTX.fillStyle='#7a2018';
+  CTX.beginPath(); roundRect(CTX,gx-12,ay-8,24,ah+16,6);
+  CTX.fill();
+}
+
+function drawDisinfectZone(){
+  // target zone at the elbow center
+  var ay=H*0.4, ah=H*0.25, ax=W*0.05, aw=W*0.9;
+  var cx=ax+aw*0.55, cy=ay+ah*0.5;
+  // already done circles
+  ST.disinfectPositions.forEach(function(p){
+    CTX.beginPath(); CTX.arc(p.x,p.y,10,0,Math.PI*2);
+    CTX.fillStyle='rgba(180,220,255,.5)'; CTX.fill();
+  });
+  // target ring
+  var t=Date.now()/400;
+  CTX.beginPath(); CTX.arc(cx,cy,30+Math.sin(t)*3,0,Math.PI*2);
+  CTX.strokeStyle='rgba(180,220,255,.7)'; CTX.lineWidth=2; CTX.setLineDash([5,4]);
+  CTX.stroke(); CTX.setLineDash([]);
+  // count label
+  CTX.font='12px Cinzel,serif'; CTX.fillStyle='#c8e0ff';
+  CTX.textAlign='center';
+  CTX.fillText(ST.disinfectClicks+' / 5 passages',cx,cy-40);
+}
+
+function drawNeedle(){
+  var ay=H*0.4, ah=H*0.25, ax=W*0.05, aw=W*0.9;
+  var px=ax+aw*0.55, py=ay+ah*0.5;
+  // needle representation
+  var ang=ST.needleAngle*Math.PI/180;
+  var nx=px+Math.cos(ang)*60;
+  var ny=py-Math.sin(ang)*60;
+  // body
+  CTX.strokeStyle='#888'; CTX.lineWidth=4; CTX.lineCap='round';
+  CTX.beginPath(); CTX.moveTo(nx,ny); CTX.lineTo(px,py); CTX.stroke();
+  // tip
+  CTX.strokeStyle='#444'; CTX.lineWidth=2;
+  CTX.beginPath(); CTX.moveTo(px,py); CTX.lineTo(px-Math.cos(ang)*5,py+Math.sin(ang)*5); CTX.stroke();
+  // syringe body
+  CTX.fillStyle='rgba(180,200,220,.85)';
+  CTX.beginPath();
+  CTX.ellipse(nx,ny,12,8,-ang,0,Math.PI*2); CTX.fill();
+  CTX.strokeStyle='#555'; CTX.lineWidth=1; CTX.stroke();
+  // angle indicator
+  CTX.font='14px Cinzel,serif'; CTX.fillStyle=Math.abs(ST.needleAngle-20)<8?'#3ddc84':'#ffd86b';
+  CTX.textAlign='center';
+  CTX.fillText(Math.round(ST.needleAngle)+'°',px,py+50);
+  if(!ST.needlePlaced){
+    CTX.font='11px Cormorant Garamond,serif'; CTX.fillStyle='rgba(200,155,94,.8)';
+    CTX.fillText('Glisse pour incliner — cible : 20°',px,py+68);
+  }
+}
+
+function drawVials(){
+  // 3 vials at bottom
+  var vw=W*0.12, vh=H*0.32, gap=W*0.04;
+  var totalW=3*vw+2*gap;
+  var sx=(W-totalW)/2;
+  for(var i=0;i<3;i++){
+    var vx=sx+i*(vw+gap), vy=H*0.6;
+    // glass
+    CTX.beginPath(); roundRect(CTX,vx,vy,vw,vh,6);
+    CTX.fillStyle='rgba(60,60,60,.4)'; CTX.fill();
+    CTX.strokeStyle='rgba(200,200,200,.6)'; CTX.lineWidth=2; CTX.stroke();
+    // fill
+    var fillH=(vh-6)*ST.vials[i];
+    CTX.beginPath();
+    CTX.rect(vx+2,vy+vh-fillH-3,vw-4,fillH);
+    CTX.fillStyle=ST.vials[i]>=1?'#c4453a':'#9a2820';
+    CTX.fill();
+    // label
+    CTX.font='12px Cinzel,serif';
+    CTX.fillStyle=i===ST.currentVial?'#ffd86b':'rgba(200,155,94,.7)';
+    CTX.textAlign='center';
+    CTX.fillText('Fiole '+(i+1),vx+vw/2,vy-8);
+    if(ST.vials[i]>=1){
+      CTX.fillStyle='#3ddc84';
+      CTX.fillText('✓',vx+vw/2,vy+vh+18);
+    }
+    // current indicator
+    if(i===ST.currentVial && ST.vials[i]<1){
+      var t=Date.now()/300;
+      CTX.strokeStyle='rgba(255,216,107,'+(0.5+0.4*Math.sin(t))+')';
+      CTX.lineWidth=3;
+      CTX.beginPath(); roundRect(CTX,vx-2,vy-2,vw+4,vh+4,8);
+      CTX.stroke();
+    }
+  }
+}
+
+function roundRect(ctx,x,y,w,h,r){
+  if(ctx.roundRect){ctx.roundRect(x,y,w,h,r);return;}
+  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();
+}
+
+// ── INTERACTION ──
+function onDown(e){
+  e.preventDefault();
+  var pos=getPos(e);
+  if(ST.step===1){
+    ST.dragging=true;
+  } else if(ST.step===2){
+    handleDisinfect(pos);
+  } else if(ST.step===3){
+    ST.dragging=true;
+  } else if(ST.step===4){
+    handleVialDown(pos);
+  }
+}
+
+function onMove(e){
+  if(!ST.dragging)return;
+  e.preventDefault();
+  var pos=getPos(e);
+  var ax=W*0.05, aw=W*0.9;
+  if(ST.step===1){
+    ST.garrotY=Math.max(0.05,Math.min(0.95,(pos.x-ax)/aw));
+  } else if(ST.step===3){
+    // angle from horizontal: pos.y above attachment point lifts angle
+    var cy=H*0.4+H*0.25*0.5;
+    var dy=cy-pos.y;
+    var dx=pos.x-(ax+aw*0.55);
+    var ang=Math.atan2(Math.max(0,dy),Math.max(20,Math.abs(dx)))*180/Math.PI;
+    ST.needleAngle=Math.max(5,Math.min(90,ang));
+  }
+}
+
+function onUp(e){
+  if(!ST.dragging)return;
+  ST.dragging=false;
+  if(ST.step===4 && ST.filling){
+    // released too early
+    ST.filling=false;
+  }
+}
+
+function handleDisinfect(pos){
+  var ay=H*0.4, ah=H*0.25, ax=W*0.05, aw=W*0.9;
+  var cx=ax+aw*0.55, cy=ay+ah*0.5;
+  var d=Math.hypot(pos.x-cx,pos.y-cy);
+  if(d<40){
+    ST.disinfectClicks++;
+    ST.disinfectPositions.push({x:pos.x,y:pos.y});
+    if(ST.disinfectPositions.length>8) ST.disinfectPositions.shift();
+    if(ST.disinfectClicks>=5){
+      validateStep2();
+    }
+  }
+}
+
+function handleVialDown(pos){
+  // check if click on current vial
+  var vw=W*0.12, vh=H*0.32, gap=W*0.04;
+  var totalW=3*vw+2*gap;
+  var sx=(W-totalW)/2;
+  var vx=sx+ST.currentVial*(vw+gap), vy=H*0.6;
+  if(pos.x>=vx && pos.x<=vx+vw && pos.y>=vy && pos.y<=vy+vh){
+    ST.filling=true;
+    ST.fillStart=performance.now();
+    fillLoop();
+  }
+}
+
+function fillLoop(){
+  if(!ST.filling||ST.step!==4)return;
+  var elapsed=performance.now()-ST.fillStart;
+  ST.vials[ST.currentVial]=Math.min(1,elapsed/2000);
+  if(ST.vials[ST.currentVial]>=1){
+    ST.filling=false;
+    ST.currentVial++;
+    if(ST.currentVial>=3){
+      ST.scores[3]=1;
+      validateStep4();
+    } else {
+      // refresh tool tray label
+      var tray=el('toolTray'); tray.innerHTML='';
+      addTool(tray,'🧪','Fiole '+(ST.currentVial+1)+'/3',null,'fiole');
+      el('feedback').className='feedback ok';
+      el('feedback').textContent='✓ Fiole remplie. Passe à la suivante.';
+      setTimeout(function(){el('feedback').className='feedback';},900);
+    }
+  } else {
+    requestAnimationFrame(fillLoop);
+  }
+}
+
+// ── VALIDATIONS ──
+function validateStep1(){
+  // target zone is 0.28 - 0.40 (5-10cm above elbow)
+  var ok=ST.garrotY>=0.25&&ST.garrotY<=0.43;
+  ST.scores[0]=ok?1:0;
+  ST.garrotPlaced=true;
+  showStepFeedback(ok,ok?'Garrot bien positionné, 5-10 cm au-dessus du pli du coude.':'Garrot mal placé. Il devait être 5-10 cm au-dessus du pli du coude.');
+  setTimeout(function(){goToStep(2);},1100);
+}
+
+function validateStep2(){
+  ST.scores[1]=1;
+  showStepFeedback(true,'Zone correctement désinfectée.');
+  setTimeout(function(){goToStep(3);},1100);
+}
+
+function validateStep3(){
+  var ok=Math.abs(ST.needleAngle-20)<=10;
+  ST.scores[2]=ok?1:0;
+  ST.needlePlaced=true;
+  showStepFeedback(ok,ok?'Piqûre réussie à '+Math.round(ST.needleAngle)+'°.':"Angle incorrect ("+Math.round(ST.needleAngle)+'° au lieu de 20°). Tu risques de traverser la veine.');
+  setTimeout(function(){goToStep(4);},1100);
+}
+
+function validateStep4(){
+  showStepFeedback(true,'Les 3 fioles sont remplies. Prélèvement réussi.');
+  setTimeout(finish,1100);
+}
+
+function showStepFeedback(ok,msg){
+  var fb=el('feedback');
+  fb.className='feedback '+(ok?'ok':'no');
+  fb.textContent=(ok?'✓ ':'✗ ')+msg;
+}
+
+function finish(){
+  if(ST.animId)cancelAnimationFrame(ST.animId);
+  var correct=ST.scores.reduce(function(a,b){return a+b;},0);
+  var total=4;
+  var score=Math.round(correct/total*100);
+  var g=gradeFor(score);
+  el('gradeLetter').textContent=g.l; el('gradeLetter').className='grade '+g.cls;
+  el('verdict').textContent=g.txt;
+  var box=el('reportBox'); box.innerHTML='';
+  addRow(box,'Apprenti',ST.name);
+  addRow(box,'Garrot',ST.scores[0]?'✓ Bien placé':'✗ Mal placé');
+  addRow(box,'Désinfection',ST.scores[1]?'✓ Correcte':'✗ Insuffisante');
+  addRow(box,'Piqûre (20°)',ST.scores[2]?'✓ Bon angle':'✗ Mauvais angle');
+  addRow(box,'Fioles remplies',ST.scores[3]?'✓ 3/3':'✗ Incomplet');
+  addRow(box,'SCORE',score+' / 100');
+  save({name:ST.name,correct:correct,total:total,score:score,grade:g.l});
+  el('game').style.display='none'; el('result').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function addRow(p,k,v){var d=document.createElement('div');d.className='rrow';
+  d.innerHTML='<span class="k">'+k+'</span><span class="v">'+v+'</span>';p.appendChild(d);}
+
+function gradeFor(s){
+  if(s>=95)return {l:"S",cls:"s",txt:"Prélèvement parfait. Précision exemplaire."};
+  if(s>=80)return {l:"A",cls:"a",txt:"Très bonne technique."};
+  if(s>=60)return {l:"B",cls:"b",txt:"Technique correcte avec quelques imprécisions."};
+  if(s>=40)return {l:"C",cls:"c",txt:"À revoir, le patient mérite mieux."};
+  return {l:"D",cls:"f",txt:"Technique non maîtrisée."};
+}
+
+function save(row){
+  var note=el('cloudStatus');
+  var URL=(typeof SUPABASE_URL!=='undefined')?SUPABASE_URL:null;
+  var KEY=(typeof SUPABASE_KEY!=='undefined')?SUPABASE_KEY:null;
+  if(!URL||!KEY){note.textContent="⚠ Mode hors-ligne.";note.className="cloud warn";return;}
+  note.textContent="⏳ Envoi..."; note.className="cloud";
+  try{
+    var sb=window.supabase.createClient(URL,KEY);
+    sb.from('prelevement_scores').insert([row]).then(function(res){
+      if(res.error){note.textContent="⚠ Erreur : "+res.error.message;note.className="cloud warn";}
+      else{note.textContent="✓ Score transmis.";note.className="cloud ok";}
+    },function(){note.textContent="⚠ Erreur réseau.";note.className="cloud warn";});
+  }catch(e){note.textContent="⚠ Erreur.";note.className="cloud warn";}
+}
+
+el('startBtn').addEventListener('click',startGame);
+el('nameInput').addEventListener('keydown',function(e){if(e.key==='Enter')startGame();});
+el('retryBtn').addEventListener('click',startGame);
+el('newPlayerBtn').addEventListener('click',function(){
+  el('nameInput').value='';
+  el('result').style.display='none';el('game').style.display='none';el('intro').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+})();
+</script>
+</body>
+</html>

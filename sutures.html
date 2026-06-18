@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seimei — Entraînement aux Sutures | Sunagakure</title>
+<script src="vendor/supabase.js"></script>
+<script src="config.js"></script>
+<style>
+  @import url('vendor/fonts.css');
+
+  :root{
+    --sand-1:#f4e4c1;
+    --sand-2:#e8c89b;
+    --sand-deep:#c89b5e;
+    --ocre:#b5712b;
+    --ocre-deep:#8a4f1a;
+    --rust:#7a3b15;
+    --dune-dark:#3d2914;
+    --dune-darker:#251608;
+    --blood:#9a2820;
+    --blood-light:#c4453a;
+    --chakra:#6fcf97;
+    --chakra-glow:#3ddc84;
+    --parchment:#f0dfb8;
+    --ink:#2a1c0c;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  body{
+    font-family:'Cormorant Garamond',serif;
+    background:
+      radial-gradient(ellipse at 50% -10%, #5a3d1e 0%, transparent 55%),
+      radial-gradient(ellipse at 80% 110%, #4a3015 0%, transparent 50%),
+      linear-gradient(160deg, #2e1d0c 0%, #1c1106 60%, #140c04 100%);
+    color:var(--parchment);
+    min-height:100vh;
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  /* sand grain texture */
+  body::before{
+    content:"";
+    position:fixed;inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    pointer-events:none;z-index:1;
+  }
+
+  .wrap{position:relative;z-index:2;max-width:900px;margin:0 auto;padding:30px 18px 80px;}
+
+  /* ---------- HEADER ---------- */
+  header{text-align:center;margin-bottom:26px;position:relative;}
+  .crest{
+    width:74px;height:74px;margin:0 auto 14px;
+    border:3px solid var(--ocre);border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle, rgba(181,113,43,.25), transparent 70%);
+    box-shadow:0 0 26px rgba(181,113,43,.35), inset 0 0 18px rgba(0,0,0,.4);
+    position:relative;
+  }
+  .crest svg{width:42px;height:42px;}
+  h1{
+    font-family:'Cinzel',serif;font-weight:900;
+    font-size:clamp(1.8rem,5vw,2.9rem);
+    letter-spacing:.06em;
+    color:var(--sand-1);
+    text-shadow:0 2px 0 var(--rust), 0 0 30px rgba(181,113,43,.5);
+    line-height:1.05;
+  }
+  .sub{
+    font-size:clamp(1rem,2.4vw,1.25rem);
+    color:var(--sand-deep);font-style:italic;letter-spacing:.04em;margin-top:6px;
+  }
+  .divider{
+    height:2px;width:60%;margin:18px auto 0;
+    background:linear-gradient(90deg,transparent,var(--ocre),transparent);
+  }
+
+  /* ---------- PANELS ---------- */
+  .panel{
+    background:
+      linear-gradient(160deg, rgba(240,223,184,.07), rgba(60,41,20,.15));
+    border:1px solid rgba(181,113,43,.45);
+    border-radius:14px;
+    padding:22px 22px 24px;
+    margin-bottom:22px;
+    box-shadow:0 10px 30px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,235,200,.08);
+    
+  }
+  .panel h2{
+    font-family:'Cinzel',serif;font-weight:700;
+    color:var(--ocre);font-size:1.25rem;letter-spacing:.05em;
+    margin-bottom:12px;display:flex;align-items:center;gap:10px;
+  }
+  .panel h2::before{content:"";width:8px;height:8px;background:var(--ocre);transform:rotate(45deg);}
+
+  p.lead{font-size:1.12rem;line-height:1.5;color:var(--parchment);}
+  .hint{font-size:1rem;color:var(--sand-deep);font-style:italic;margin-top:8px;}
+
+  /* ---------- NAME INPUT ---------- */
+  .field{margin:14px 0;}
+  label{display:block;font-size:1.05rem;color:var(--sand-deep);margin-bottom:6px;letter-spacing:.03em;}
+  input[type=text]{
+    width:100%;padding:13px 16px;font-family:'Cormorant Garamond',serif;font-size:1.15rem;
+    background:rgba(20,12,4,.6);color:var(--sand-1);
+    border:1px solid var(--ocre);border-radius:8px;outline:none;
+    transition:.25s;
+  }
+  input[type=text]:focus{border-color:var(--chakra);box-shadow:0 0 14px rgba(61,220,132,.3);}
+
+  /* ---------- BUTTONS ---------- */
+  .btn{
+    font-family:'Cinzel',serif;font-weight:700;letter-spacing:.06em;
+    cursor:pointer;border:none;border-radius:9px;
+    padding:14px 26px;font-size:1rem;
+    background:linear-gradient(160deg,var(--ocre),var(--ocre-deep));
+    color:#fff5e6;text-transform:uppercase;
+    box-shadow:0 6px 0 var(--rust), 0 9px 18px rgba(0,0,0,.4);
+    transition:transform .12s, box-shadow .12s;
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 8px 0 var(--rust),0 12px 22px rgba(0,0,0,.45);}
+  .btn:active{transform:translateY(4px);box-shadow:0 2px 0 var(--rust);}
+  .btn.ghost{background:transparent;border:1px solid var(--ocre);box-shadow:none;color:var(--sand-1);}
+  .btn.ghost:hover{background:rgba(181,113,43,.15);transform:none;}
+  .btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:0 6px 0 var(--rust);}
+
+  /* ---------- GAME AREA ---------- */
+  #gameArea{display:none;}
+  .stats{
+    display:flex;flex-wrap:wrap;gap:12px;margin-bottom:16px;justify-content:space-between;
+  }
+  .stat{
+    flex:1 1 120px;text-align:center;
+    background:rgba(20,12,4,.5);border:1px solid rgba(181,113,43,.4);
+    border-radius:10px;padding:10px 6px;
+  }
+  .stat .lbl{font-size:.85rem;color:var(--sand-deep);text-transform:uppercase;letter-spacing:.08em;}
+  .stat .val{font-family:'Cinzel',serif;font-size:1.5rem;font-weight:700;color:var(--sand-1);}
+  #scoreVal{color:var(--chakra-glow);}
+  #timerVal{color:var(--sand-1);}
+  #timerVal.warn{color:#ffd86b;}
+  #timerVal.danger{color:var(--blood-light);animation:pulse .6s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.5;}}
+
+  .skin-frame{
+    position:relative;width:100%;
+    border-radius:14px;overflow:hidden;
+    border:2px solid var(--rust);
+    box-shadow:inset 0 0 40px rgba(0,0,0,.5);
+    background:
+      radial-gradient(ellipse at 30% 30%, #e8b88f, transparent 60%),
+      radial-gradient(ellipse at 70% 70%, #d99f72, transparent 55%),
+      linear-gradient(135deg,#e3a878,#ca8158);
+    touch-action:none;
+    user-select:none;
+    cursor:crosshair;
+  }
+  #board{display:block;width:100%;height:auto;}
+
+  .instr{
+    text-align:center;font-size:1.05rem;color:var(--sand-deep);
+    font-style:italic;margin:14px 0;min-height:1.4em;
+  }
+  .controls{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:16px;}
+
+  /* ---------- RESULT ---------- */
+  #result{display:none;text-align:center;}
+  .grade{
+    font-family:'Cinzel',serif;font-weight:900;font-size:3rem;
+    letter-spacing:.05em;margin:6px 0;
+  }
+  .grade.s{color:var(--chakra-glow);text-shadow:0 0 24px rgba(61,220,132,.6);}
+  .grade.a{color:#ffd86b;text-shadow:0 0 20px rgba(255,200,90,.5);}
+  .grade.b{color:var(--sand-1);}
+  .grade.c{color:var(--sand-deep);}
+  .grade.f{color:var(--blood-light);}
+  .verdict{font-size:1.2rem;color:var(--parchment);margin-bottom:18px;line-height:1.5;}
+
+  .report{
+    background:rgba(20,12,4,.55);border:1px dashed var(--ocre);
+    border-radius:12px;padding:18px;margin:18px 0;text-align:left;
+  }
+  .report .row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(181,113,43,.2);font-size:1.1rem;}
+  .report .row:last-child{border:none;}
+  .report .row .k{color:var(--sand-deep);}
+  .report .row .v{color:var(--sand-1);font-weight:600;}
+  .stamp{
+    margin-top:14px;text-align:center;font-style:italic;color:var(--sand-deep);font-size:1rem;
+  }
+  .cloud-status{
+    margin-top:12px;font-size:1rem;border-radius:8px;padding:11px 12px;
+    color:var(--sand-deep);border:1px solid rgba(181,113,43,.4);background:rgba(20,12,4,.4);
+    transition:.3s;
+  }
+  .cloud-status.ok{color:var(--chakra);border-color:rgba(61,220,132,.45);background:rgba(61,220,132,.08);}
+  .cloud-status.warn{color:#ffcaa0;border-color:rgba(196,69,58,.5);background:rgba(196,69,58,.1);}
+
+  /* ---------- SCOREBOARD ---------- */
+  .board-list .entry{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:10px 14px;border-radius:8px;margin-bottom:8px;
+    background:rgba(20,12,4,.4);border:1px solid rgba(181,113,43,.3);
+  }
+  .board-list .entry .nm{font-size:1.12rem;color:var(--sand-1);}
+  .board-list .entry .sc{font-family:'Cinzel',serif;font-weight:700;color:var(--chakra-glow);}
+  .board-list .rank{color:var(--ocre);font-weight:700;margin-right:10px;font-family:'Cinzel',serif;}
+  .empty{color:var(--sand-deep);font-style:italic;text-align:center;padding:14px;}
+
+  footer{text-align:center;margin-top:30px;color:var(--sand-deep);font-style:italic;font-size:.95rem;}
+  footer .seal{color:var(--ocre);font-family:'Cinzel',serif;letter-spacing:.05em;}
+
+  @keyframes pop{0%{transform:scale(0);}70%{transform:scale(1.3);}100%{transform:scale(1);}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div style="text-align:right;margin-bottom:10px;">
+    <a href="index.html" style="font-family:'Cinzel',serif;font-weight:700;letter-spacing:.05em;font-size:.82rem;padding:8px 16px;border:1px solid var(--ocre);border-radius:9px;color:var(--sand-1);text-decoration:none;text-transform:uppercase;background:transparent;display:inline-block;">← Retour au menu</a>
+  </div>
+
+  <header>
+    <div class="crest">
+      <svg viewBox="0 0 100 100" fill="none">
+        <circle cx="50" cy="50" r="30" stroke="#b5712b" stroke-width="4"/>
+        <path d="M50 22 L58 44 L50 50 L42 44 Z" fill="#b5712b"/>
+        <path d="M50 78 L42 56 L50 50 L58 56 Z" fill="#b5712b"/>
+        <circle cx="50" cy="50" r="6" fill="#8a4f1a"/>
+      </svg>
+    </div>
+    <h1>Atelier de Suture</h1>
+    <div class="sub">Section Médicale — Seimei · Sunagakure</div>
+    <div class="divider"></div>
+  </header>
+
+  <!-- ENTRÉE / BRIEFING -->
+  <div id="intro">
+    <div class="panel">
+      <h2>Briefing du formateur</h2>
+      <p class="lead">Apprenti soignant, une plaie ouverte attend tes soins. Tu dois la refermer en posant tes points de suture <strong>le long de l'incision</strong>, régulièrement espacés et bien centrés sur la ligne de la plaie — et <strong>vite</strong>, car le patient saigne.</p>
+      <p class="hint">Attention : un chronomètre est lancé dès le début. Un bon point est précis (pile sur la ligne) et bien espacé du précédent. Trop écartés, la plaie reste ouverte ; trop serrés, tu abîmes les tissus. La rapidité rapporte un bonus, mais la précision reste reine. Choisis ton niveau selon ton grade — l'Expert est impitoyable.</p>
+    </div>
+
+    <div class="panel">
+      <h2>Identification de l'apprenti</h2>
+      <div class="field">
+        <label for="nameInput">Inscris ton nom de shinobi</label>
+        <input type="text" id="nameInput" placeholder="Ex : Artel Gaïa" maxlength="28" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="diffSelect">Niveau d'exercice</label>
+        <div class="controls" style="justify-content:flex-start" id="diffBtns">
+          <button class="btn ghost" data-diff="stagiaire">Stagiaire</button>
+          <button class="btn ghost" data-diff="aspirant">Aspirant</button>
+          <button class="btn ghost" data-diff="expert">Expert</button>
+        </div>
+      </div>
+      <div style="margin-top:18px;text-align:center;">
+        <button class="btn" id="startBtn">Commencer l'opération</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ZONE DE JEU -->
+  <div id="gameArea">
+    <div class="panel">
+      <div class="stats">
+        <div class="stat"><div class="lbl">Apprenti</div><div class="val" id="playerName" style="font-size:1.05rem;line-height:2.1">—</div></div>
+        <div class="stat"><div class="lbl">Points posés</div><div class="val"><span id="placedVal">0</span>/<span id="needVal">0</span></div></div>
+        <div class="stat"><div class="lbl">Temps</div><div class="val" id="timerVal">—</div></div>
+        <div class="stat"><div class="lbl">Précision</div><div class="val" id="scoreVal">0</div></div>
+      </div>
+      <div class="skin-frame">
+        <canvas id="board" width="800" height="380"></canvas>
+      </div>
+      <div class="instr" id="instr">Clique sur la ligne de la plaie pour poser un point de suture.</div>
+      <div class="controls">
+        <button class="btn ghost" id="undoBtn">Retirer dernier point</button>
+        <button class="btn" id="finishBtn">Terminer la suture</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RÉSULTAT -->
+  <div id="result">
+    <div class="panel">
+      <h2>Rapport d'intervention</h2>
+      <div class="grade" id="gradeLetter">—</div>
+      <div class="verdict" id="verdict"></div>
+      <div class="report" id="reportBox"></div>
+      <div class="cloud-status" id="cloudStatus">⏳ Envoi du score...</div>
+      <div class="stamp">Cachet de la Section Médicale — Seimei, Sunagakure</div>
+      <div class="controls" style="margin-top:18px;">
+        <button class="btn ghost" id="retryBtn">Rejouer</button>
+        <button class="btn" id="newPlayerBtn">Nouvel apprenti</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Tableau des scores (cette session)</h2>
+      <div class="board-list" id="scoreboard"><div class="empty">Aucun score enregistré pour l'instant.</div></div>
+    </div>
+  </div>
+
+  <footer>
+    Outil pédagogique · <span class="seal">Seimei</span> · Sunagakure
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  // ---------- STATE ----------
+  var state = {
+    name:"", diff:"aspirant",
+    need:6, tolerance:18, idealGap:0,
+    points:[], pathPts:[], canvas:null, ctx:null,
+    timeLeft:0, timeTotal:0, timerId:null, timeUp:false,
+    scores:[] // session scoreboard
+  };
+
+  var DIFF = {
+    stagiaire:{ need:6, tolerance:18, label:"Stagiaire", wobble:18, time:50, complexity:1 },
+    aspirant:{ need:8, tolerance:11, label:"Aspirant", wobble:30, time:38, complexity:1.6 },
+    expert:{ need:10, tolerance:7, label:"Expert", wobble:40, time:30, complexity:2.3 }
+  };
+
+  // ---------- ELEMENTS ----------
+  var el = function(id){return document.getElementById(id);};
+  var intro=el('intro'), gameArea=el('gameArea'), result=el('result');
+
+  // ---------- DIFFICULTY SELECT ----------
+  var diffBtns = el('diffBtns').querySelectorAll('button');
+  diffBtns.forEach(function(b){
+    b.addEventListener('click',function(){
+      diffBtns.forEach(function(x){x.classList.add('ghost');x.style.background='';});
+      b.classList.remove('ghost');
+      b.style.background='linear-gradient(160deg,var(--ocre),var(--ocre-deep))';
+      state.diff=b.dataset.diff;
+    });
+  });
+  // default select aspirant
+  diffBtns[1].click();
+
+  // ---------- WOUND PATH GENERATION ----------
+  function buildWound(){
+    var c=state.canvas, w=c.width, h=c.height;
+    var n=60;
+    var startX=80, endX=w-80, midY=h/2;
+    var cfg=DIFF[state.diff];
+    var wob=cfg.wobble, cx=cfg.complexity;
+    var pts=[];
+    // layered sine — more layers / higher frequency = harder, more irregular wound
+    var phase=Math.random()*6.28, phase2=Math.random()*6.28, phase3=Math.random()*6.28;
+    var amp=wob+Math.random()*16;
+    var f1=1.2+Math.random()*0.6;
+    var f2=(2.6+Math.random()*1.2)*cx;
+    var f3=(4.5+Math.random()*2)*cx;
+    for(var i=0;i<=n;i++){
+      var t=i/n;
+      var x=startX+(endX-startX)*t;
+      var y=midY
+        + Math.sin(t*Math.PI*f1+phase)*amp
+        + Math.sin(t*Math.PI*f2+phase2)*(amp*0.45*cx)
+        + Math.sin(t*Math.PI*f3+phase3)*(amp*0.22*cx);
+      pts.push({x:x,y:y});
+    }
+    state.pathPts=pts;
+    // ideal gap between sutures along the path length
+    var len=pathLength(pts);
+    state.idealGap=len/(state.need+1);
+  }
+
+  function pathLength(pts){
+    var L=0;
+    for(var i=1;i<pts.length;i++){
+      L+=Math.hypot(pts[i].x-pts[i-1].x, pts[i].y-pts[i-1].y);
+    }
+    return L;
+  }
+
+  // distance from a point to the wound polyline; returns {dist, proj}
+  function distToWound(px,py){
+    var pts=state.pathPts, best=1e9, bestProj=null, accLen=0, bestS=0;
+    for(var i=1;i<pts.length;i++){
+      var a=pts[i-1], b=pts[i];
+      var dx=b.x-a.x, dy=b.y-a.y;
+      var segLen=Math.hypot(dx,dy);
+      var t=((px-a.x)*dx+(py-a.y)*dy)/(segLen*segLen||1);
+      t=Math.max(0,Math.min(1,t));
+      var cx=a.x+dx*t, cy=a.y+dy*t;
+      var d=Math.hypot(px-cx,py-cy);
+      if(d<best){best=d;bestProj={x:cx,y:cy};bestS=accLen+segLen*t;}
+      accLen+=segLen;
+    }
+    return {dist:best, proj:bestProj, s:bestS};
+  }
+
+  // ---------- DRAWING ----------
+  function draw(){
+    var ctx=state.ctx, c=state.canvas;
+    ctx.clearRect(0,0,c.width,c.height);
+
+    // skin blush around wound
+    var pts=state.pathPts;
+
+    // irritation halo
+    ctx.save();
+    ctx.lineWidth=26; ctx.lineCap='round'; ctx.lineJoin='round';
+    ctx.strokeStyle='rgba(180,70,55,0.18)';
+    strokePath(ctx,pts);
+    ctx.restore();
+
+    // wound (open gash) — dark red
+    ctx.save();
+    ctx.lineWidth=9; ctx.lineCap='round'; ctx.lineJoin='round';
+    ctx.strokeStyle='#7d1e18';
+    strokePath(ctx,pts);
+    ctx.lineWidth=3.5;
+    ctx.strokeStyle='#b5352b';
+    strokePath(ctx,pts);
+    ctx.restore();
+
+    // suture points placed
+    state.points.forEach(function(p){
+      drawStitch(ctx,p.proj.x,p.proj.y,p.quality);
+    });
+  }
+
+  function strokePath(ctx,pts){
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x,pts[0].y);
+    for(var i=1;i<pts.length;i++)ctx.lineTo(pts[i].x,pts[i].y);
+    ctx.stroke();
+  }
+
+  function drawStitch(ctx,x,y,quality){
+    var col = quality==='good' ? '#3ddc84' : quality==='ok' ? '#ffd86b' : '#c4453a';
+    ctx.save();
+    ctx.translate(x,y);
+    // thread cross
+    ctx.strokeStyle=col; ctx.lineWidth=3; ctx.lineCap='round';
+    ctx.beginPath();
+    ctx.moveTo(-11,-7); ctx.lineTo(11,7);
+    ctx.moveTo(-11,7); ctx.lineTo(11,-7);
+    ctx.stroke();
+    // knots
+    ctx.fillStyle=col;
+    [[-11,-7],[11,7],[-11,7],[11,-7]].forEach(function(k){
+      ctx.beginPath();ctx.arc(k[0],k[1],2.4,0,6.28);ctx.fill();
+    });
+    ctx.restore();
+  }
+
+  // ---------- PLACE A POINT ----------
+  function placePoint(px,py){
+    if(state.timeUp){ setInstr("Temps écoulé ! Termine la suture."); return; }
+    if(state.points.length>=state.need){
+      setInstr("Tu as posé tous tes points. Termine la suture ou retire-en un.");
+      return;
+    }
+    var info=distToWound(px,py);
+    var tol=DIFF[state.diff].tolerance;
+    // stricter: reject points placed too far from the wound line
+    if(info.dist>tol*2.4){
+      setInstr("Trop loin de la plaie — vise précisément la ligne de l'incision.");
+      flash();
+      return;
+    }
+    // reject points placed almost on top of an existing one (no cheating by stacking)
+    var tooClose=false;
+    for(var i=0;i<state.points.length;i++){
+      if(Math.abs(state.points[i].s-info.s) < state.idealGap*0.45){ tooClose=true; break; }
+    }
+    if(tooClose){
+      setInstr("Point trop proche d'un autre — espace mieux tes sutures.");
+      flash();
+      return;
+    }
+    // quality on precision (tighter thresholds)
+    var quality;
+    if(info.dist<=tol*0.7) quality='good';
+    else if(info.dist<=tol*1.4) quality='ok';
+    else quality='bad';
+
+    state.points.push({proj:info.proj, dist:info.dist, s:info.s, quality:quality});
+    draw();
+    updateStats();
+    var msgs={good:"Point précis, bien posé.",ok:"Point correct, un peu décentré.",bad:"Point mal placé, attention à la précision."};
+    setInstr(msgs[quality]);
+  }
+
+  function flash(){
+    state.canvas.animate(
+      [{filter:'brightness(1)'},{filter:'brightness(1.4) saturate(1.4)'},{filter:'brightness(1)'}],
+      {duration:260}
+    );
+  }
+
+  // ---------- STATS ----------
+  function updateStats(){
+    el('placedVal').textContent=state.points.length;
+    el('needVal').textContent=state.need;
+    // live precision estimate
+    var prec=computeScore().total;
+    el('scoreVal').textContent=prec;
+  }
+
+  function setInstr(t){ el('instr').textContent=t; }
+
+  // ---------- SCORING ----------
+  function computeScore(){
+    var n=state.points.length;
+    if(n===0)return {total:0,precision:0,spacing:0,completion:0,timeb:0};
+    var tol=DIFF[state.diff].tolerance;
+
+    // 1) precision: harsh — only points placed almost ON the line score well.
+    //    quadratic falloff so small errors already cost a lot.
+    var precSum=0;
+    state.points.forEach(function(p){
+      var lin=Math.max(0,1-(p.dist/tol));   // 1 at perfect, 0 at full tolerance
+      precSum+=lin*lin;                       // square => unforgiving
+    });
+    var precision=precSum/n; // 0..1
+
+    // 2) spacing regularity — strict: any deviation punished hard
+    var spacing=1;
+    if(n>=2){
+      var sorted=state.points.slice().sort(function(a,b){return a.s-b.s;});
+      var gaps=[];
+      for(var i=1;i<sorted.length;i++)gaps.push(sorted[i].s-sorted[i-1].s);
+      var ideal=state.idealGap;
+      var devSum=0;
+      gaps.forEach(function(g){
+        var dev=Math.abs(g-ideal)/ideal;
+        devSum+=Math.max(0,1-dev*2.2);        // was 1.3 — now far less forgiving
+      });
+      spacing=devSum/gaps.length;
+    } else { spacing=0.1; }
+
+    // 3) completion — must place ALL points; missing even one hurts badly
+    var ratio=n/state.need;
+    var completion=Math.pow(ratio,2.5);       // non-linear: partial work barely counts
+
+    // 4) time bonus: how much time remained when finishing (0..1)
+    var timeRatio = state.timeTotal>0 ? Math.max(0,state.timeLeft/state.timeTotal) : 0;
+
+    // weighted (precision 50 / spacing 25 / completion 15 / time 10)
+    var precPts=Math.round(precision*50);
+    var spacePts=Math.round(spacing*25);
+    var compPts=Math.round(completion*15);
+    var timePts=Math.round(timeRatio*10);
+    var total=precPts+spacePts+compPts+timePts;
+    total=Math.max(0,Math.min(100,total));
+    return {total:total, precision:precPts, spacing:spacePts, completion:compPts, timeb:timePts, n:n};
+  }
+
+  function gradeFor(score){
+    if(score>=95)return {l:"S",cls:"s",txt:"Suture irréprochable. La Seimei peut être fière de toi."};
+    if(score>=85)return {l:"A",cls:"a",txt:"Excellent travail, la plaie est parfaitement refermée."};
+    if(score>=72)return {l:"B",cls:"b",txt:"Bonne suture, quelques imperfections à corriger."};
+    if(score>=58)return {l:"C",cls:"c",txt:"Suture passable. Continue à t'entraîner, apprenti."};
+    return {l:"D",cls:"f",txt:"La plaie risque de s'infecter. Reprends les bases avec ton formateur."};
+  }
+
+  // ---------- FINISH ----------
+  function finish(){
+    if(state.points.length===0){
+      setInstr("Pose au moins un point avant de terminer.");
+      return;
+    }
+    stopTimer();
+    var sc=computeScore();
+    var g=gradeFor(sc.total);
+
+    el('gradeLetter').textContent=g.l;
+    el('gradeLetter').className='grade '+g.cls;
+    el('verdict').textContent=g.txt;
+
+    var rep=el('reportBox');
+    rep.innerHTML='';
+    addRow(rep,"Apprenti",state.name);
+    addRow(rep,"Niveau",DIFF[state.diff].label);
+    addRow(rep,"Points posés",sc.n+" / "+state.need);
+    addRow(rep,"Précision",sc.precision+" / 50");
+    addRow(rep,"Régularité espacement",sc.spacing+" / 25");
+    addRow(rep,"Complétion",sc.completion+" / 15");
+    addRow(rep,"Bonus rapidité",sc.timeb+" / 10");
+    addRow(rep,"SCORE TOTAL",sc.total+" / 100");
+
+    // save to session scoreboard
+    state.scores.push({name:state.name,score:sc.total,grade:g.l,diff:DIFF[state.diff].label});
+    renderScoreboard();
+
+    // send to Supabase (cloud) so the trainer sees it automatically
+    saveToCloud({
+      name: state.name,
+      diff: DIFF[state.diff].label,
+      points_placed: sc.n,
+      points_needed: state.need,
+      precision: sc.precision,
+      spacing: sc.spacing,
+      completion: sc.completion,
+      score: sc.total,
+      grade: g.l
+    });
+
+    gameArea.style.display='none';
+    result.style.display='block';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  // ---------- CLOUD SAVE ----------
+  function saveToCloud(row){
+    var note=el('cloudStatus');
+    // config.js must define SUPABASE_URL and SUPABASE_KEY
+    if(typeof SUPABASE_URL==='undefined' || typeof SUPABASE_KEY==='undefined'
+       || SUPABASE_URL.indexOf('TON_URL')===0 || SUPABASE_KEY.indexOf('TA_CLE')===0){
+      note.textContent="⚠ Mode hors-ligne : score non envoyé (configuration cloud absente). Fais une capture d'écran.";
+      note.className="cloud-status warn";
+      return;
+    }
+    note.textContent="⏳ Envoi du score au formateur...";
+    note.className="cloud-status";
+    try{
+      var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      sb.from('scores').insert([row]).then(function(res){
+        if(res.error){
+          note.textContent="⚠ Échec de l'envoi : "+res.error.message+". Fais une capture d'écran.";
+          note.className="cloud-status warn";
+        }else{
+          note.textContent="✓ Score transmis au formateur avec succès.";
+          note.className="cloud-status ok";
+        }
+      }, function(err){
+        note.textContent="⚠ Erreur réseau, score non transmis. Fais une capture d'écran.";
+        note.className="cloud-status warn";
+      });
+    }catch(e){
+      note.textContent="⚠ Erreur, score non transmis. Fais une capture d'écran.";
+      note.className="cloud-status warn";
+    }
+  }
+
+  function addRow(parent,k,v){
+    var d=document.createElement('div');d.className='row';
+    d.innerHTML='<span class="k">'+k+'</span><span class="v">'+v+'</span>';
+    parent.appendChild(d);
+  }
+
+  function renderScoreboard(){
+    var box=el('scoreboard');
+    if(state.scores.length===0){box.innerHTML='<div class="empty">Aucun score enregistré pour l\'instant.</div>';return;}
+    var sorted=state.scores.slice().sort(function(a,b){return b.score-a.score;});
+    box.innerHTML='';
+    sorted.forEach(function(s,i){
+      var d=document.createElement('div');d.className='entry';
+      d.innerHTML='<span><span class="rank">#'+(i+1)+'</span><span class="nm">'+escapeHtml(s.name)+'</span> <span style="color:var(--sand-deep);font-size:.9rem">('+s.diff+')</span></span>'+
+                  '<span class="sc">'+s.score+' · '+s.grade+'</span>';
+      box.appendChild(d);
+    });
+  }
+
+  function escapeHtml(t){
+    return t.replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];});
+  }
+
+  // ---------- START / RESET ----------
+  function startGame(){
+    var nm=el('nameInput').value.trim();
+    if(!nm){ el('nameInput').focus(); el('nameInput').style.borderColor='var(--blood-light)';
+      setTimeout(function(){el('nameInput').style.borderColor='';},900); return; }
+    state.name=nm;
+    state.need=DIFF[state.diff].need;
+    state.points=[];
+    el('playerName').textContent=nm;
+
+    state.canvas=el('board');
+    state.ctx=state.canvas.getContext('2d');
+    buildWound();
+    draw();
+    updateStats();
+    startTimer();
+    setInstr("La plaie saigne — pose tes points avant la fin du temps !");
+
+    intro.style.display='none';
+    result.style.display='none';
+    gameArea.style.display='block';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  // ---------- TIMER ----------
+  function startTimer(){
+    stopTimer();
+    state.timeTotal=DIFF[state.diff].time;
+    state.timeLeft=state.timeTotal;
+    state.timeUp=false;
+    renderTimer();
+    state.timerId=setInterval(function(){
+      state.timeLeft--;
+      renderTimer();
+      if(state.timeLeft<=0){
+        stopTimer();
+        state.timeUp=true;
+        setInstr("Temps écoulé ! La suture est figée — termine pour voir ton rapport.");
+        var t=el('timerVal'); t.textContent="0s"; t.className='danger';
+      }
+    },1000);
+  }
+  function stopTimer(){ if(state.timerId){clearInterval(state.timerId);state.timerId=null;} }
+  function renderTimer(){
+    var t=el('timerVal');
+    t.textContent=state.timeLeft+"s";
+    t.className='';
+    if(state.timeLeft<=10) t.className='danger';
+    else if(state.timeLeft<=20) t.className='warn';
+  }
+
+  function retry(){
+    state.points=[];
+    buildWound();
+    draw();updateStats();
+    startTimer();
+    setInstr("Nouvelle plaie. Pose tes points vite et avec précision.");
+    result.style.display='none';
+    gameArea.style.display='block';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  function newPlayer(){
+    stopTimer();
+    el('nameInput').value='';
+    result.style.display='none';
+    gameArea.style.display='none';
+    intro.style.display='block';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  // ---------- CANVAS CLICK ----------
+  function canvasPos(e){
+    var c=state.canvas, r=c.getBoundingClientRect();
+    var scaleX=c.width/r.width, scaleY=c.height/r.height;
+    var clientX = e.touches?e.touches[0].clientX:e.clientX;
+    var clientY = e.touches?e.touches[0].clientY:e.clientY;
+    return {x:(clientX-r.left)*scaleX, y:(clientY-r.top)*scaleY};
+  }
+
+  // ---------- EVENTS ----------
+  el('startBtn').addEventListener('click',startGame);
+  el('nameInput').addEventListener('keydown',function(e){if(e.key==='Enter')startGame();});
+  el('finishBtn').addEventListener('click',finish);
+  el('undoBtn').addEventListener('click',function(){
+    state.points.pop();draw();updateStats();setInstr("Dernier point retiré.");
+  });
+  el('retryBtn').addEventListener('click',retry);
+  el('newPlayerBtn').addEventListener('click',newPlayer);
+
+  document.addEventListener('click',function(e){
+    if(e.target && e.target.id==='board'){
+      var p=canvasPos(e);placePoint(p.x,p.y);
+    }
+  });
+  // touch support
+  el('board') && el('board').addEventListener('touchstart',function(e){
+    e.preventDefault();var p=canvasPos(e);placePoint(p.x,p.y);
+  },{passive:false});
+
+})();
+</script>
+</body>
+</html>

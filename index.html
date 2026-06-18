@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Section Médicale Seimei | Sunagakure</title>
+<style>
+@import url('vendor/fonts.css');
+:root{
+  --sand-1:#f4e4c1;--sand-deep:#c89b5e;--ocre:#b5712b;--ocre-deep:#8a4f1a;
+  --rust:#7a3b15;--parchment:#f0dfb8;--chakra:#6fcf97;--chakra-glow:#3ddc84;
+  --blood-light:#c4453a;--gold:#ffd86b;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Cormorant Garamond',serif;color:var(--parchment);min-height:100vh;overflow-x:hidden;
+  background:radial-gradient(ellipse at 50% -10%,#5a3d1e 0%,transparent 55%),
+    radial-gradient(ellipse at 80% 110%,#4a3015 0%,transparent 50%),
+    linear-gradient(160deg,#2e1d0c 0%,#1c1106 60%,#140c04 100%);}
+body::before{content:"";position:fixed;inset:0;opacity:.05;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  z-index:1;}
+.wrap{position:relative;z-index:2;max-width:1000px;margin:0 auto;padding:40px 20px 80px;}
+.formateur-btn{text-align:right;margin-bottom:20px;}
+.formateur-btn a{font-family:'Cinzel',serif;font-weight:700;letter-spacing:.05em;font-size:.82rem;
+  padding:8px 16px;border:1px solid var(--ocre);border-radius:9px;color:var(--sand-1);
+  text-decoration:none;text-transform:uppercase;background:transparent;transition:.2s;}
+.formateur-btn a:hover{background:rgba(181,113,43,.2);}
+header{text-align:center;margin-bottom:40px;}
+.crest{width:100px;height:100px;margin:0 auto 16px;border:4px solid var(--ocre);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle,rgba(181,113,43,.3),transparent 70%);
+  box-shadow:0 0 40px rgba(181,113,43,.4),inset 0 0 25px rgba(0,0,0,.4);}
+.crest svg{width:55px;height:55px;}
+h1{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(2rem,6vw,3.5rem);
+  letter-spacing:.08em;color:var(--sand-1);
+  text-shadow:0 2px 0 var(--rust),0 0 40px rgba(181,113,43,.6);line-height:1.05;}
+.subtitle{font-size:clamp(1.1rem,2.5vw,1.4rem);color:var(--sand-deep);
+  font-style:italic;margin-top:8px;}
+.divider{height:2px;width:60%;margin:18px auto;background:linear-gradient(90deg,transparent,var(--ocre),transparent);}
+.tagline{font-size:1.15rem;color:var(--parchment);max-width:680px;margin:0 auto;line-height:1.55;}
+.intro-panel{background:linear-gradient(160deg,rgba(240,223,184,.07),rgba(60,41,20,.15));
+  border:1px solid rgba(181,113,43,.45);border-radius:14px;padding:24px;margin:30px 0;
+  box-shadow:0 10px 30px rgba(0,0,0,.45);text-align:center;}
+.intro-panel p{font-size:1.1rem;line-height:1.6;color:var(--parchment);}
+.intro-panel .hint{color:var(--sand-deep);font-style:italic;font-size:1rem;margin-top:8px;}
+.modules{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-top:30px;}
+.module{background:linear-gradient(160deg,rgba(240,223,184,.08),rgba(60,41,20,.18));
+  border:1px solid rgba(181,113,43,.5);border-radius:14px;padding:24px;cursor:pointer;
+  transition:transform .25s,box-shadow .25s,border-color .25s;
+  box-shadow:0 8px 24px rgba(0,0,0,.4);text-decoration:none;color:inherit;
+  display:flex;flex-direction:column;align-items:center;text-align:center;}
+.module:hover{transform:translateY(-4px);box-shadow:0 14px 34px rgba(181,113,43,.3);border-color:var(--gold);}
+.module .icon{width:64px;height:64px;border-radius:50%;background:rgba(181,113,43,.2);
+  border:2px solid var(--ocre);display:flex;align-items:center;justify-content:center;
+  font-size:1.8rem;margin-bottom:14px;transition:.25s;}
+.module:hover .icon{background:rgba(255,216,107,.25);border-color:var(--gold);transform:scale(1.08);}
+.module h3{font-family:'Cinzel',serif;font-weight:700;color:var(--gold);font-size:1.15rem;
+  letter-spacing:.04em;margin-bottom:8px;}
+.module p{font-size:.98rem;color:var(--sand-deep);line-height:1.45;}
+.module .tag{display:inline-block;margin-top:12px;font-family:'Cinzel',serif;font-size:.72rem;
+  letter-spacing:.08em;padding:3px 10px;border-radius:6px;background:rgba(181,113,43,.25);
+  color:var(--gold);text-transform:uppercase;}
+footer{text-align:center;margin-top:50px;color:var(--sand-deep);font-style:italic;font-size:.95rem;}
+footer .seal{color:var(--ocre);font-family:'Cinzel',serif;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="formateur-btn"><a href="formateur.html">Espace formateur</a></div>
+  <header>
+    <div class="crest">
+      <svg viewBox="0 0 100 100" fill="none">
+        <circle cx="50" cy="50" r="30" stroke="#b5712b" stroke-width="4"/>
+        <path d="M50 22 L58 44 L50 50 L42 44 Z" fill="#b5712b"/>
+        <path d="M50 78 L42 56 L50 50 L58 56 Z" fill="#b5712b"/>
+        <circle cx="50" cy="50" r="6" fill="#8a4f1a"/>
+      </svg>
+    </div>
+    <h1>Section Médicale</h1>
+    <div class="subtitle">Seimei · Sunagakure</div>
+    <div class="divider"></div>
+    <p class="tagline">Centre de formation interactif pour les apprentis médecins du village du Vent. Choisis un module pour commencer ton entraînement.</p>
+  </header>
+  <div class="modules">
+    <a href="sutures.html" class="module">
+      <div class="icon">🪡</div>
+      <h3>Sutures</h3>
+      <p>Pose tes points de suture avec précision le long d'une plaie. 3 niveaux de difficulté.</p>
+      <span class="tag">Mini-jeu</span>
+    </a>
+    <a href="brulures.html" class="module">
+      <div class="icon">🔥</div>
+      <h3>Brûlures</h3>
+      <p>Identifie le type de brûlure et choisis les bons outils de soin parmi le matériel disponible.</p>
+      <span class="tag">Mini-jeu</span>
+    </a>
+    <a href="fractures.html" class="module">
+      <div class="icon">🦴</div>
+      <h3>Fractures</h3>
+      <p>Évalue la fracture et sélectionne le bon matériel de soin sans tomber dans les pièges.</p>
+      <span class="tag">Mini-jeu</span>
+    </a>
+    <a href="attelles.html" class="module">
+      <div class="icon">🩹</div>
+      <h3>Attelles</h3>
+      <p>Pose l'attelle au bon endroit et fixe le bandage dans le bon ordre sur les membres fracturés.</p>
+      <span class="tag">Mini-jeu</span>
+    </a>
+    <a href="rcr.html" class="module">
+      <div class="icon">💓</div>
+      <h3>Réanimation RCR</h3>
+      <p>Effectue des compressions thoraciques rythmées à la bonne cadence (100-120/min).</p>
+      <span class="tag">Mini-jeu</span>
+    </a>
+    <a href="prelevement.html" class="module">
+      <div class="icon">💉</div>
+      <h3>Prélèvement sanguin</h3>
+      <p>Pose le garrot, désinfecte, pique à 20° et remplis les fioles dans l'ordre.</p>
+      <span class="tag">Mini-jeu</span>
+    </a>
+    <a href="bandage.html" class="module">
+      <div class="icon">🧵</div>
+      <h3>Bandage compressif</h3>
+      <p>Enroule la bande en spirale avec une tension régulière, ni trop serrée ni trop lâche.</p>
+      <span class="tag">Mini-jeu</span>
+    </a>
+    <a href="garrot.html" class="module">
+      <div class="icon">⛓️</div>
+      <h3>Pose de garrot</h3>
+      <p>Trouve le point fémoral et tourne le levier pour couper l'hémorragie sans abîmer les tissus.</p>
+      <span class="tag">Mini-jeu</span>
+    </a>
+    <a href="epaule.html" class="module">
+      <div class="icon">💪</div>
+      <h3>Réduction d'épaule</h3>
+      <p>Stabilise, tire et replace la tête de l'humérus dans son logement en 3 étapes.</p>
+      <span class="tag">Mini-jeu</span>
+    </a>
+  </div>
+  <footer>Outil pédagogique officiel · <span class="seal">Seimei</span> · Sunagakure</footer>
+</div>
+</body>
+</html>
