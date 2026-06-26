@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seimei &mdash; Sujets M&eacute;dicaux Avanc&eacute;s | Sunagakure</title>
+<style>
+@import url('vendor/fonts.css');
+:root{
+  --sand-1:#f4e4c1;--sand-deep:#c89b5e;--ocre:#b5712b;--ocre-deep:#8a4f1a;
+  --rust:#7a3b15;--parchment:#f0dfb8;--chakra:#6fcf97;--chakra-glow:#3ddc84;
+  --blood-light:#c4453a;--gold:#ffd86b;
+  --adv-purple:#9b72cf;--adv-purple-dim:rgba(155,114,207,.45);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Cormorant Garamond',serif;color:var(--parchment);min-height:100vh;overflow-x:hidden;
+  background:radial-gradient(ellipse at 50% -10%,#5a3d1e 0%,transparent 55%),
+    linear-gradient(160deg,#2e1d0c 0%,#1c1106 60%,#140c04 100%);}
+body::before{content:"";position:fixed;inset:0;opacity:.05;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  z-index:1;}
+.wrap{position:relative;z-index:2;max-width:900px;margin:0 auto;padding:28px 16px 80px;}
+.back-btn{text-align:right;margin-bottom:8px;}
+.back-btn a{font-family:'Cinzel',serif;font-weight:700;font-size:.82rem;letter-spacing:.05em;
+  padding:8px 16px;border:1px solid var(--ocre);border-radius:9px;color:var(--sand-1);
+  text-decoration:none;text-transform:uppercase;transition:.2s;}
+.back-btn a:hover{background:rgba(181,113,43,.2);}
+header{text-align:center;margin-bottom:20px;}
+.crest{width:64px;height:64px;margin:0 auto 10px;border:3px solid var(--adv-purple);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle,rgba(155,114,207,.2),transparent 70%);
+  box-shadow:0 0 24px rgba(155,114,207,.35);}
+.crest svg{width:36px;height:36px;}
+h1{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(1.6rem,5vw,2.5rem);
+  letter-spacing:.06em;color:var(--sand-1);text-shadow:0 2px 0 var(--rust),0 0 28px rgba(155,114,207,.4);}
+.sub{font-size:1.1rem;color:var(--sand-deep);font-style:italic;margin-top:4px;}
+.grade-note{font-size:1rem;color:var(--sand-deep);font-style:italic;margin-top:10px;}
+.divider{height:2px;width:58%;margin:14px auto 0;background:linear-gradient(90deg,transparent,var(--adv-purple),transparent);}
+
+/* Panels with purple left border for advanced content */
+.panel{background:linear-gradient(160deg,rgba(240,223,184,.07),rgba(60,41,20,.15));
+  border:1px solid rgba(181,113,43,.45);border-radius:14px;padding:20px;margin-bottom:18px;
+  box-shadow:0 10px 30px rgba(0,0,0,.45);
+  border-left:4px solid var(--adv-purple-dim);}
+.panel h2{font-family:'Cinzel',serif;font-weight:700;color:var(--adv-purple);font-size:1.18rem;
+  letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.panel h2::before{content:"";width:7px;height:7px;background:var(--adv-purple);transform:rotate(45deg);flex-shrink:0;}
+.panel h3{font-family:'Cinzel',serif;font-weight:700;color:var(--ocre);font-size:1rem;
+  letter-spacing:.04em;margin:14px 0 6px;}
+.lead{font-size:1.08rem;line-height:1.55;}
+.section-num{font-family:'Cinzel',serif;font-weight:900;font-size:.75rem;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--adv-purple);opacity:.7;display:block;margin-bottom:4px;}
+
+/* Content lists */
+.content-list{list-style:none;margin:10px 0;padding:0;}
+.content-list li{position:relative;padding:4px 0 4px 20px;font-size:1.05rem;line-height:1.5;color:var(--parchment);}
+.content-list li::before{content:"";position:absolute;left:2px;top:12px;width:6px;height:6px;
+  background:var(--adv-purple);transform:rotate(45deg);opacity:.7;}
+
+/* Warning / Info boxes */
+.note-box{display:flex;align-items:flex-start;gap:10px;margin-top:12px;padding:10px 14px;
+  border-radius:9px;font-size:.98rem;line-height:1.45;}
+.note-box svg{flex-shrink:0;width:20px;height:20px;margin-top:2px;}
+.note-warning{background:rgba(196,69,58,.12);border:1px solid rgba(196,69,58,.45);color:#ffcaa0;}
+.note-warning svg{color:var(--blood-light);}
+.note-info{background:rgba(155,114,207,.1);border:1px solid rgba(155,114,207,.35);color:#cdb8ef;}
+.note-info svg{color:var(--adv-purple);}
+
+/* Reimplantation pipeline */
+.pipeline{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px;
+  margin:16px 0;padding:14px 10px;border-radius:10px;
+  background:rgba(20,12,4,.5);border:1px solid rgba(155,114,207,.25);}
+.pipe-step{font-family:'Cinzel',serif;font-weight:700;font-size:.92rem;letter-spacing:.04em;
+  padding:8px 14px;border-radius:8px;color:var(--sand-1);
+  background:linear-gradient(160deg,rgba(155,114,207,.2),rgba(155,114,207,.08));
+  border:1px solid rgba(155,114,207,.4);white-space:nowrap;}
+.pipe-arrow{color:var(--adv-purple);font-size:1.3rem;line-height:1;padding:0 2px;opacity:.7;}
+
+/* Prion prognosis box */
+.prognosis{display:inline-block;margin-top:10px;padding:8px 16px;border-radius:8px;
+  background:rgba(196,69,58,.12);border:1px solid rgba(196,69,58,.4);
+  font-family:'Cinzel',serif;font-weight:700;font-size:.92rem;color:var(--blood-light);
+  letter-spacing:.04em;}
+
+/* Separator between sections */
+.section-sep{height:1px;margin:24px auto;width:60%;
+  background:linear-gradient(90deg,transparent,rgba(155,114,207,.3),transparent);}
+
+footer{text-align:center;margin-top:26px;color:var(--sand-deep);font-style:italic;}
+footer .seal{color:var(--adv-purple);font-family:'Cinzel',serif;}
+
+@media(max-width:480px){
+  .pipeline{flex-direction:column;gap:0;}
+  .pipe-arrow{transform:rotate(90deg);font-size:1.1rem;padding:2px 0;}
+  .pipe-step{font-size:.82rem;padding:6px 12px;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="back-btn"><a href="index.html">&larr; Retour au hub</a></div>
+
+  <!-- ============================================================ -->
+  <!-- HEADER -->
+  <!-- ============================================================ -->
+  <header>
+    <div class="crest"><svg viewBox="0 0 100 100" fill="none">
+      <circle cx="50" cy="50" r="30" stroke="#9b72cf" stroke-width="4"/>
+      <path d="M50 22 L58 44 L50 50 L42 44 Z" fill="#9b72cf"/>
+      <path d="M50 78 L42 56 L50 50 L58 56 Z" fill="#9b72cf"/>
+      <circle cx="50" cy="50" r="6" fill="#7a5aad"/>
+    </svg></div>
+    <h1>Sujets M&eacute;dicaux Avanc&eacute;s</h1>
+    <div class="sub">Section M&eacute;dicale Seimei &middot; Sunagakure</div>
+    <p class="grade-note">Ces sujets sont destin&eacute;s aux grades Adepte et sup&eacute;rieurs.</p>
+    <div class="divider"></div>
+  </header>
+
+  <!-- ============================================================ -->
+  <!-- 1. ANATOMIE OCULAIRE -->
+  <!-- ============================================================ -->
+  <div class="panel">
+    <span class="section-num">I</span>
+    <h2>Anatomie Oculaire</h2>
+    <p class="lead">Structure compl&egrave;te de l&rsquo;&oelig;il et ses composants fondamentaux&nbsp;:</p>
+    <ul class="content-list">
+      <li><strong>Corn&eacute;e</strong> &mdash; membrane transparente prot&eacute;geant l&rsquo;avant de l&rsquo;&oelig;il, premi&egrave;re lentille de r&eacute;fraction</li>
+      <li><strong>Cristallin</strong> &mdash; lentille biconvexe assurant la mise au point (accommodation)</li>
+      <li><strong>R&eacute;tine</strong> &mdash; couche sensorielle tapissant le fond de l&rsquo;&oelig;il</li>
+      <li><strong>C&ocirc;nes</strong> &mdash; photor&eacute;cepteurs de la vision diurne et des couleurs</li>
+      <li><strong>B&acirc;tonnets</strong> &mdash; photor&eacute;cepteurs de la vision nocturne et p&eacute;riph&eacute;rique</li>
+      <li><strong>Nerf optique</strong> &mdash; transmet les signaux visuels au cerveau</li>
+      <li><strong>Cortex visuel</strong> &mdash; zone c&eacute;r&eacute;brale interpr&eacute;tant les images re&ccedil;ues</li>
+    </ul>
+    <h3>Adaptation au monde ninja</h3>
+    <p class="lead">L&rsquo;&oelig;il du shinobi est travers&eacute; par un r&eacute;seau de chakra d&eacute;di&eacute;. Les <strong>tenketsu p&eacute;ri-oculaires</strong> (points de chakra situ&eacute;s autour de l&rsquo;orbite) alimentent directement la r&eacute;tine et le nerf optique. C&rsquo;est ce r&eacute;seau qui permet l&rsquo;activation des <strong>d&ocirc;jutsu</strong>&nbsp;:</p>
+    <ul class="content-list">
+      <li><strong>Sharingan</strong> &mdash; perception acc&eacute;l&eacute;r&eacute;e, copie de techniques, genjutsu oculaire</li>
+      <li><strong>Byakugan</strong> &mdash; vision &agrave; 360&deg;, perception du r&eacute;seau de chakra, vision p&eacute;n&eacute;trante</li>
+      <li><strong>Rinnegan</strong> &mdash; ma&icirc;trise des six voies, perception des flux de chakra universels</li>
+    </ul>
+    <div class="note-box note-info">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <span>Toute intervention chirurgicale sur l&rsquo;&oelig;il n&eacute;cessite une connaissance approfondie des tenketsu p&eacute;ri-oculaires afin de ne pas endommager le r&eacute;seau de chakra du patient.</span>
+    </div>
+  </div>
+
+  <div class="section-sep"></div>
+
+  <!-- ============================================================ -->
+  <!-- 2. CHIRURGIE VASCULAIRE -->
+  <!-- ============================================================ -->
+  <div class="panel">
+    <span class="section-num">II</span>
+    <h2>Chirurgie Vasculaire</h2>
+    <p class="lead">Techniques de reconnexion art&eacute;rielle et veineuse apr&egrave;s un traumatisme majeur ou une amputation.</p>
+    <h3>Instruments d&rsquo;anastomose vasculaire</h3>
+    <ul class="content-list">
+      <li><strong>Micro-clamps vasculaires</strong> &mdash; pinces atraumatiques pour isoler le segment &agrave; r&eacute;parer sans l&eacute;ser l&rsquo;intima</li>
+      <li><strong>Fils de suture microchirurgicaux</strong> &mdash; fils r&eacute;sorbables de calibre 7-0 &agrave; 10-0 pour suturer les parois vasculaires</li>
+      <li><strong>Scalpel de chakra (pr&eacute;cision vasculaire)</strong> &mdash; r&eacute;glage ultrafin pour d&eacute;brider les berges vasculaires sans h&eacute;morragie</li>
+    </ul>
+    <h3>Techniques de reconnexion</h3>
+    <ul class="content-list">
+      <li><strong>Anastomose termino-terminale</strong> &mdash; reconnexion bout &agrave; bout des deux extr&eacute;mit&eacute;s d&rsquo;un vaisseau sectionn&eacute;</li>
+      <li><strong>Anastomose termino-lat&eacute;rale</strong> &mdash; greffon vasculaire connect&eacute; sur le c&ocirc;t&eacute; d&rsquo;un vaisseau sain (en cas de perte de segment)</li>
+      <li><strong>Pontage de chakra</strong> &mdash; technique ninja consistant &agrave; maintenir un flux de chakra m&eacute;dical dans le vaisseau pendant la suture pour &eacute;viter la thrombose</li>
+    </ul>
+    <div class="note-box note-warning">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>Le temps d&rsquo;isch&eacute;mie chaude ne doit pas d&eacute;passer 6 heures pour un membre sup&eacute;rieur. Au-del&agrave;, les dommages tissulaires deviennent irr&eacute;versibles.</span>
+    </div>
+  </div>
+
+  <div class="section-sep"></div>
+
+  <!-- ============================================================ -->
+  <!-- 3. PHARMACOLOGIE -->
+  <!-- ============================================================ -->
+  <div class="panel">
+    <span class="section-num">III</span>
+    <h2>Pharmacologie</h2>
+    <p class="lead">Agents pharmacologiques utilis&eacute;s en environnement chirurgical pour contr&ocirc;ler les fonctions vitales du patient.</p>
+    <h3>Agents cardiaques ralentisseurs</h3>
+    <ul class="content-list">
+      <li><strong>Esmolol</strong> &mdash; b&ecirc;ta-bloquant &agrave; action ultracourte (demi-vie &asymp; 9 minutes)</li>
+      <li>Utilis&eacute; en chirurgie pour <strong>r&eacute;duire la fr&eacute;quence cardiaque</strong> pendant les op&eacute;rations d&eacute;licates (chirurgie vasculaire, r&eacute;implantation)</li>
+      <li>Permet un champ op&eacute;ratoire plus stable en limitant les pulsations art&eacute;rielles</li>
+      <li>Administration par voie intraveineuse &mdash; titrable en temps r&eacute;el par l&rsquo;anesth&eacute;siste</li>
+    </ul>
+    <div class="note-box note-warning">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>Surdosage = bradycardie s&eacute;v&egrave;re voire arr&ecirc;t cardiaque. Surveillance continue du rythme cardiaque obligatoire.</span>
+    </div>
+    <div class="note-box note-info" style="margin-top:8px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <span>Contre-indiqu&eacute; chez les patients pr&eacute;sentant un bloc auriculo-ventriculaire ou une insuffisance cardiaque d&eacute;compens&eacute;e.</span>
+    </div>
+  </div>
+
+  <div class="section-sep"></div>
+
+  <!-- ============================================================ -->
+  <!-- 4. RÉIMPLANTATION DE MEMBRE -->
+  <!-- ============================================================ -->
+  <div class="panel">
+    <span class="section-num">IV</span>
+    <h2>R&eacute;implantation de Membre</h2>
+    <p class="lead">R&eacute;implantation macroscopique du membre sup&eacute;rieur au niveau de l&rsquo;articulation gl&eacute;no-hum&eacute;rale (jonction &eacute;paule-bras). Proc&eacute;dure de haute complexit&eacute; n&eacute;cessitant une &eacute;quipe chirurgicale compl&egrave;te.</p>
+
+    <h3>Ordre de r&eacute;paration</h3>
+    <div class="pipeline">
+      <span class="pipe-step">Os</span>
+      <span class="pipe-arrow">&rarr;</span>
+      <span class="pipe-step">Art&egrave;re</span>
+      <span class="pipe-arrow">&rarr;</span>
+      <span class="pipe-step">Veines</span>
+      <span class="pipe-arrow">&rarr;</span>
+      <span class="pipe-step">Nerfs</span>
+      <span class="pipe-arrow">&rarr;</span>
+      <span class="pipe-step">Muscles</span>
+      <span class="pipe-arrow">&rarr;</span>
+      <span class="pipe-step">Peau</span>
+    </div>
+
+    <ul class="content-list">
+      <li><strong>Os</strong> &mdash; ost&eacute;osynth&egrave;se par plaques et vis pour stabiliser le squelette articulaire</li>
+      <li><strong>Art&egrave;re</strong> &mdash; anastomose de l&rsquo;art&egrave;re axillaire pour r&eacute;tablir la perfusion sanguine au plus vite</li>
+      <li><strong>Veines</strong> &mdash; reconnexion du retour veineux pour &eacute;viter l&rsquo;&oelig;d&egrave;me massif</li>
+      <li><strong>Nerfs</strong> &mdash; r&eacute;paration du plexus brachial (neurorraphie) pour restaurer la motricit&eacute; et la sensibilit&eacute;</li>
+      <li><strong>Muscles</strong> &mdash; suture des groupes musculaires (delto&iuml;de, rotateurs, biceps, triceps)</li>
+      <li><strong>Peau</strong> &mdash; fermeture cutan&eacute;e et drainage</li>
+    </ul>
+
+    <div class="note-box note-warning">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>Proc&eacute;dure extr&ecirc;mement risqu&eacute;e. Taux de r&eacute;ussite fonctionnelle variable. Le membre r&eacute;implant&eacute; peut ne jamais retrouver sa motricit&eacute; compl&egrave;te, en particulier la motricit&eacute; fine.</span>
+    </div>
+  </div>
+
+  <div class="section-sep"></div>
+
+  <!-- ============================================================ -->
+  <!-- 5. URGENCES NEUROLOGIQUES -->
+  <!-- ============================================================ -->
+  <div class="panel">
+    <span class="section-num">V</span>
+    <h2>Urgences Neurologiques</h2>
+    <p class="lead">Prise en charge des &eacute;tats neurologiques aigus rencontr&eacute;s en milieu ninja.</p>
+
+    <h3>Convulsions</h3>
+    <ul class="content-list">
+      <li>S&eacute;curiser le patient (d&eacute;gager l&rsquo;environnement, prot&eacute;ger la t&ecirc;te)</li>
+      <li>Position lat&eacute;rale de s&eacute;curit&eacute; d&egrave;s la fin de la crise</li>
+      <li>Administration d&rsquo;anticonvulsivants si la crise d&eacute;passe 5 minutes (benzodiaz&eacute;pines)</li>
+      <li>Rechercher la cause&nbsp;: trauma cr&acirc;nien, empoisonnement, genjutsu r&eacute;siduel, surcharge de chakra</li>
+    </ul>
+
+    <h3>D&eacute;lires</h3>
+    <ul class="content-list">
+      <li>&Eacute;valuer l&rsquo;orientation (temps, espace, identit&eacute;)</li>
+      <li>Rechercher une intoxication, une fi&egrave;vre &eacute;lev&eacute;e, ou un genjutsu actif</li>
+      <li>S&eacute;dation l&eacute;g&egrave;re si agitation dangereuse pour le patient ou l&rsquo;entourage</li>
+    </ul>
+
+    <h3>D&eacute;doublement de personnalit&eacute;</h3>
+    <ul class="content-list">
+      <li>Ph&eacute;nom&egrave;ne fr&eacute;quent chez les jinch&ucirc;riki ou les victimes de techniques de possession</li>
+      <li>Ne pas tenter de contention physique &mdash; privil&eacute;gier la d&eacute;sescalade verbale</li>
+      <li>Analyse du r&eacute;seau de chakra (Kaiseki Kenshin) pour d&eacute;tecter une signature &eacute;trang&egrave;re</li>
+      <li>Orientation vers un sp&eacute;cialiste en f&ucirc;injutsu si une entit&eacute; scell&eacute;e est d&eacute;tect&eacute;e</li>
+    </ul>
+
+    <h3>H&eacute;molacrie (larmes de sang)</h3>
+    <ul class="content-list">
+      <li>Saignement lacrymal associ&eacute; &agrave; une surcharge des tenketsu p&eacute;ri-oculaires</li>
+      <li>Souvent li&eacute; &agrave; un usage excessif de d&ocirc;jutsu (Mangeky&ocirc; Sharingan notamment)</li>
+      <li>Nettoyage d&eacute;licat, compression l&eacute;g&egrave;re, repos oculaire complet</li>
+      <li>Interdire toute activation de d&ocirc;jutsu pendant la p&eacute;riode de r&eacute;cup&eacute;ration</li>
+    </ul>
+
+    <div class="note-box note-warning">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>Une h&eacute;molacrie r&eacute;p&eacute;t&eacute;e sans traitement peut entra&icirc;ner une c&eacute;cit&eacute; d&eacute;finitive par d&eacute;g&eacute;n&eacute;rescence r&eacute;tinienne.</span>
+    </div>
+  </div>
+
+  <div class="section-sep"></div>
+
+  <!-- ============================================================ -->
+  <!-- 6. CHIRURGIE D'URGENCE -->
+  <!-- ============================================================ -->
+  <div class="panel">
+    <span class="section-num">VI</span>
+    <h2>Chirurgie d&rsquo;Urgence</h2>
+    <p class="lead"><strong>H&eacute;mop&eacute;ritoine massif</strong> &mdash; accumulation massive de sang dans la cavit&eacute; abdominale, le plus souvent apr&egrave;s un traumatisme p&eacute;n&eacute;trant ou un impact contondant violent.</p>
+
+    <h3>Technique du packing des 4 quadrants</h3>
+    <ul class="content-list">
+      <li><strong>Laparotomie d&rsquo;urgence</strong> &mdash; incision m&eacute;diane xipho-pubienne pour acc&eacute;der &agrave; l&rsquo;ensemble de la cavit&eacute;</li>
+      <li><strong>Aspiration du sang libre</strong> &mdash; &eacute;vacuation rapide pour visualiser la source h&eacute;morragique</li>
+      <li><strong>Packing</strong> &mdash; placement de compresses h&eacute;mostatiques dans les quatre quadrants abdominaux (sup&eacute;rieur droit, sup&eacute;rieur gauche, inf&eacute;rieur droit, inf&eacute;rieur gauche)</li>
+      <li><strong>Clampage temporaire</strong> &mdash; contr&ocirc;le de l&rsquo;h&eacute;morragie active par clampage art&eacute;riel</li>
+    </ul>
+
+    <h3>Damage Control Surgery</h3>
+    <p class="lead">Strat&eacute;gie en trois temps pour les patients en &eacute;tat critique&nbsp;:</p>
+    <ul class="content-list">
+      <li><strong>Temps 1</strong> &mdash; Contr&ocirc;le de l&rsquo;h&eacute;morragie et de la contamination (packing + fermeture temporaire)</li>
+      <li><strong>Temps 2</strong> &mdash; R&eacute;animation en soins intensifs (r&eacute;chauffement, correction de l&rsquo;acidose, transfusion)</li>
+      <li><strong>Temps 3</strong> &mdash; Reprise chirurgicale d&eacute;finitive une fois le patient stabilis&eacute; (retrait du packing, r&eacute;paration des l&eacute;sions)</li>
+    </ul>
+
+    <div class="note-box note-warning">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>La triade l&eacute;tale (hypothermie, acidose, coagulopathie) tue plus vite que la blessure elle-m&ecirc;me. Le damage control vise &agrave; interrompre cette spirale.</span>
+    </div>
+  </div>
+
+  <div class="section-sep"></div>
+
+  <!-- ============================================================ -->
+  <!-- 7. PATHOLOGIE LIÉE AU CANNIBALISME -->
+  <!-- ============================================================ -->
+  <div class="panel">
+    <span class="section-num">VII</span>
+    <h2>Pathologie Li&eacute;e au Cannibalisme</h2>
+    <p class="lead">Maladie &agrave; prions mod&eacute;lis&eacute;e sur le <strong>kuru</strong> &mdash; enc&eacute;phalopathie spongiforme transmissible par ingestion de tissus humains (notamment le cerveau).</p>
+
+    <h3>Physiopathologie</h3>
+    <ul class="content-list">
+      <li>Les <strong>prions</strong> sont des prot&eacute;ines mal repli&eacute;es qui forcent les prot&eacute;ines saines &agrave; adopter la m&ecirc;me conformation anormale</li>
+      <li>Destruction progressive des neurones &mdash; formation de vacuoles dans le tissu c&eacute;r&eacute;bral (aspect &laquo;&nbsp;spongieux&nbsp;&raquo;)</li>
+      <li>Aucun traitement curatif connu &mdash; maladie invariablement fatale</li>
+    </ul>
+
+    <h3>Sympt&ocirc;mes &eacute;volutifs</h3>
+    <ul class="content-list">
+      <li>Tremblements, ataxie c&eacute;r&eacute;belleuse (perte de coordination)</li>
+      <li>D&eacute;t&eacute;rioration cognitive progressive</li>
+      <li>Troubles de l&rsquo;&eacute;locution, difficult&eacute;s &agrave; d&eacute;glutir</li>
+      <li>Rires et pleurs pathologiques incontr&ocirc;lables</li>
+    </ul>
+
+    <h3>Marqueur biologique</h3>
+    <ul class="content-list">
+      <li><strong>Leucop&eacute;nie progressive</strong> &mdash; chute continue des globules blancs, affaiblissant le syst&egrave;me immunitaire du patient</li>
+    </ul>
+
+    <div class="note-box note-warning">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>Maladie incurable. Les soins sont exclusivement palliatifs.</span>
+    </div>
+
+    <div class="prognosis">Pronostic de survie minimum&nbsp;: 3 mois</div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- FOOTER -->
+  <!-- ============================================================ -->
+  <footer>Outil p&eacute;dagogique officiel &middot; <span class="seal">Seimei</span> &middot; Sunagakure</footer>
+</div>
+</body>
+</html>
