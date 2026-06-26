@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seimei &mdash; Les Techniques M&eacute;dicales | Sunagakure</title>
+<style>
+@import url('vendor/fonts.css');
+:root{
+  --sand-1:#f4e4c1;--sand-deep:#c89b5e;--ocre:#b5712b;--ocre-deep:#8a4f1a;
+  --rust:#7a3b15;--parchment:#f0dfb8;--chakra:#6fcf97;--chakra-glow:#3ddc84;
+  --blood-light:#c4453a;--gold:#ffd86b;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Cormorant Garamond',serif;color:var(--parchment);min-height:100vh;overflow-x:hidden;
+  background:radial-gradient(ellipse at 50% -10%,#5a3d1e 0%,transparent 55%),
+    linear-gradient(160deg,#2e1d0c 0%,#1c1106 60%,#140c04 100%);}
+body::before{content:"";position:fixed;inset:0;opacity:.05;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  z-index:1;}
+.wrap{position:relative;z-index:2;max-width:820px;margin:0 auto;padding:28px 16px 80px;}
+.back-btn{text-align:right;margin-bottom:8px;}
+.back-btn a{font-family:'Cinzel',serif;font-weight:700;font-size:.82rem;letter-spacing:.05em;
+  padding:8px 16px;border:1px solid var(--ocre);border-radius:9px;color:var(--sand-1);
+  text-decoration:none;text-transform:uppercase;transition:.2s;}
+.back-btn a:hover{background:rgba(181,113,43,.2);}
+header{text-align:center;margin-bottom:20px;}
+.crest{width:64px;height:64px;margin:0 auto 10px;border:3px solid var(--ocre);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle,rgba(181,113,43,.25),transparent 70%);
+  box-shadow:0 0 24px rgba(181,113,43,.35);}
+.crest svg{width:36px;height:36px;}
+h1{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(1.6rem,5vw,2.5rem);
+  letter-spacing:.06em;color:var(--sand-1);text-shadow:0 2px 0 var(--rust),0 0 28px rgba(181,113,43,.5);}
+.sub{font-size:1.1rem;color:var(--sand-deep);font-style:italic;margin-top:4px;}
+.divider{height:2px;width:58%;margin:14px auto 0;background:linear-gradient(90deg,transparent,var(--ocre),transparent);}
+.panel{background:linear-gradient(160deg,rgba(240,223,184,.07),rgba(60,41,20,.15));
+  border:1px solid rgba(181,113,43,.45);border-radius:14px;padding:20px;margin-bottom:18px;
+  box-shadow:0 10px 30px rgba(0,0,0,.45);}
+.panel h2{font-family:'Cinzel',serif;font-weight:700;color:var(--ocre);font-size:1.15rem;
+  letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.panel h2::before{content:"";width:7px;height:7px;background:var(--ocre);transform:rotate(45deg);}
+.lead{font-size:1.08rem;line-height:1.55;}
+
+/* Grade ladder */
+.grade-ladder{display:flex;flex-direction:column;gap:6px;margin-top:14px;}
+.grade-step{display:flex;align-items:center;gap:12px;padding:8px 14px;
+  border-radius:9px;border:1px solid rgba(181,113,43,.25);
+  background:rgba(20,12,4,.4);transition:.2s;}
+.grade-step .grade-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.grade-step .grade-name{font-family:'Cinzel',serif;font-weight:700;font-size:.95rem;
+  letter-spacing:.04em;min-width:100px;}
+.grade-step .grade-rank{font-size:.92rem;color:var(--sand-deep);font-style:italic;}
+.grade-aspirant .grade-dot{background:#8a8a8a;box-shadow:0 0 6px rgba(138,138,138,.5);}
+.grade-aspirant .grade-name{color:#b0b0b0;}
+.grade-adepte .grade-dot{background:#5b9bd5;box-shadow:0 0 6px rgba(91,155,213,.5);}
+.grade-adepte .grade-name{color:#7db8e8;}
+.grade-expert .grade-dot{background:#9b72cf;box-shadow:0 0 6px rgba(155,114,207,.5);}
+.grade-expert .grade-name{color:#b48ee0;}
+.grade-maitre .grade-dot{background:var(--gold);box-shadow:0 0 8px rgba(255,216,107,.6);}
+.grade-maitre .grade-name{color:var(--gold);}
+
+/* Grade section dividers */
+.grade-section{margin-top:30px;margin-bottom:14px;text-align:center;}
+.grade-section-title{font-family:'Cinzel',serif;font-weight:900;font-size:1.1rem;
+  letter-spacing:.1em;text-transform:uppercase;padding:6px 20px;display:inline-block;
+  border-radius:8px;}
+.grade-section-line{height:1px;margin:8px auto 0;width:70%;
+  background:linear-gradient(90deg,transparent,rgba(181,113,43,.3),transparent);}
+.section-aspirant .grade-section-title{color:#b0b0b0;border:1px solid rgba(138,138,138,.35);
+  background:rgba(138,138,138,.08);}
+.section-adepte .grade-section-title{color:#7db8e8;border:1px solid rgba(91,155,213,.35);
+  background:rgba(91,155,213,.08);}
+.section-expert .grade-section-title{color:#b48ee0;border:1px solid rgba(155,114,207,.35);
+  background:rgba(155,114,207,.08);}
+.section-maitre .grade-section-title{color:var(--gold);border:1px solid rgba(255,216,107,.35);
+  background:rgba(255,216,107,.08);}
+
+/* Technique cards */
+.tech-card{position:relative;padding-top:28px;}
+.tech-card h2{font-size:1.2rem;}
+.badge{position:absolute;top:14px;right:14px;font-family:'Cinzel',serif;font-weight:700;
+  font-size:.68rem;letter-spacing:.08em;padding:3px 10px;border-radius:6px;
+  text-transform:uppercase;}
+.badge-aspirant{background:rgba(138,138,138,.2);border:1px solid rgba(138,138,138,.45);color:#b0b0b0;}
+.badge-adepte{background:rgba(91,155,213,.15);border:1px solid rgba(91,155,213,.45);color:#7db8e8;}
+.badge-expert{background:rgba(155,114,207,.15);border:1px solid rgba(155,114,207,.45);color:#b48ee0;}
+.badge-maitre{background:rgba(255,216,107,.15);border:1px solid rgba(255,216,107,.45);color:var(--gold);}
+
+.tech-desc{font-size:1.05rem;line-height:1.55;margin-bottom:10px;}
+.tech-list{list-style:none;margin:10px 0;padding:0;}
+.tech-list li{position:relative;padding:4px 0 4px 20px;font-size:1.02rem;line-height:1.45;color:var(--parchment);}
+.tech-list li::before{content:"";position:absolute;left:2px;top:11px;width:6px;height:6px;
+  background:var(--ocre);transform:rotate(45deg);}
+
+/* Warning / Important boxes */
+.note-box{display:flex;align-items:flex-start;gap:10px;margin-top:12px;padding:10px 14px;
+  border-radius:9px;font-size:.98rem;line-height:1.45;}
+.note-box svg{flex-shrink:0;width:20px;height:20px;margin-top:2px;}
+.note-warning{background:rgba(196,69,58,.12);border:1px solid rgba(196,69,58,.45);color:#ffcaa0;}
+.note-warning svg{color:var(--blood-light);}
+.note-info{background:rgba(91,155,213,.1);border:1px solid rgba(91,155,213,.35);color:#a8cce8;}
+.note-info svg{color:#7db8e8;}
+
+/* Summary table */
+.summary-grid{width:100%;border-collapse:collapse;margin-top:10px;}
+.summary-grid th,.summary-grid td{padding:8px 10px;text-align:left;font-size:.95rem;
+  border-bottom:1px solid rgba(181,113,43,.2);}
+.summary-grid th{font-family:'Cinzel',serif;font-weight:700;color:var(--ocre);font-size:.85rem;
+  letter-spacing:.05em;text-transform:uppercase;}
+.summary-grid td{color:var(--parchment);}
+.summary-grid tr:last-child td{border-bottom:none;}
+.summary-grid .sg-badge{font-family:'Cinzel',serif;font-weight:700;font-size:.75rem;
+  letter-spacing:.05em;padding:2px 8px;border-radius:5px;display:inline-block;white-space:nowrap;}
+
+footer{text-align:center;margin-top:26px;color:var(--sand-deep);font-style:italic;}
+footer .seal{color:var(--ocre);font-family:'Cinzel',serif;}
+
+@media(max-width:480px){
+  .badge{position:relative;top:auto;right:auto;display:inline-block;margin-bottom:8px;}
+  .tech-card{padding-top:20px;}
+  .grade-step .grade-name{min-width:80px;font-size:.85rem;}
+  .summary-grid th,.summary-grid td{padding:6px 6px;font-size:.85rem;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="back-btn"><a href="index.html">&larr; Retour au hub</a></div>
+  <header>
+    <div class="crest"><svg viewBox="0 0 100 100" fill="none">
+      <circle cx="50" cy="50" r="30" stroke="#b5712b" stroke-width="4"/>
+      <path d="M50 22 L58 44 L50 50 L42 44 Z" fill="#b5712b"/>
+      <path d="M50 78 L42 56 L50 50 L58 56 Z" fill="#b5712b"/>
+      <circle cx="50" cy="50" r="6" fill="#8a4f1a"/>
+    </svg></div>
+    <h1>Les Techniques M&eacute;dicales</h1>
+    <div class="sub">Section M&eacute;dicale Seimei &middot; Sunagakure</div>
+    <div class="divider"></div>
+  </header>
+
+  <!-- ============================================================ -->
+  <!-- INTRO -->
+  <!-- ============================================================ -->
+  <div class="panel">
+    <h2>Introduction</h2>
+    <p class="lead">Le ninjutsu m&eacute;dical est un art ninja qui requiert beaucoup d&rsquo;entra&icirc;nement et de pr&eacute;cision. Toute technique m&eacute;dicale doit &ecirc;tre apprise et ma&icirc;tris&eacute;e afin de pouvoir l&rsquo;utiliser sur des patients.</p>
+    <div class="grade-ladder">
+      <div class="grade-step grade-aspirant">
+        <div class="grade-dot"></div>
+        <span class="grade-name">Aspirant</span>
+        <span class="grade-rank">Chunin</span>
+      </div>
+      <div class="grade-step grade-adepte">
+        <div class="grade-dot"></div>
+        <span class="grade-name">Adepte</span>
+        <span class="grade-rank">Konin</span>
+      </div>
+      <div class="grade-step grade-expert">
+        <div class="grade-dot"></div>
+        <span class="grade-name">Expert</span>
+        <span class="grade-rank">Iki</span>
+      </div>
+      <div class="grade-step grade-maitre">
+        <div class="grade-dot"></div>
+        <span class="grade-name">Ma&icirc;tre</span>
+        <span class="grade-rank">Iki</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- ASPIRANT (CHUNIN) -->
+  <!-- ============================================================ -->
+  <div class="grade-section section-aspirant">
+    <span class="grade-section-title">Aspirant &mdash; Chunin</span>
+    <div class="grade-section-line"></div>
+  </div>
+
+  <!-- 1. Kaiseki Kenshin -->
+  <div class="panel tech-card">
+    <span class="badge badge-aspirant">Aspirant</span>
+    <h2>Kaiseki Kenshin</h2>
+    <p class="tech-desc">Technique d&rsquo;analyse m&eacute;dicale permettant d&rsquo;explorer l&rsquo;int&eacute;rieur du corps sans incision. D&eacute;tecte&nbsp;:</p>
+    <ul class="tech-list">
+      <li>Fractures internes et externes</li>
+      <li>H&eacute;morragies internes</li>
+      <li>Corps &eacute;trangers (shurikens, &eacute;clats m&eacute;talliques)</li>
+      <li>Dysfonctionnements organiques</li>
+      <li>Empoisonnements</li>
+    </ul>
+  </div>
+
+  <!-- 2. Transfert de Chakra -->
+  <div class="panel tech-card">
+    <span class="badge badge-aspirant">Aspirant</span>
+    <h2>Transfert de Chakra</h2>
+    <p class="tech-desc">Permet de donner son propre chakra &agrave; une autre personne&nbsp;:</p>
+    <ul class="tech-list">
+      <li>Soutenir un ninja &eacute;puis&eacute; ou inconscient</li>
+      <li>Restaurer les r&eacute;serves de chakra apr&egrave;s un combat</li>
+      <li>Stabiliser un patient avant une op&eacute;ration ou en cas d&rsquo;urgence vitale</li>
+    </ul>
+    <div class="note-box note-info">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <span>N&eacute;cessite un contact physique direct.</span>
+    </div>
+  </div>
+
+  <!-- 3. Paume Spirituelle -->
+  <div class="panel tech-card">
+    <span class="badge badge-aspirant">Aspirant</span>
+    <h2>Paume Spirituelle</h2>
+    <p class="tech-desc">R&eacute;g&eacute;n&egrave;re les tissus des blessures superficielles&nbsp;: petites entailles, h&eacute;matomes, petites br&ucirc;lures. Insuffle une petite quantit&eacute; de chakra par projection sur courte distance.</p>
+    <p class="tech-desc">Tr&egrave;s utilis&eacute;e sur le champ de bataille gr&acirc;ce &agrave; sa rapidit&eacute;.</p>
+    <div class="note-box note-info">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <span>Ne permet pas de soigner de plus grandes blessures comme la Paume Mystique.</span>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- ADEPTE (KONIN) -->
+  <!-- ============================================================ -->
+  <div class="grade-section section-adepte">
+    <span class="grade-section-title">Adepte &mdash; Konin</span>
+    <div class="grade-section-line"></div>
+  </div>
+
+  <!-- 4. Dokunoki no Jutsu -->
+  <div class="panel tech-card">
+    <span class="badge badge-adepte">Adepte</span>
+    <h2>Dokunoki no Jutsu</h2>
+    <p class="tech-desc">Extraction de poison via une bulle d&rsquo;eau contr&ocirc;l&eacute;e avec le chakra. Deux incisions&nbsp;:</p>
+    <ul class="tech-list">
+      <li><strong>Premi&egrave;re plaie&nbsp;:</strong> introduction d&rsquo;une bulle de chakra aqueux pour encapsuler le poison</li>
+      <li><strong>Seconde plaie&nbsp;:</strong> voie de sortie pour expulser la bulle charg&eacute;e</li>
+    </ul>
+    <div class="note-box note-info">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <span>La bulle circule lentement &agrave; travers les tissus contamin&eacute;s, absorbant les particules toxiques.</span>
+    </div>
+  </div>
+
+  <!-- 5. Inyushumetsu -->
+  <div class="panel tech-card">
+    <span class="badge badge-adepte">Adepte</span>
+    <h2>Inyushumetsu</h2>
+    <p class="tech-desc">Cicatrise les blessures rapidement avec du chakra m&eacute;dical en &eacute;bullition.</p>
+    <div class="note-box note-warning">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>Extr&ecirc;mement douloureuse pour le patient&nbsp;! &Agrave; utiliser en dernier recours uniquement&nbsp;!</span>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- EXPERT (IKI) -->
+  <!-- ============================================================ -->
+  <div class="grade-section section-expert">
+    <span class="grade-section-title">Expert &mdash; Iki</span>
+    <div class="grade-section-line"></div>
+  </div>
+
+  <!-- 6. Paume Mystique -->
+  <div class="panel tech-card">
+    <span class="badge badge-expert">Expert</span>
+    <h2>Paume Mystique</h2>
+    <p class="tech-desc">Acc&eacute;l&egrave;re la r&eacute;g&eacute;n&eacute;ration cellulaire via un flux de chakra m&eacute;dical transmis par les paumes. Referme les plaies, r&eacute;pare les tissus mous (muscles, peau), calme la douleur.</p>
+    <div class="note-box note-info">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <span>Ne remplace pas les op&eacute;rations chirurgicales (r&eacute;alignement d&rsquo;os, retrait de fragments) mais peut &ecirc;tre compl&eacute;mentaire.</span>
+    </div>
+  </div>
+
+  <!-- 7. Scalpel de Chakra -->
+  <div class="panel tech-card">
+    <span class="badge badge-expert">Expert</span>
+    <h2>Scalpel de Chakra</h2>
+    <p class="tech-desc">Lame de chakra extr&ecirc;mement fine et tranchante. Ne laisse pas d&rsquo;incision visible si l&rsquo;utilisateur le souhaite. Coupe &agrave; l&rsquo;int&eacute;rieur du corps sans l&eacute;ser la peau.</p>
+    <div class="note-box note-warning">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>Un geste mal ajust&eacute; peut entra&icirc;ner des dommages irr&eacute;versibles (section d&rsquo;un vaisseau, d&rsquo;un nerf ou d&rsquo;un organe).</span>
+    </div>
+  </div>
+
+  <!-- 8. Fils de Chakra Médicaux -->
+  <div class="panel tech-card">
+    <span class="badge badge-expert">Expert</span>
+    <h2>Fils de Chakra M&eacute;dicaux</h2>
+    <p class="tech-desc">Permet de suturer des plaies internes sans incision. Souvent utilis&eacute; en compl&eacute;ment du Scalpel de Chakra pour refermer ce qui a &eacute;t&eacute; op&eacute;r&eacute;.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- MAÎTRE (IKI) -->
+  <!-- ============================================================ -->
+  <div class="grade-section section-maitre">
+    <span class="grade-section-title">Ma&icirc;tre &mdash; Iki</span>
+    <div class="grade-section-line"></div>
+  </div>
+
+  <!-- 9. Hone no Sasei -->
+  <div class="panel tech-card">
+    <span class="badge badge-maitre">Ma&icirc;tre</span>
+    <h2>Hone no Sasei</h2>
+    <p class="tech-desc">Manipulation pr&eacute;cise du chakra pour souder les &eacute;l&eacute;ments cartilagineux et les microfractures osseuses.</p>
+    <div class="note-box note-info">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <span>Ne permet pas de souder les os bris&eacute;s. Peut &ecirc;tre utilis&eacute;e en suppl&eacute;ment d&rsquo;une op&eacute;ration.</span>
+    </div>
+    <div class="note-box note-warning" style="margin-top:8px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>Fatigue &eacute;norm&eacute;ment l&rsquo;utilisateur &mdash; &agrave; utiliser avec parcimonie.</span>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- RÉCAPITULATIF -->
+  <!-- ============================================================ -->
+  <div class="panel">
+    <h2>R&eacute;capitulatif</h2>
+    <table class="summary-grid">
+      <thead>
+        <tr>
+          <th>Grade</th>
+          <th>Technique</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="sg-badge badge-aspirant">Aspirant</span></td>
+          <td>Kaiseki Kenshin</td>
+        </tr>
+        <tr>
+          <td><span class="sg-badge badge-aspirant">Aspirant</span></td>
+          <td>Transfert de Chakra</td>
+        </tr>
+        <tr>
+          <td><span class="sg-badge badge-aspirant">Aspirant</span></td>
+          <td>Paume Spirituelle</td>
+        </tr>
+        <tr>
+          <td><span class="sg-badge badge-adepte">Adepte</span></td>
+          <td>Dokunoki no Jutsu</td>
+        </tr>
+        <tr>
+          <td><span class="sg-badge badge-adepte">Adepte</span></td>
+          <td>Inyushumetsu</td>
+        </tr>
+        <tr>
+          <td><span class="sg-badge badge-expert">Expert</span></td>
+          <td>Paume Mystique</td>
+        </tr>
+        <tr>
+          <td><span class="sg-badge badge-expert">Expert</span></td>
+          <td>Scalpel de Chakra</td>
+        </tr>
+        <tr>
+          <td><span class="sg-badge badge-expert">Expert</span></td>
+          <td>Fils de Chakra M&eacute;dicaux</td>
+        </tr>
+        <tr>
+          <td><span class="sg-badge badge-maitre">Ma&icirc;tre</span></td>
+          <td>Hone no Sasei</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer>Outil p&eacute;dagogique officiel &middot; <span class="seal">Seimei</span> &middot; Sunagakure</footer>
+</div>
+</body>
+</html>
