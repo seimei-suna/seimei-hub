@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seimei &mdash; Botanique &amp; Sciences | Sunagakure</title>
+<style>
+@import url('vendor/fonts.css');
+:root{
+  --sand-1:#f4e4c1;--sand-deep:#c89b5e;--ocre:#b5712b;--ocre-deep:#8a4f1a;
+  --rust:#7a3b15;--parchment:#f0dfb8;--chakra:#6fcf97;--chakra-glow:#3ddc84;
+  --blood-light:#c4453a;--gold:#ffd86b;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Cormorant Garamond',serif;color:var(--parchment);min-height:100vh;overflow-x:hidden;
+  background:radial-gradient(ellipse at 50% -10%,#5a3d1e 0%,transparent 55%),
+    linear-gradient(160deg,#2e1d0c 0%,#1c1106 60%,#140c04 100%);}
+body::before{content:"";position:fixed;inset:0;opacity:.05;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  z-index:1;}
+.wrap{position:relative;z-index:2;max-width:900px;margin:0 auto;padding:28px 16px 80px;}
+.back-btn{text-align:right;margin-bottom:8px;}
+.back-btn a{font-family:'Cinzel',serif;font-weight:700;font-size:.82rem;letter-spacing:.05em;
+  padding:8px 16px;border:1px solid var(--ocre);border-radius:9px;color:var(--sand-1);
+  text-decoration:none;text-transform:uppercase;transition:.2s;}
+.back-btn a:hover{background:rgba(181,113,43,.2);}
+header{text-align:center;margin-bottom:24px;}
+.crest{width:64px;height:64px;margin:0 auto 10px;border:3px solid var(--chakra);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle,rgba(111,207,151,.2),transparent 70%);
+  box-shadow:0 0 24px rgba(111,207,151,.3);}
+.crest svg{width:36px;height:36px;}
+h1{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(1.6rem,5vw,2.5rem);
+  letter-spacing:.06em;color:var(--sand-1);text-shadow:0 2px 0 var(--rust),0 0 28px rgba(181,113,43,.5);}
+.sub{font-size:1.1rem;color:var(--sand-deep);font-style:italic;margin-top:4px;}
+.divider{height:2px;width:58%;margin:14px auto 0;background:linear-gradient(90deg,transparent,var(--ocre),transparent);}
+
+/* Panels */
+.panel{background:linear-gradient(160deg,rgba(240,223,184,.07),rgba(60,41,20,.15));
+  border:1px solid rgba(181,113,43,.45);border-radius:14px;padding:20px;margin-bottom:18px;
+  box-shadow:0 10px 30px rgba(0,0,0,.45);}
+.panel h2{font-family:'Cinzel',serif;font-weight:700;color:var(--ocre);font-size:1.15rem;
+  letter-spacing:.05em;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.panel h2::before{content:"";width:7px;height:7px;background:var(--ocre);transform:rotate(45deg);}
+
+/* Section titles */
+.section-title{font-family:'Cinzel',serif;font-weight:900;font-size:1.2rem;
+  letter-spacing:.1em;text-transform:uppercase;text-align:center;
+  color:var(--sand-1);margin:34px 0 18px;
+  text-shadow:0 0 20px rgba(181,113,43,.4);}
+.section-title span{display:inline-block;padding:0 16px;position:relative;}
+.section-title span::before,.section-title span::after{content:"";position:absolute;top:50%;width:40px;
+  height:1px;background:var(--ocre);}
+.section-title span::before{right:100%;}
+.section-title span::after{left:100%;}
+
+/* Plant cards grid */
+.plant-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px;}
+.plant-card{background:linear-gradient(160deg,rgba(111,207,151,.06),rgba(60,41,20,.15));
+  border:1px solid rgba(111,207,151,.3);border-radius:14px;padding:18px 16px;
+  box-shadow:0 6px 20px rgba(0,0,0,.35);transition:transform .2s,box-shadow .2s;}
+.plant-card:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(111,207,151,.15);}
+.plant-card.suna-special{border-color:var(--gold);
+  background:linear-gradient(160deg,rgba(255,216,107,.08),rgba(60,41,20,.18));
+  box-shadow:0 6px 20px rgba(255,216,107,.12);}
+.plant-card.suna-special:hover{box-shadow:0 10px 28px rgba(255,216,107,.2);}
+.plant-num{font-family:'Cinzel',serif;font-weight:900;font-size:.75rem;color:var(--chakra);
+  letter-spacing:.06em;margin-bottom:4px;opacity:.7;}
+.suna-special .plant-num{color:var(--gold);}
+.plant-name{font-family:'Cinzel',serif;font-weight:700;font-size:1.05rem;color:var(--sand-1);
+  line-height:1.3;margin-bottom:2px;}
+.plant-common{font-size:.92rem;color:var(--sand-deep);font-style:italic;margin-bottom:8px;}
+.plant-usage{font-size:.95rem;color:var(--parchment);line-height:1.45;}
+.suna-badge{display:inline-flex;align-items:center;gap:5px;margin-top:8px;
+  font-family:'Cinzel',serif;font-weight:700;font-size:.7rem;letter-spacing:.08em;
+  padding:3px 10px;border-radius:6px;text-transform:uppercase;
+  background:rgba(255,216,107,.15);border:1px solid rgba(255,216,107,.45);color:var(--gold);}
+.suna-badge svg{width:12px;height:12px;fill:var(--gold);}
+
+/* Science sub-panels */
+.science-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:24px;}
+.science-panel{background:linear-gradient(160deg,rgba(240,223,184,.07),rgba(60,41,20,.15));
+  border:1px solid rgba(181,113,43,.45);border-radius:14px;padding:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,.45);}
+.science-panel h3{font-family:'Cinzel',serif;font-weight:700;color:var(--ocre);font-size:1.05rem;
+  letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.science-panel h3::before{content:"";width:6px;height:6px;background:var(--chakra);border-radius:50%;}
+.science-text{font-size:1rem;line-height:1.55;color:var(--parchment);}
+.science-text strong{color:var(--sand-1);font-weight:700;}
+
+/* Atom diagram */
+.atom-diagram{display:flex;align-items:center;justify-content:center;gap:20px;
+  margin:14px 0;padding:16px;border-radius:10px;background:rgba(20,12,4,.5);
+  border:1px solid rgba(181,113,43,.2);}
+.atom-part{text-align:center;padding:10px 16px;border-radius:8px;}
+.atom-nucleus{background:rgba(181,113,43,.15);border:1px solid rgba(181,113,43,.4);}
+.atom-electron{background:rgba(111,207,151,.1);border:1px solid rgba(111,207,151,.3);}
+.atom-part .label{font-family:'Cinzel',serif;font-weight:700;font-size:.88rem;
+  letter-spacing:.04em;margin-bottom:4px;}
+.atom-nucleus .label{color:var(--ocre);}
+.atom-electron .label{color:var(--chakra);}
+.atom-part .detail{font-size:.88rem;color:var(--sand-deep);line-height:1.4;}
+.atom-arrow{color:var(--sand-deep);font-size:1.2rem;}
+
+/* Cell chain */
+.cell-chain{display:flex;align-items:center;flex-wrap:wrap;gap:6px;
+  margin:12px 0;padding:14px;border-radius:10px;background:rgba(20,12,4,.5);
+  border:1px solid rgba(181,113,43,.2);justify-content:center;}
+.cell-step{font-family:'Cinzel',serif;font-weight:700;font-size:.85rem;
+  padding:5px 12px;border-radius:7px;letter-spacing:.03em;
+  background:rgba(181,113,43,.15);border:1px solid rgba(181,113,43,.35);color:var(--sand-1);}
+.cell-arrow{color:var(--sand-deep);font-size:.9rem;}
+.dna-info{font-size:.95rem;color:var(--parchment);line-height:1.5;margin-top:10px;}
+.dna-info strong{color:var(--chakra);}
+
+/* Matter cycle */
+.matter-cycle{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+  margin:14px 0;padding:16px;border-radius:10px;background:rgba(20,12,4,.5);
+  border:1px solid rgba(181,113,43,.2);}
+.matter-item{text-align:center;padding:10px 8px;border-radius:8px;
+  background:rgba(181,113,43,.1);border:1px solid rgba(181,113,43,.25);
+  transition:background .2s;}
+.matter-item:hover{background:rgba(181,113,43,.2);}
+.matter-name{font-family:'Cinzel',serif;font-weight:700;font-size:.82rem;
+  color:var(--sand-1);letter-spacing:.03em;margin-bottom:4px;}
+.matter-detail{font-size:.82rem;color:var(--sand-deep);line-height:1.3;}
+
+/* Reflexes tags */
+.reflexes-grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:12px;}
+.reflex-tag{font-family:'Cinzel',serif;font-weight:700;font-size:.82rem;
+  letter-spacing:.04em;padding:7px 16px;border-radius:8px;
+  background:linear-gradient(160deg,rgba(111,207,151,.1),rgba(60,41,20,.15));
+  border:1px solid rgba(111,207,151,.35);color:var(--chakra);
+  transition:transform .2s,background .2s,border-color .2s;}
+.reflex-tag:hover{transform:translateY(-2px);background:rgba(111,207,151,.18);
+  border-color:var(--chakra);}
+
+footer{text-align:center;margin-top:30px;color:var(--sand-deep);font-style:italic;font-size:.95rem;}
+footer .seal{color:var(--ocre);font-family:'Cinzel',serif;}
+
+@media(max-width:600px){
+  .plant-grid{grid-template-columns:1fr;}
+  .matter-cycle{grid-template-columns:repeat(2,1fr);}
+  .atom-diagram{flex-direction:column;gap:10px;}
+  .cell-chain{gap:4px;}
+  .cell-step{font-size:.78rem;padding:4px 8px;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="back-btn"><a href="index.html">Retour au hub</a></div>
+
+  <header>
+    <div class="crest">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#6fcf97" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M7 20h10"/>
+        <path d="M12 20v-6"/>
+        <path d="M12 14c-3 0-6-2.5-6-6 0-3.5 3-5.5 6-6 3 .5 6 2.5 6 6 0 3.5-3 6-6 6z"/>
+        <path d="M12 8v4"/>
+        <path d="M10 10h4"/>
+      </svg>
+    </div>
+    <h1>Botanique &amp; Sciences</h1>
+    <div class="sub">Section M&eacute;dicale Seimei &middot; Sunagakure</div>
+    <div class="divider"></div>
+  </header>
+
+  <!-- ===== SECTION 1 : BOTANIQUE ===== -->
+  <div class="section-title"><span>Botanique &mdash; Les 10 Plantes du Registre</span></div>
+
+  <div class="plant-grid">
+
+    <div class="plant-card">
+      <div class="plant-num">I</div>
+      <div class="plant-name">Catharanthus roseus</div>
+      <div class="plant-common">(Pervenche de Madagascar)</div>
+      <div class="plant-usage">Utilis&eacute;e dans le traitement des cancers : leuc&eacute;mies et lymphomes. Alcalo&iuml;des anti-tumoraux extraits de ses feuilles.</div>
+    </div>
+
+    <div class="plant-card">
+      <div class="plant-num">II</div>
+      <div class="plant-name">Digitalis purpurea</div>
+      <div class="plant-common">(Digitale pourpre)</div>
+      <div class="plant-usage">Traitement de l&rsquo;insuffisance cardiaque. La digitaline r&eacute;gule le rythme et renforce les contractions du c&oelig;ur.</div>
+    </div>
+
+    <div class="plant-card">
+      <div class="plant-num">III</div>
+      <div class="plant-name">Papaver somniferum</div>
+      <div class="plant-common">(Pavot)</div>
+      <div class="plant-usage">Source d&rsquo;antidouleurs puissants (morphine, cod&eacute;ine). Usage strictement contr&ocirc;l&eacute; en raison du risque de d&eacute;pendance.</div>
+    </div>
+
+    <div class="plant-card">
+      <div class="plant-num">IV</div>
+      <div class="plant-name">Cinchona officinalis</div>
+      <div class="plant-common">(Quinquina)</div>
+      <div class="plant-usage">Quinine extraite de l&rsquo;&eacute;corce. Employ&eacute;e pour traiter les r&eacute;actions aux piq&ucirc;res d&rsquo;insecte et leurs complications.</div>
+    </div>
+
+    <div class="plant-card">
+      <div class="plant-num">V</div>
+      <div class="plant-name">Artemisia annua</div>
+      <div class="plant-common">(Armoise annuelle)</div>
+      <div class="plant-usage">Art&eacute;misinine utilis&eacute;e contre les effets des piq&ucirc;res d&rsquo;insecte. Rem&egrave;de reconnu dans toutes les nations.</div>
+    </div>
+
+    <div class="plant-card suna-special">
+      <div class="plant-num">VI</div>
+      <div class="plant-name">Aloe vera</div>
+      <div class="plant-common">(Aloe vera)</div>
+      <div class="plant-usage">Cicatrisation, soins de la peau, anti-inflammatoire. Le gel de ses feuilles est un rem&egrave;de polyvalent du d&eacute;sert.</div>
+      <div class="suna-badge"><svg viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9"/></svg> Sp&eacute;cialit&eacute; de Suna</div>
+    </div>
+
+    <div class="plant-card">
+      <div class="plant-num">VII</div>
+      <div class="plant-name">Salix alba</div>
+      <div class="plant-common">(Saule blanc)</div>
+      <div class="plant-usage">Base historique de l&rsquo;aspirine. L&rsquo;acide salicylique de son &eacute;corce est un analg&eacute;sique et anti-inflammatoire naturel.</div>
+    </div>
+
+    <div class="plant-card">
+      <div class="plant-num">VIII</div>
+      <div class="plant-name">Taxus brevifolia</div>
+      <div class="plant-common">(If du Pacifique)</div>
+      <div class="plant-usage">Le taxol extrait de son &eacute;corce est utilis&eacute; en chimioth&eacute;rapie, notamment contre les cancers du sein et des ovaires.</div>
+    </div>
+
+    <div class="plant-card">
+      <div class="plant-num">IX</div>
+      <div class="plant-name">Oryza sativa</div>
+      <div class="plant-common">(Riz)</div>
+      <div class="plant-usage">Pilier de la nutrition mondiale. Utilis&eacute; en biotechnologie pour la production de vaccins et mol&eacute;cules th&eacute;rapeutiques.</div>
+    </div>
+
+    <div class="plant-card suna-special">
+      <div class="plant-num">X</div>
+      <div class="plant-name">Cactus / Opuntia</div>
+      <div class="plant-common">(Figuier de Barbarie)</div>
+      <div class="plant-usage">Protection gastrique et digestive. Ses fibres mucilagineuses forment un gel protecteur pour l&rsquo;estomac.</div>
+      <div class="suna-badge"><svg viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9"/></svg> Sp&eacute;cialit&eacute; de Suna</div>
+    </div>
+
+  </div>
+
+  <!-- ===== SECTION 2 : SCIENCE DE BASE ===== -->
+  <div class="section-title"><span>Science de Base</span></div>
+
+  <div class="science-grid">
+
+    <!-- L'Atome -->
+    <div class="science-panel">
+      <h3>L&rsquo;Atome</h3>
+      <p class="science-text">L&rsquo;atome est la plus petite unit&eacute; de mati&egrave;re. Il se compose d&rsquo;un <strong>noyau</strong> central entour&eacute; d&rsquo;<strong>&eacute;lectrons</strong>.</p>
+      <div class="atom-diagram">
+        <div class="atom-part atom-nucleus">
+          <div class="label">Noyau</div>
+          <div class="detail">Protons (+)<br>Neutrons (neutres)</div>
+        </div>
+        <div class="atom-arrow">&larr;&rarr;</div>
+        <div class="atom-part atom-electron">
+          <div class="label">&Eacute;lectrons</div>
+          <div class="detail">Charge n&eacute;gative (&minus;)<br>Orbitent autour du noyau</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- La Cellule -->
+    <div class="science-panel">
+      <h3>La Cellule</h3>
+      <p class="science-text">La cellule est l&rsquo;unit&eacute; fondamentale du vivant. Voici la hi&eacute;rarchie de l&rsquo;information g&eacute;n&eacute;tique :</p>
+      <div class="cell-chain">
+        <span class="cell-step">Cellule</span>
+        <span class="cell-arrow">&rarr;</span>
+        <span class="cell-step">Noyau</span>
+        <span class="cell-arrow">&rarr;</span>
+        <span class="cell-step">Chromosomes</span>
+        <span class="cell-arrow">&rarr;</span>
+        <span class="cell-step">ADN</span>
+        <span class="cell-arrow">&rarr;</span>
+        <span class="cell-step">G&egrave;nes</span>
+      </div>
+      <p class="dna-info">
+        L&rsquo;<strong>ADN</strong> est une double h&eacute;lice compos&eacute;e de 4 bases azot&eacute;es :
+        <strong>A</strong> (ad&eacute;nine), <strong>T</strong> (thymine),
+        <strong>C</strong> (cytosine), <strong>G</strong> (guanine).<br>
+        L&rsquo;&ecirc;tre humain poss&egrave;de <strong>23 paires</strong> de chromosomes.
+      </p>
+    </div>
+
+    <!-- Transformations de la mati&egrave;re -->
+    <div class="science-panel">
+      <h3>Transformations de la mati&egrave;re</h3>
+      <p class="science-text">Les changements d&rsquo;&eacute;tat de la mati&egrave;re entre solide, liquide et gaz :</p>
+      <div class="matter-cycle">
+        <div class="matter-item">
+          <div class="matter-name">Fusion</div>
+          <div class="matter-detail">Solide &rarr; Liquide</div>
+        </div>
+        <div class="matter-item">
+          <div class="matter-name">Vaporisation</div>
+          <div class="matter-detail">Liquide &rarr; Gaz</div>
+        </div>
+        <div class="matter-item">
+          <div class="matter-name">Sublimation</div>
+          <div class="matter-detail">Solide &rarr; Gaz</div>
+        </div>
+        <div class="matter-item">
+          <div class="matter-name">Solidification</div>
+          <div class="matter-detail">Liquide &rarr; Solide</div>
+        </div>
+        <div class="matter-item">
+          <div class="matter-name">Liqu&eacute;faction</div>
+          <div class="matter-detail">Gaz &rarr; Liquide</div>
+        </div>
+        <div class="matter-item">
+          <div class="matter-name">Condensation</div>
+          <div class="matter-detail">Gaz &rarr; Solide</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== SECTION 3 : LES BONS R&Eacute;FLEXES ===== -->
+  <div class="section-title"><span>Les Bons R&eacute;flexes du Scientifique</span></div>
+
+  <div class="panel">
+    <h2>Qualit&eacute;s essentielles</h2>
+    <div class="reflexes-grid">
+      <span class="reflex-tag">Curiosit&eacute;</span>
+      <span class="reflex-tag">V&eacute;rifier les sources</span>
+      <span class="reflex-tag">Esprit critique</span>
+      <span class="reflex-tag">Rigueur exp&eacute;rimentale</span>
+      <span class="reflex-tag">Noter ses observations</span>
+      <span class="reflex-tag">Accepter l&rsquo;erreur</span>
+      <span class="reflex-tag">Objectivit&eacute;</span>
+      <span class="reflex-tag">Partage</span>
+      <span class="reflex-tag">Patience</span>
+      <span class="reflex-tag">Sp&eacute;cialisation progressive</span>
+      <span class="reflex-tag">&Eacute;thique</span>
+      <span class="reflex-tag">Remise en question</span>
+    </div>
+  </div>
+
+  <footer>
+    <p>Outil p&eacute;dagogique officiel &middot; <span class="seal">Seimei</span> &middot; Sunagakure</p>
+  </footer>
+</div>
+</body>
+</html>
