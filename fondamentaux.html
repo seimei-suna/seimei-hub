@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seimei &mdash; Les 4 Fondamentaux M&eacute;dicaux | Sunagakure</title>
+<style>
+@import url('vendor/fonts.css');
+:root{
+  --sand-1:#f4e4c1;--sand-deep:#c89b5e;--ocre:#b5712b;--ocre-deep:#8a4f1a;
+  --rust:#7a3b15;--parchment:#f0dfb8;--chakra:#6fcf97;--chakra-glow:#3ddc84;
+  --blood-light:#c4453a;--gold:#ffd86b;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Cormorant Garamond',serif;color:var(--parchment);min-height:100vh;overflow-x:hidden;
+  background:radial-gradient(ellipse at 50% -10%,#5a3d1e 0%,transparent 55%),
+    linear-gradient(160deg,#2e1d0c 0%,#1c1106 60%,#140c04 100%);}
+body::before{content:"";position:fixed;inset:0;opacity:.05;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  z-index:1;}
+.wrap{position:relative;z-index:2;max-width:900px;margin:0 auto;padding:28px 16px 80px;}
+.back-btn{text-align:right;margin-bottom:8px;}
+.back-btn a{font-family:'Cinzel',serif;font-weight:700;font-size:.82rem;letter-spacing:.05em;
+  padding:8px 16px;border:1px solid var(--ocre);border-radius:9px;color:var(--sand-1);
+  text-decoration:none;text-transform:uppercase;transition:.2s;}
+.back-btn a:hover{background:rgba(181,113,43,.2);}
+header{text-align:center;margin-bottom:24px;}
+.crest{width:64px;height:64px;margin:0 auto 10px;border:3px solid var(--ocre);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle,rgba(181,113,43,.25),transparent 70%);
+  box-shadow:0 0 24px rgba(181,113,43,.35);}
+.crest svg{width:36px;height:36px;}
+h1{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(1.5rem,4.5vw,2.3rem);
+  letter-spacing:.06em;color:var(--sand-1);text-shadow:0 2px 0 var(--rust),0 0 28px rgba(181,113,43,.5);}
+.sub{font-size:1.1rem;color:var(--sand-deep);font-style:italic;margin-top:4px;}
+.divider{height:2px;width:58%;margin:14px auto 0;background:linear-gradient(90deg,transparent,var(--ocre),transparent);}
+
+/* Panels with colored left borders */
+.panel{background:linear-gradient(160deg,rgba(240,223,184,.07),rgba(60,41,20,.15));
+  border:1px solid rgba(181,113,43,.45);border-radius:14px;padding:22px 22px 22px 26px;margin-bottom:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,.45);border-left:5px solid var(--ocre);}
+.panel h2{font-family:'Cinzel',serif;font-weight:700;color:var(--ocre);font-size:1.18rem;
+  letter-spacing:.05em;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.panel h2::before{content:"";width:7px;height:7px;background:var(--ocre);transform:rotate(45deg);}
+.panel-hemorrhage{border-left-color:var(--blood-light);}
+.panel-hemorrhage h2{color:var(--blood-light);}
+.panel-hemorrhage h2::before{background:var(--blood-light);}
+.panel-fractures{border-left-color:var(--sand-deep);}
+.panel-fractures h2{color:var(--sand-deep);}
+.panel-fractures h2::before{background:var(--sand-deep);}
+.panel-burns{border-left-color:var(--ocre);}
+.panel-cardiac{border-left-color:var(--gold);}
+.panel-cardiac h2{color:var(--gold);}
+.panel-cardiac h2::before{background:var(--gold);}
+.panel-extra{border-left-color:var(--chakra);}
+.panel-extra h2{color:var(--chakra);}
+.panel-extra h2::before{background:var(--chakra);}
+
+/* Lexique tags */
+.lexique{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+.tag{display:inline-block;font-family:'Cinzel',serif;font-size:.75rem;letter-spacing:.06em;
+  padding:3px 11px;border-radius:6px;text-transform:uppercase;}
+.tag-red{background:rgba(196,69,58,.2);border:1px solid rgba(196,69,58,.5);color:#ffcaa0;}
+.tag-sand{background:rgba(200,155,94,.2);border:1px solid rgba(200,155,94,.5);color:var(--sand-1);}
+.tag-orange{background:rgba(181,113,43,.2);border:1px solid rgba(181,113,43,.5);color:var(--gold);}
+.tag-gold{background:rgba(255,216,107,.15);border:1px solid rgba(255,216,107,.5);color:var(--gold);}
+.tag-green{background:rgba(61,220,132,.12);border:1px solid rgba(61,220,132,.4);color:var(--chakra);}
+
+/* Numbered steps */
+.steps{list-style:none;margin:10px 0;padding:0;counter-reset:step-counter;}
+.steps li{position:relative;padding:6px 0 6px 40px;font-size:1.05rem;line-height:1.5;
+  color:var(--parchment);counter-increment:step-counter;}
+.steps li::before{content:counter(step-counter);position:absolute;left:0;top:4px;
+  width:26px;height:26px;border-radius:50%;background:rgba(181,113,43,.3);border:2px solid var(--ocre);
+  color:var(--sand-1);font-family:'Cinzel',serif;font-weight:700;font-size:.82rem;
+  display:flex;align-items:center;justify-content:center;line-height:1;}
+
+/* Sub-info after steps */
+.step-note{margin:8px 0 0 40px;font-size:1rem;color:var(--sand-deep);font-style:italic;line-height:1.45;}
+
+/* Warning boxes */
+.warn-box{display:flex;align-items:flex-start;gap:10px;margin-top:12px;padding:10px 14px;
+  border-radius:9px;font-size:.98rem;line-height:1.45;
+  background:rgba(196,69,58,.12);border:1px solid rgba(196,69,58,.45);color:#ffcaa0;}
+.warn-box svg{flex-shrink:0;width:20px;height:20px;margin-top:2px;color:var(--blood-light);}
+
+/* Info boxes */
+.info-box{display:flex;align-items:flex-start;gap:10px;margin-top:12px;padding:10px 14px;
+  border-radius:9px;font-size:.98rem;line-height:1.45;
+  background:rgba(91,155,213,.1);border:1px solid rgba(91,155,213,.35);color:#a8cce8;}
+.info-box svg{flex-shrink:0;width:20px;height:20px;margin-top:2px;color:#7db8e8;}
+
+/* Fracture type cards */
+.type-card{background:rgba(20,12,4,.45);border:1px solid rgba(181,113,43,.3);border-radius:10px;
+  padding:14px 16px;margin-top:12px;}
+.type-card h3{font-family:'Cinzel',serif;font-weight:700;font-size:1rem;color:var(--sand-1);
+  margin-bottom:6px;letter-spacing:.03em;}
+.type-card p{font-size:1.02rem;line-height:1.5;color:var(--parchment);}
+.type-card .label{font-size:.88rem;color:var(--sand-deep);font-style:italic;margin-bottom:6px;}
+
+/* Burn severity indicator */
+.severity{display:inline-flex;align-items:center;gap:8px;margin-bottom:6px;}
+.severity-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.severity-1 .severity-dot{background:#e86050;box-shadow:0 0 6px rgba(232,96,80,.5);}
+.severity-2 .severity-dot{background:#d44030;box-shadow:0 0 6px rgba(212,64,48,.5);}
+.severity-3 .severity-dot{background:#1a0a04;border:2px solid #5a2010;box-shadow:0 0 6px rgba(90,32,16,.5);}
+.severity-chem .severity-dot{background:#8a7028;box-shadow:0 0 6px rgba(138,112,40,.5);}
+
+/* Phase steps (for reduction) */
+.phase{margin-top:14px;padding:14px 16px;background:rgba(20,12,4,.45);
+  border:1px solid rgba(181,113,43,.3);border-radius:10px;position:relative;
+  padding-left:50px;}
+.phase-num{position:absolute;left:12px;top:14px;width:30px;height:30px;border-radius:50%;
+  background:linear-gradient(160deg,var(--ocre),var(--ocre-deep));color:#fff5e6;
+  font-family:'Cinzel',serif;font-weight:900;font-size:.9rem;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 0 var(--rust);}
+.phase h3{font-family:'Cinzel',serif;font-weight:700;font-size:1rem;color:var(--gold);
+  margin-bottom:4px;letter-spacing:.03em;}
+.phase p{font-size:1.02rem;line-height:1.5;color:var(--parchment);}
+
+.lead{font-size:1.08rem;line-height:1.55;}
+
+/* Section number badge */
+.section-num{font-family:'Cinzel',serif;font-weight:900;font-size:.75rem;letter-spacing:.08em;
+  padding:3px 10px;border-radius:6px;text-transform:uppercase;margin-bottom:6px;display:inline-block;}
+.section-num-red{background:rgba(196,69,58,.2);border:1px solid rgba(196,69,58,.5);color:var(--blood-light);}
+.section-num-sand{background:rgba(200,155,94,.15);border:1px solid rgba(200,155,94,.4);color:var(--sand-deep);}
+.section-num-orange{background:rgba(181,113,43,.2);border:1px solid rgba(181,113,43,.5);color:var(--ocre);}
+.section-num-gold{background:rgba(255,216,107,.15);border:1px solid rgba(255,216,107,.5);color:var(--gold);}
+.section-num-green{background:rgba(61,220,132,.12);border:1px solid rgba(61,220,132,.4);color:var(--chakra);}
+
+footer{text-align:center;margin-top:30px;color:var(--sand-deep);font-style:italic;}
+footer .seal{color:var(--ocre);font-family:'Cinzel',serif;}
+
+@media(max-width:480px){
+  .panel{padding:16px 14px 16px 18px;}
+  .steps li{padding-left:34px;}
+  .steps li::before{width:22px;height:22px;font-size:.75rem;}
+  .step-note{margin-left:34px;}
+  .phase{padding-left:44px;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="back-btn"><a href="index.html">&larr; Retour au hub</a></div>
+  <header>
+    <div class="crest"><svg viewBox="0 0 100 100" fill="none">
+      <circle cx="50" cy="50" r="30" stroke="#b5712b" stroke-width="4"/>
+      <path d="M50 22 L58 44 L50 50 L42 44 Z" fill="#b5712b"/>
+      <path d="M50 78 L42 56 L50 50 L58 56 Z" fill="#b5712b"/>
+      <circle cx="50" cy="50" r="6" fill="#8a4f1a"/>
+    </svg></div>
+    <h1>Les 4 Fondamentaux M&eacute;dicaux</h1>
+    <div class="sub">Section M&eacute;dicale Seimei &middot; Sunagakure</div>
+    <div class="divider"></div>
+  </header>
+
+  <!-- ============================================================ -->
+  <!-- 1. HÉMORRAGIE -->
+  <!-- ============================================================ -->
+  <div class="panel panel-hemorrhage">
+    <span class="section-num section-num-red">1 &mdash; H&eacute;morragie</span>
+    <h2>H&eacute;morragie</h2>
+
+    <div class="lexique">
+      <span class="tag tag-red">H&eacute;morragie</span>
+      <span class="tag tag-red">Pansement compressif</span>
+      <span class="tag tag-red">Choc h&eacute;morragique</span>
+      <span class="tag tag-red">Garrot</span>
+    </div>
+
+    <p class="lead" style="margin-bottom:10px;"><strong>Conduite &agrave; tenir&nbsp;:</strong></p>
+    <ol class="steps">
+      <li>Rep&eacute;rer l&rsquo;origine du saignement</li>
+      <li>Compresser fort et en continu avec un tissu propre</li>
+      <li>Si le tissu est travers&eacute;, ajouter par-dessus <strong>SANS retirer le premier</strong></li>
+      <li>Allonger la victime</li>
+      <li>Garder la victime consciente</li>
+    </ol>
+    <p class="step-note">Si l&rsquo;h&eacute;morragie continue&nbsp;: garrot au-dessus de la plaie (risque de perte du membre).</p>
+
+    <div class="warn-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>Le garrot se pose 5-10 cm au-dessus de la plaie, sur os unique (f&eacute;mur ou hum&eacute;rus), jamais sur articulation.</span>
+    </div>
+    <div class="warn-box" style="margin-top:8px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>Trop serr&eacute; = n&eacute;crose. Pas assez = aggrave l&rsquo;h&eacute;morragie (bloque seulement le retour veineux).</span>
+    </div>
+    <div class="warn-box" style="margin-top:8px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>Toujours noter l&rsquo;heure de pose. Ne jamais desserrer soi-m&ecirc;me sans m&eacute;decin.</span>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 2. FRACTURES -->
+  <!-- ============================================================ -->
+  <div class="panel panel-fractures">
+    <span class="section-num section-num-sand">2 &mdash; Fractures</span>
+    <h2>Fractures</h2>
+
+    <div class="type-card">
+      <h3>Ferm&eacute;e <span style="font-weight:400;font-size:.92rem;color:var(--sand-deep);font-style:italic;">&mdash; os cass&eacute;, peau intacte</span></h3>
+      <p>Ne pas bouger, maintenir en position, soutenir le membre, rassurer la victime.</p>
+    </div>
+
+    <div class="type-card">
+      <h3>Ouverte <span style="font-weight:400;font-size:.92rem;color:var(--sand-deep);font-style:italic;">&mdash; os + plaie, urgence</span></h3>
+      <p><strong>JAMAIS</strong> remettre l&rsquo;os. Limiter les mouvements, couvrir la plaie avec un linge propre, comprimer autour sans appuyer sur l&rsquo;os.</p>
+    </div>
+
+    <div class="type-card">
+      <h3>Fissure / partielle</h3>
+      <p>Repos, immobiliser le membre, pas d&rsquo;appui, faire examiner par un m&eacute;decin.</p>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 3. BRÛLURES -->
+  <!-- ============================================================ -->
+  <div class="panel panel-burns">
+    <span class="section-num section-num-orange">3 &mdash; Br&ucirc;lures</span>
+    <h2>Br&ucirc;lures</h2>
+
+    <div class="type-card">
+      <div class="severity severity-1"><div class="severity-dot"></div><h3 style="margin:0;">1er degr&eacute;</h3></div>
+      <p class="label">Rouge, s&egrave;che, sans cloque</p>
+      <p>Eau ti&egrave;de pendant 20 minutes, pansement non serr&eacute;.</p>
+    </div>
+
+    <div class="type-card">
+      <div class="severity severity-2"><div class="severity-dot"></div><h3 style="margin:0;">2e degr&eacute;</h3></div>
+      <p class="label">Rouge, humide, cloques</p>
+      <p>Refroidir 20 minutes, <strong>NE PAS percer les cloques</strong>, pansement non serr&eacute;.</p>
+    </div>
+
+    <div class="type-card">
+      <div class="severity severity-3"><div class="severity-dot"></div><h3 style="margin:0;">3e degr&eacute;</h3></div>
+      <p class="label">Blanche / noire / cartonn&eacute;e</p>
+      <p>Secours imm&eacute;diats, refroidir si possible, ne <strong>RIEN</strong> appliquer, garder la victime au chaud.</p>
+    </div>
+
+    <div class="type-card">
+      <div class="severity severity-chem"><div class="severity-dot"></div><h3 style="margin:0;">Chimique</h3></div>
+      <p class="label">Produit corrosif</p>
+      <p>Rincer 20 minutes minimum, retirer les v&ecirc;tements contamin&eacute;s.</p>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 4. ARRÊT CARDIAQUE -->
+  <!-- ============================================================ -->
+  <div class="panel panel-cardiac">
+    <span class="section-num section-num-gold">4 &mdash; Arr&ecirc;t cardiaque</span>
+    <h2>Arr&ecirc;t Cardiaque</h2>
+
+    <ol class="steps">
+      <li>V&eacute;rifier que la zone est s&ucirc;re + v&eacute;rifier la r&eacute;ponse de la victime</li>
+      <li>R&eacute;animation imm&eacute;diate</li>
+    </ol>
+
+    <div class="type-card" style="margin-top:12px;">
+      <h3>Compressions</h3>
+      <p>5-6 cm de profondeur, rythme de 100-120 compressions par minute.</p>
+    </div>
+    <div class="type-card">
+      <h3>Si form&eacute;</h3>
+      <p>30 compressions + 2 insufflations (cycle continu).</p>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 5. SUTURES (protocole) -->
+  <!-- ============================================================ -->
+  <div class="panel panel-extra">
+    <span class="section-num section-num-green">5 &mdash; Sutures</span>
+    <h2>Sutures (protocole)</h2>
+
+    <ol class="steps">
+      <li>Nettoyer soigneusement la plaie</li>
+      <li>Avec fil m&eacute;dical et aiguille, passer le fil d&rsquo;un bord &agrave; l&rsquo;autre</li>
+      <li>Rapprocher les deux bords sans trop serrer</li>
+      <li>Nouer le fil</li>
+      <li>R&eacute;p&eacute;ter selon la longueur de la plaie</li>
+      <li>Retirer une fois cicatris&eacute;</li>
+    </ol>
+
+    <div class="info-box" style="margin-top:14px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <span>En tant que Stagiaire/Aspirant, le principe doit &ecirc;tre compris mais la r&eacute;alisation reste encadr&eacute;e. Les Experts peuvent faire des sutures internes via les Fils de Chakra M&eacute;dicaux.</span>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 6. POSE D'ATTELLE -->
+  <!-- ============================================================ -->
+  <div class="panel panel-extra">
+    <span class="section-num section-num-green">6 &mdash; Pose d&rsquo;attelle</span>
+    <h2>Pose d&rsquo;Attelle</h2>
+
+    <p class="lead">L&rsquo;attelle se place au-dessus de la fracture, couvrant les deux articulations adjacentes. Le bandage se fixe en commen&ccedil;ant par le centre de la fracture, puis vers les extr&eacute;mit&eacute;s.</p>
+    <p class="lead" style="margin-top:8px;">Ordre&nbsp;: <strong>centre &rarr; distal ou proximal</strong> selon le cas.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 7. RÉDUCTION D'ÉPAULE -->
+  <!-- ============================================================ -->
+  <div class="panel panel-extra">
+    <span class="section-num section-num-green">7 &mdash; R&eacute;duction d&rsquo;&eacute;paule</span>
+    <h2>R&eacute;duction d&rsquo;&Eacute;paule</h2>
+
+    <div class="phase">
+      <div class="phase-num">1</div>
+      <h3>Stabiliser</h3>
+      <p>Immobiliser l&rsquo;&eacute;paule, rel&acirc;cher les muscles, rassurer le patient.</p>
+    </div>
+
+    <div class="phase">
+      <div class="phase-num">2</div>
+      <h3>Tirer</h3>
+      <p>Traction douce, lente, continue vers le bas dans l&rsquo;axe du bras.</p>
+    </div>
+
+    <div class="phase">
+      <div class="phase-num">3</div>
+      <h3>Replacer</h3>
+      <p>Rotation interne progressive &mdash; le coude se rapproche du ventre, l&rsquo;avant-bras pivote vers l&rsquo;int&eacute;rieur jusqu&rsquo;au &laquo;&nbsp;cloc&nbsp;&raquo; de r&eacute;duction.</p>
+    </div>
+
+    <div class="info-box" style="margin-top:14px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <span>Apr&egrave;s r&eacute;duction&nbsp;: immobiliser en &eacute;charpe contre le thorax.</span>
+    </div>
+  </div>
+
+  <footer>Outil p&eacute;dagogique officiel &middot; <span class="seal">Seimei</span> &middot; Sunagakure</footer>
+</div>
+</body>
+</html>
