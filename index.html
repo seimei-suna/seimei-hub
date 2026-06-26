@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Section Médicale Seimei | Sunagakure</title>
+<title>Section M&eacute;dicale Seimei | Sunagakure</title>
 <style>
 @import url('vendor/fonts.css');
 :root{
@@ -19,137 +19,245 @@ body{font-family:'Cormorant Garamond',serif;color:var(--parchment);min-height:10
 body::before{content:"";position:fixed;inset:0;opacity:.05;pointer-events:none;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   z-index:1;}
-.wrap{position:relative;z-index:2;max-width:1000px;margin:0 auto;padding:40px 20px 80px;}
-.formateur-btn{text-align:right;margin-bottom:20px;}
-.formateur-btn a{font-family:'Cinzel',serif;font-weight:700;letter-spacing:.05em;font-size:.82rem;
-  padding:8px 16px;border:1px solid var(--ocre);border-radius:9px;color:var(--sand-1);
-  text-decoration:none;text-transform:uppercase;background:transparent;transition:.2s;}
-.formateur-btn a:hover{background:rgba(181,113,43,.2);}
-header{text-align:center;margin-bottom:40px;}
-.crest{width:100px;height:100px;margin:0 auto 16px;border:4px solid var(--ocre);border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  background:radial-gradient(circle,rgba(181,113,43,.3),transparent 70%);
-  box-shadow:0 0 40px rgba(181,113,43,.4),inset 0 0 25px rgba(0,0,0,.4);}
-.crest svg{width:55px;height:55px;}
-h1{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(2rem,6vw,3.5rem);
-  letter-spacing:.08em;color:var(--sand-1);
-  text-shadow:0 2px 0 var(--rust),0 0 40px rgba(181,113,43,.6);line-height:1.05;}
-.subtitle{font-size:clamp(1.1rem,2.5vw,1.4rem);color:var(--sand-deep);
-  font-style:italic;margin-top:8px;}
-.divider{height:2px;width:60%;margin:18px auto;background:linear-gradient(90deg,transparent,var(--ocre),transparent);}
-.tagline{font-size:1.15rem;color:var(--parchment);max-width:680px;margin:0 auto;line-height:1.55;}
-.intro-panel{background:linear-gradient(160deg,rgba(240,223,184,.07),rgba(60,41,20,.15));
-  border:1px solid rgba(181,113,43,.45);border-radius:14px;padding:24px;margin:30px 0;
-  box-shadow:0 10px 30px rgba(0,0,0,.45);text-align:center;}
-.intro-panel p{font-size:1.1rem;line-height:1.6;color:var(--parchment);}
-.intro-panel .hint{color:var(--sand-deep);font-style:italic;font-size:1rem;margin-top:8px;}
-.modules{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-top:30px;}
+/* layout */
+.layout{position:relative;z-index:2;display:flex;min-height:100vh;}
+.sidebar{width:240px;flex-shrink:0;position:sticky;top:0;height:100vh;
+  background:linear-gradient(160deg,rgba(240,223,184,.07),rgba(40,25,12,.3));
+  border-right:1px solid rgba(181,113,43,.35);padding:20px 14px;
+  display:flex;flex-direction:column;overflow-y:auto;}
+.sb-brand{display:flex;align-items:center;gap:10px;padding:4px 6px 16px;
+  border-bottom:1px solid rgba(181,113,43,.3);margin-bottom:14px;}
+.sb-crest{width:38px;height:38px;border:2px solid var(--ocre);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  background:radial-gradient(circle,rgba(181,113,43,.25),transparent 70%);}
+.sb-crest svg{width:22px;height:22px;}
+.sb-title{font-family:'Cinzel',serif;font-weight:700;font-size:15px;color:var(--sand-1);line-height:1.15;}
+.sb-title small{font-weight:400;font-size:9px;opacity:.6;letter-spacing:.4px;text-transform:uppercase;display:block;margin-top:2px;}
+.sb-section{margin-bottom:16px;}
+.sb-section-title{font-family:'Cinzel',serif;font-weight:700;font-size:.7rem;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--sand-deep);padding:0 8px 6px;opacity:.7;}
+.sb-link{display:flex;align-items:center;gap:8px;width:100%;padding:9px 10px;margin-bottom:3px;
+  font-family:'Cinzel',serif;font-weight:700;font-size:.82rem;letter-spacing:.03em;
+  color:var(--sand-deep);text-decoration:none;border:1px solid transparent;
+  border-radius:8px;cursor:pointer;transition:.2s;background:transparent;}
+.sb-link:hover{color:var(--sand-1);border-color:rgba(181,113,43,.4);background:rgba(181,113,43,.1);}
+.sb-link.active{color:var(--gold);border-color:var(--ocre);
+  background:linear-gradient(160deg,rgba(181,113,43,.2),rgba(138,79,26,.15));
+  box-shadow:0 2px 0 rgba(122,59,21,.4);}
+.sb-link svg{width:16px;height:16px;flex-shrink:0;}
+.sb-link .tag{font-size:.6rem;padding:1px 6px;border-radius:4px;margin-left:auto;
+  background:rgba(181,113,43,.25);color:var(--gold);letter-spacing:.05em;}
+.sb-foot{margin-top:auto;padding-top:14px;border-top:1px solid rgba(181,113,43,.3);}
+.sb-foot a{display:block;text-align:center;font-family:'Cinzel',serif;font-weight:700;
+  font-size:.78rem;padding:8px;border:1px solid var(--ocre);border-radius:8px;
+  color:var(--sand-1);text-decoration:none;text-transform:uppercase;transition:.2s;}
+.sb-foot a:hover{background:rgba(181,113,43,.2);}
+/* main content */
+.main{flex:1;min-width:0;padding:30px 28px 60px;}
+.main header{text-align:center;margin-bottom:30px;}
+.main h1{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(1.8rem,5vw,2.8rem);
+  letter-spacing:.07em;color:var(--sand-1);text-shadow:0 2px 0 var(--rust),0 0 30px rgba(181,113,43,.5);}
+.main .subtitle{font-size:1.15rem;color:var(--sand-deep);font-style:italic;margin-top:5px;}
+.divider{height:2px;width:50%;margin:14px auto 0;background:linear-gradient(90deg,transparent,var(--ocre),transparent);}
+/* section views */
+.section-view{display:none;}
+.section-view.active{display:block;}
+.section-title{font-family:'Cinzel',serif;font-weight:700;font-size:1.1rem;color:var(--ocre);
+  letter-spacing:.05em;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.section-title::before{content:"";width:7px;height:7px;background:var(--ocre);transform:rotate(45deg);}
+.modules{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;}
 .module{background:linear-gradient(160deg,rgba(240,223,184,.08),rgba(60,41,20,.18));
-  border:1px solid rgba(181,113,43,.5);border-radius:14px;padding:24px;cursor:pointer;
+  border:1px solid rgba(181,113,43,.5);border-radius:14px;padding:22px;cursor:pointer;
   transition:transform .25s,box-shadow .25s,border-color .25s;
   box-shadow:0 8px 24px rgba(0,0,0,.4);text-decoration:none;color:inherit;
   display:flex;flex-direction:column;align-items:center;text-align:center;}
 .module:hover{transform:translateY(-4px);box-shadow:0 14px 34px rgba(181,113,43,.3);border-color:var(--gold);}
-.module .icon{width:64px;height:64px;border-radius:50%;background:rgba(181,113,43,.2);
+.module .icon{width:56px;height:56px;border-radius:50%;background:rgba(181,113,43,.2);
   border:2px solid var(--ocre);display:flex;align-items:center;justify-content:center;
-  font-size:1.8rem;margin-bottom:14px;transition:.25s;}
+  margin-bottom:12px;transition:.25s;color:var(--gold);}
+.module .icon svg{width:24px;height:24px;}
 .module:hover .icon{background:rgba(255,216,107,.25);border-color:var(--gold);transform:scale(1.08);}
-.module h3{font-family:'Cinzel',serif;font-weight:700;color:var(--gold);font-size:1.15rem;
-  letter-spacing:.04em;margin-bottom:8px;}
-.module p{font-size:.98rem;color:var(--sand-deep);line-height:1.45;}
-.module .tag{display:inline-block;margin-top:12px;font-family:'Cinzel',serif;font-size:.72rem;
-  letter-spacing:.08em;padding:3px 10px;border-radius:6px;background:rgba(181,113,43,.25);
-  color:var(--gold);text-transform:uppercase;}
-footer{text-align:center;margin-top:50px;color:var(--sand-deep);font-style:italic;font-size:.95rem;}
+.module h3{font-family:'Cinzel',serif;font-weight:700;color:var(--gold);font-size:1.05rem;
+  letter-spacing:.04em;margin-bottom:6px;}
+.module p{font-size:.92rem;color:var(--sand-deep);line-height:1.4;}
+footer{text-align:center;margin-top:40px;color:var(--sand-deep);font-style:italic;font-size:.9rem;}
 footer .seal{color:var(--ocre);font-family:'Cinzel',serif;}
-.module .icon svg{width:1em;height:1em}.module .icon{color:var(--gold)}</style>
+@media(max-width:760px){
+  .layout{flex-direction:column;}
+  .sidebar{width:auto;position:static;height:auto;flex-direction:row;flex-wrap:wrap;
+    border-right:none;border-bottom:1px solid rgba(181,113,43,.35);padding:12px;gap:6px;}
+  .sb-brand{width:100%;margin-bottom:8px;padding-bottom:10px;}
+  .sb-section{margin-bottom:4px;display:flex;flex-wrap:wrap;gap:4px;}
+  .sb-section-title{width:100%;padding:4px 6px;}
+  .sb-foot{width:100%;margin-top:8px;padding-top:8px;}
+  .main{padding:20px 14px 40px;}
+}
+</style>
 </head>
 <body>
-<div class="wrap">
-  <div class="formateur-btn"><a href="formateur.html">Espace formateur</a></div>
-  <header>
-    <div class="crest">
-      <svg viewBox="0 0 100 100" fill="none">
-        <circle cx="50" cy="50" r="30" stroke="#b5712b" stroke-width="4"/>
-        <path d="M50 22 L58 44 L50 50 L42 44 Z" fill="#b5712b"/>
-        <path d="M50 78 L42 56 L50 50 L58 56 Z" fill="#b5712b"/>
-        <circle cx="50" cy="50" r="6" fill="#8a4f1a"/>
-      </svg>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-crest">
+        <svg viewBox="0 0 100 100" fill="none">
+          <circle cx="50" cy="50" r="30" stroke="#b5712b" stroke-width="4"/>
+          <path d="M50 22 L58 44 L50 50 L42 44 Z" fill="#b5712b"/>
+          <path d="M50 78 L42 56 L50 50 L58 56 Z" fill="#b5712b"/>
+          <circle cx="50" cy="50" r="6" fill="#8a4f1a"/>
+        </svg>
+      </div>
+      <span class="sb-title">Section M&eacute;dicale<small>Seimei &middot; Sunagakure</small></span>
     </div>
-    <h1>Section Médicale</h1>
-    <div class="subtitle">Seimei · Sunagakure</div>
-    <div class="divider"></div>
-    <p class="tagline">Centre de formation interactif pour les apprentis médecins du village du Vent. Choisis un module pour commencer ton entraînement.</p>
-  </header>
-  <div class="modules">
-    <a href="techniques.html" class="module">
-      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="M9 10h6M9 14h4"/></svg></div>
-      <h3>Techniques Médicales</h3>
-      <p>Cours théorique complet sur les techniques de ninjutsu médical, du grade Aspirant au grade Maître.</p>
-      <span class="tag">Cours</span>
-    </a>
-    <a href="sutures.html" class="module">
-      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20c5-1 8-4 10-9"/><path d="M14 11l6-6"/><path d="M17 4.5 19.5 7"/></svg></div>
-      <h3>Sutures</h3>
-      <p>Pose tes points de suture avec précision le long d'une plaie. 3 niveaux de difficulté.</p>
-      <span class="tag">Mini-jeu</span>
-    </a>
-    <a href="brulures.html" class="module">
-      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c2 3 5 5 5 9a5 5 0 0 1-10 0c0-2 1-3.5 2.5-4.5C9 9.5 11 8 12 3Z"/></svg></div>
-      <h3>Brûlures</h3>
-      <p>Identifie le type de brûlure et choisis les bons outils de soin parmi le matériel disponible.</p>
-      <span class="tag">Mini-jeu</span>
-    </a>
-    <a href="fractures.html" class="module">
-      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6"/><circle cx="6.5" cy="17.5" r="2.2"/><circle cx="17.5" cy="6.5" r="2.2"/></svg></div>
-      <h3>Fractures</h3>
-      <p>Évalue la fracture et sélectionne le bon matériel de soin sans tomber dans les pièges.</p>
-      <span class="tag">Mini-jeu</span>
-    </a>
-    <a href="attelles.html" class="module">
-      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9.5" width="18" height="5" rx="2.5" transform="rotate(-45 12 12)"/><path d="M10 10l4 4M14 10l-4 4"/></svg></div>
-      <h3>Attelles</h3>
-      <p>Pose l'attelle au bon endroit et fixe le bandage dans le bon ordre sur les membres fracturés.</p>
-      <span class="tag">Mini-jeu</span>
-    </a>
-    <a href="rcr.html" class="module">
-      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5 4.8 13a4.6 4.6 0 0 1 7.2-5.6A4.6 4.6 0 0 1 19.2 13Z"/><path d="M7.5 12h2l1.5-3 2 6 1.5-3h2"/></svg></div>
-      <h3>Réanimation RCR</h3>
-      <p>Effectue des compressions thoraciques rythmées à la bonne cadence (100-120/min).</p>
-      <span class="tag">Mini-jeu</span>
-    </a>
-    <a href="prelevement.html" class="module">
-      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l3-3"/><path d="M5 19 15 9"/><path d="M12 6l6 6"/><path d="M14.5 3.5 20.5 9.5"/></svg></div>
-      <h3>Prélèvement sanguin</h3>
-      <p>Pose le garrot, désinfecte, pique à 20° et remplis les fioles dans l'ordre.</p>
-      <span class="tag">Mini-jeu</span>
-    </a>
-    <a href="bandage.html" class="module">
-      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="16" rx="2"/><path d="M6 9h12M6 14h12"/></svg></div>
-      <h3>Bandage compressif</h3>
-      <p>Enroule la bande en spirale avec une tension régulière, ni trop serrée ni trop lâche.</p>
-      <span class="tag">Mini-jeu</span>
-    </a>
-    <a href="garrot.html" class="module">
-      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="9.5" width="10" height="5" rx="2.5"/><rect x="11.5" y="9.5" width="10" height="5" rx="2.5"/></svg></div>
-      <h3>Pose de garrot</h3>
-      <p>Trouve le point fémoral et tourne le levier pour couper l'hémorragie sans abîmer les tissus.</p>
-      <span class="tag">Mini-jeu</span>
-    </a>
-    <a href="epaule.html" class="module">
-      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20v-5a3 3 0 0 1 3-3h4l2.5-3.5 3 2-3 5.5A4 4 0 0 1 12 18H9"/></svg></div>
-      <h3>Réduction d'épaule</h3>
-      <p>Stabilise, tire et replace la tête de l'humérus dans son logement en 3 étapes.</p>
-      <span class="tag">Mini-jeu</span>
-    </a>
-    <a href="botanique.html" class="module">
-      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20h10"/><path d="M12 20v-6"/><path d="M12 14c-3 0-6-2.5-6-6 0-3.5 3-5.5 6-6 3 .5 6 2.5 6 6 0 3.5-3 6-6 6z"/><path d="M12 8v4"/><path d="M10 10h4"/></svg></div>
-      <h3>Botanique &amp; Sciences</h3>
-      <p>Les 10 plantes du registre médical, bases atomiques et cellulaires, transformations de la matière.</p>
-      <span class="tag">Cours</span>
-    </a>
+
+    <div class="sb-section">
+      <div class="sb-section-title">Exercices</div>
+      <a class="sb-link active" data-section="exercices">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-5"/></svg>
+        Mini-jeux
+        <span class="tag">9</span>
+      </a>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-section-title">Techniques M&eacute;dicales</div>
+      <a class="sb-link" data-section="techniques">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+        Ninjutsu M&eacute;dical
+      </a>
+      <a class="sb-link" data-section="fondamentaux">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 2.5 20h19L12 3.5Z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.4" r="0.6" fill="currentColor" stroke="none"/></svg>
+        4 Fondamentaux
+      </a>
+      <a class="sb-link" data-section="avance">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20h14"/><path d="M9.5 17a6 6 0 0 0 8.5-5.5"/><path d="M9 17l-2-1 4-7 2 1Z"/></svg>
+        Sujets Avanc&eacute;s
+      </a>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-section-title">M&eacute;decine Traditionnelle</div>
+      <a class="sb-link" data-section="botanique">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20h10"/><path d="M12 20v-6"/><path d="M12 14c-3 0-6-2.5-6-6 0-3.5 3-5.5 6-6 3 .5 6 2.5 6 6 0 3.5-3 6-6 6z"/></svg>
+        Botanique &amp; Sciences
+      </a>
+    </div>
+
+    <div class="sb-foot">
+      <a href="formateur.html">Espace formateur</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header>
+      <h1>Centre de Formation</h1>
+      <div class="subtitle">Seimei &middot; Sunagakure</div>
+      <div class="divider"></div>
+    </header>
+
+    <!-- EXERCICES -->
+    <div class="section-view active" id="sec-exercices">
+      <div class="section-title">Exercices interactifs</div>
+      <div class="modules">
+        <a href="sutures.html" class="module">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20c5-1 8-4 10-9"/><path d="M14 11l6-6"/><path d="M17 4.5 19.5 7"/></svg></div>
+          <h3>Sutures</h3><p>Pose tes points de suture avec pr&eacute;cision. 3 niveaux de difficult&eacute;.</p>
+        </a>
+        <a href="brulures.html" class="module">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c2 3 5 5 5 9a5 5 0 0 1-10 0c0-2 1-3.5 2.5-4.5C9 9.5 11 8 12 3Z"/></svg></div>
+          <h3>Br&ucirc;lures</h3><p>Identifie le type et choisis les bons outils de soin.</p>
+        </a>
+        <a href="fractures.html" class="module">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6"/><circle cx="6.5" cy="17.5" r="2.2"/><circle cx="17.5" cy="6.5" r="2.2"/></svg></div>
+          <h3>Fractures</h3><p>&Eacute;value la fracture et s&eacute;lectionne le bon mat&eacute;riel.</p>
+        </a>
+        <a href="attelles.html" class="module">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9.5" width="18" height="5" rx="2.5" transform="rotate(-45 12 12)"/><path d="M10 10l4 4M14 10l-4 4"/></svg></div>
+          <h3>Attelles</h3><p>Pose l&rsquo;attelle et fixe le bandage dans le bon ordre.</p>
+        </a>
+        <a href="rcr.html" class="module">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5 4.8 13a4.6 4.6 0 0 1 7.2-5.6A4.6 4.6 0 0 1 19.2 13Z"/><path d="M7.5 12h2l1.5-3 2 6 1.5-3h2"/></svg></div>
+          <h3>R&eacute;animation RCR</h3><p>Compressions thoraciques rythm&eacute;es &agrave; 100-120/min.</p>
+        </a>
+        <a href="prelevement.html" class="module">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l3-3"/><path d="M5 19 15 9"/><path d="M12 6l6 6"/><path d="M14.5 3.5 20.5 9.5"/></svg></div>
+          <h3>Pr&eacute;l&egrave;vement sanguin</h3><p>Garrot, d&eacute;sinfection, piq&ucirc;re &agrave; 20&deg; et fioles.</p>
+        </a>
+        <a href="bandage.html" class="module">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="16" rx="2"/><path d="M6 9h12M6 14h12"/></svg></div>
+          <h3>Bandage compressif</h3><p>Spirale avec tension r&eacute;guli&egrave;re, ni trop ni trop peu.</p>
+        </a>
+        <a href="garrot.html" class="module">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="9.5" width="10" height="5" rx="2.5"/><rect x="11.5" y="9.5" width="10" height="5" rx="2.5"/></svg></div>
+          <h3>Pose de garrot</h3><p>Point f&eacute;moral et levier pour couper l&rsquo;h&eacute;morragie.</p>
+        </a>
+        <a href="epaule.html" class="module">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20v-5a3 3 0 0 1 3-3h4l2.5-3.5 3 2-3 5.5A4 4 0 0 1 12 18H9"/></svg></div>
+          <h3>R&eacute;duction d&rsquo;&eacute;paule</h3><p>Stabilise, tire et replace en 3 &eacute;tapes.</p>
+        </a>
+      </div>
+    </div>
+
+    <!-- TECHNIQUES MEDICALES -->
+    <div class="section-view" id="sec-techniques">
+      <div class="section-title">Ninjutsu M&eacute;dical &mdash; Techniques par grade</div>
+      <div class="modules">
+        <a href="techniques.html" class="module">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="M9 10h6M9 14h4"/></svg></div>
+          <h3>Les Techniques</h3><p>Toutes les techniques m&eacute;dicales du grade Aspirant au grade Ma&icirc;tre.</p>
+        </a>
+      </div>
+    </div>
+
+    <!-- FONDAMENTAUX -->
+    <div class="section-view" id="sec-fondamentaux">
+      <div class="section-title">Les 4 Fondamentaux M&eacute;dicaux</div>
+      <div class="modules">
+        <a href="fondamentaux.html" class="module">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 2.5 20h19L12 3.5Z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.4" r="0.6" fill="currentColor" stroke="none"/></svg></div>
+          <h3>Fondamentaux</h3><p>H&eacute;morragies, fractures, br&ucirc;lures, arr&ecirc;t cardiaque, sutures, attelles, r&eacute;duction d&rsquo;&eacute;paule.</p>
+        </a>
+      </div>
+    </div>
+
+    <!-- AVANCE -->
+    <div class="section-view" id="sec-avance">
+      <div class="section-title">Sujets M&eacute;dicaux Avanc&eacute;s</div>
+      <div class="modules">
+        <a href="avance.html" class="module">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20h14"/><path d="M9.5 17a6 6 0 0 0 8.5-5.5"/><path d="M9 17l-2-1 4-7 2 1Z"/></svg></div>
+          <h3>Sujets Avanc&eacute;s</h3><p>Anatomie oculaire, chirurgie vasculaire, r&eacute;implantation, urgences neurologiques.</p>
+        </a>
+      </div>
+    </div>
+
+    <!-- BOTANIQUE -->
+    <div class="section-view" id="sec-botanique">
+      <div class="section-title">M&eacute;decine Traditionnelle</div>
+      <div class="modules">
+        <a href="botanique.html" class="module">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20h10"/><path d="M12 20v-6"/><path d="M12 14c-3 0-6-2.5-6-6 0-3.5 3-5.5 6-6 3 .5 6 2.5 6 6 0 3.5-3 6-6 6z"/></svg></div>
+          <h3>Botanique &amp; Sciences</h3><p>Les 10 plantes du registre, sciences de base, r&eacute;flexes du scientifique.</p>
+        </a>
+      </div>
+    </div>
+
+    <footer>Outil p&eacute;dagogique officiel &middot; <span class="seal">Seimei</span> &middot; Sunagakure</footer>
   </div>
-  <footer>Outil pédagogique officiel · <span class="seal">Seimei</span> · Sunagakure</footer>
 </div>
+
+<script>
+(function(){
+  var links=document.querySelectorAll('.sb-link[data-section]');
+  var views=document.querySelectorAll('.section-view');
+  links.forEach(function(link){
+    link.addEventListener('click',function(){
+      links.forEach(function(l){l.classList.remove('active');});
+      link.classList.add('active');
+      var sec=link.dataset.section;
+      views.forEach(function(v){v.classList.toggle('active',v.id==='sec-'+sec);});
+    });
+  });
+})();
+</script>
 </body>
 </html>
