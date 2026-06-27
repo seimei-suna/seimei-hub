@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seimei &mdash; Les Articulations | Sunagakure</title>
+<style>
+@import url('vendor/fonts.css');
+:root{
+  --sand-1:#f4e4c1;--sand-deep:#c89b5e;--ocre:#b5712b;--ocre-deep:#8a4f1a;
+  --rust:#7a3b15;--parchment:#f0dfb8;--chakra:#6fcf97;--chakra-glow:#3ddc84;
+  --blood-light:#c4453a;--gold:#ffd86b;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Cormorant Garamond',serif;color:var(--parchment);min-height:100vh;overflow-x:hidden;
+  background:radial-gradient(ellipse at 50% -10%,#5a3d1e 0%,transparent 55%),
+    linear-gradient(160deg,#2e1d0c 0%,#1c1106 60%,#140c04 100%);}
+body::before{content:"";position:fixed;inset:0;opacity:.05;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  z-index:1;}
+.wrap{position:relative;z-index:2;max-width:900px;margin:0 auto;padding:28px 16px 80px;}
+.back-btn{text-align:right;margin-bottom:8px;}
+.back-btn a{font-family:'Cinzel',serif;font-weight:700;font-size:.82rem;letter-spacing:.05em;
+  padding:8px 16px;border:1px solid var(--ocre);border-radius:9px;color:var(--sand-1);
+  text-decoration:none;text-transform:uppercase;transition:.2s;}
+.back-btn a:hover{background:rgba(181,113,43,.2);}
+header{text-align:center;margin-bottom:24px;}
+.crest{width:64px;height:64px;margin:0 auto 10px;border:3px solid var(--ocre);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle,rgba(181,113,43,.25),transparent 70%);
+  box-shadow:0 0 24px rgba(181,113,43,.35);}
+.crest svg{width:36px;height:36px;}
+h1{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(1.5rem,4.5vw,2.3rem);
+  letter-spacing:.06em;color:var(--sand-1);text-shadow:0 2px 0 var(--rust),0 0 28px rgba(181,113,43,.5);}
+.sub{font-size:1.1rem;color:var(--sand-deep);font-style:italic;margin-top:4px;}
+.intro{font-size:1.08rem;line-height:1.55;text-align:center;color:var(--parchment);max-width:740px;margin:14px auto 0;}
+.divider{height:2px;width:58%;margin:14px auto 0;background:linear-gradient(90deg,transparent,var(--ocre),transparent);}
+
+/* Panels with colored left borders */
+.panel{background:linear-gradient(160deg,rgba(240,223,184,.07),rgba(60,41,20,.15));
+  border:1px solid rgba(181,113,43,.45);border-radius:14px;padding:22px 22px 22px 26px;margin-bottom:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,.45);border-left:5px solid var(--ocre);}
+.panel h2{font-family:'Cinzel',serif;font-weight:700;color:var(--ocre);font-size:1.18rem;
+  letter-spacing:.05em;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.panel h2::before{content:"";width:7px;height:7px;background:var(--ocre);transform:rotate(45deg);}
+
+/* Section-specific panel colors */
+.panel-definition{border-left-color:var(--sand-deep);}
+.panel-definition h2{color:var(--sand-deep);}
+.panel-definition h2::before{background:var(--sand-deep);}
+
+.panel-types{border-left-color:var(--chakra);}
+.panel-types h2{color:var(--chakra);}
+.panel-types h2::before{background:var(--chakra);}
+
+.panel-principales{border-left-color:var(--ocre);}
+
+.panel-blessures{border-left-color:var(--blood-light);}
+.panel-blessures h2{color:var(--blood-light);}
+.panel-blessures h2::before{background:var(--blood-light);}
+
+.panel-protocole{border-left-color:var(--gold);}
+.panel-protocole h2{color:var(--gold);}
+.panel-protocole h2::before{background:var(--gold);}
+
+.panel-reeduc{border-left-color:var(--chakra-glow);}
+.panel-reeduc h2{color:var(--chakra-glow);}
+.panel-reeduc h2::before{background:var(--chakra-glow);}
+
+/* Section number badge */
+.section-num{font-family:'Cinzel',serif;font-weight:900;font-size:.75rem;letter-spacing:.08em;
+  padding:3px 10px;border-radius:6px;text-transform:uppercase;margin-bottom:6px;display:inline-block;}
+.section-num-sand{background:rgba(200,155,94,.15);border:1px solid rgba(200,155,94,.4);color:var(--sand-deep);}
+.section-num-green{background:rgba(61,220,132,.12);border:1px solid rgba(61,220,132,.4);color:var(--chakra);}
+.section-num-orange{background:rgba(181,113,43,.2);border:1px solid rgba(181,113,43,.5);color:var(--ocre);}
+.section-num-red{background:rgba(196,69,58,.2);border:1px solid rgba(196,69,58,.5);color:var(--blood-light);}
+.section-num-gold{background:rgba(255,216,107,.15);border:1px solid rgba(255,216,107,.5);color:var(--gold);}
+.section-num-teal{background:rgba(61,220,132,.12);border:1px solid rgba(61,220,132,.4);color:var(--chakra-glow);}
+
+.lead{font-size:1.08rem;line-height:1.55;}
+
+/* Component list */
+.comp-list{list-style:none;margin:12px 0 0;padding:0;}
+.comp-list li{position:relative;padding:8px 0 8px 20px;font-size:1.05rem;line-height:1.5;
+  border-bottom:1px solid rgba(181,113,43,.15);}
+.comp-list li:last-child{border-bottom:none;}
+.comp-list li::before{content:"\25C6";position:absolute;left:0;top:8px;color:var(--sand-deep);font-size:.6rem;}
+.comp-list li strong{color:var(--sand-1);}
+
+/* Three-column cards for articulation types */
+.cards-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px;}
+.type-card{background:rgba(20,12,4,.45);border:1px solid rgba(181,113,43,.3);border-radius:10px;
+  padding:16px;text-align:center;transition:.2s;}
+.type-card:hover{border-color:var(--ocre);background:rgba(20,12,4,.6);}
+.type-card h3{font-family:'Cinzel',serif;font-weight:700;font-size:1rem;color:var(--sand-1);
+  margin-bottom:6px;letter-spacing:.03em;}
+.type-card .card-sub{font-size:.88rem;color:var(--sand-deep);font-style:italic;margin-bottom:8px;}
+.type-card p{font-size:1rem;line-height:1.45;color:var(--parchment);}
+.type-card .card-tag{display:inline-block;font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.06em;
+  padding:2px 9px;border-radius:5px;text-transform:uppercase;margin-top:8px;}
+.card-mobile .card-tag{background:rgba(61,220,132,.12);border:1px solid rgba(61,220,132,.4);color:var(--chakra);}
+.card-semi .card-tag{background:rgba(255,216,107,.15);border:1px solid rgba(255,216,107,.5);color:var(--gold);}
+.card-fixe .card-tag{background:rgba(196,69,58,.15);border:1px solid rgba(196,69,58,.4);color:#ffcaa0;}
+
+/* Body parts list */
+.body-list{list-style:none;margin:12px 0 0;padding:0;}
+.body-list li{position:relative;padding:12px 14px 12px 52px;font-size:1.05rem;line-height:1.5;
+  border-bottom:1px solid rgba(181,113,43,.15);color:var(--parchment);}
+.body-list li:last-child{border-bottom:none;}
+.body-list li strong{color:var(--sand-1);font-size:1.08rem;}
+.body-icon{position:absolute;left:10px;top:10px;width:30px;height:30px;border-radius:50%;
+  background:rgba(181,113,43,.2);border:1.5px solid rgba(181,113,43,.5);
+  display:flex;align-items:center;justify-content:center;font-size:.85rem;}
+
+/* Injury sub-panels */
+.injury-panel{background:rgba(20,12,4,.4);border:1px solid rgba(181,113,43,.25);border-radius:10px;
+  padding:16px 18px;margin-top:14px;}
+.injury-panel h3{font-family:'Cinzel',serif;font-weight:700;font-size:1.05rem;color:var(--sand-1);
+  margin-bottom:8px;letter-spacing:.03em;}
+
+/* Severity grades for entorse */
+.grade-list{list-style:none;margin:8px 0 0;padding:0;}
+.grade-list li{position:relative;padding:8px 12px 8px 28px;font-size:1rem;line-height:1.45;
+  border-radius:7px;margin-bottom:6px;}
+.grade-list li::before{content:"";position:absolute;left:10px;top:14px;width:10px;height:10px;
+  border-radius:50%;}
+.grade-1{background:rgba(61,220,132,.08);border:1px solid rgba(61,220,132,.3);}
+.grade-1::before{background:var(--chakra);box-shadow:0 0 6px rgba(61,220,132,.5);}
+.grade-2{background:rgba(255,216,107,.08);border:1px solid rgba(255,216,107,.3);}
+.grade-2::before{background:var(--gold);box-shadow:0 0 6px rgba(255,216,107,.5);}
+.grade-3{background:rgba(196,69,58,.1);border:1px solid rgba(196,69,58,.35);}
+.grade-3::before{background:var(--blood-light);box-shadow:0 0 6px rgba(196,69,58,.5);}
+
+/* Warning boxes */
+.warn-box{display:flex;align-items:flex-start;gap:10px;margin-top:12px;padding:10px 14px;
+  border-radius:9px;font-size:.98rem;line-height:1.45;
+  background:rgba(196,69,58,.12);border:1px solid rgba(196,69,58,.45);color:#ffcaa0;}
+.warn-box svg{flex-shrink:0;width:20px;height:20px;margin-top:2px;color:var(--blood-light);}
+
+/* Info boxes */
+.info-box{display:flex;align-items:flex-start;gap:10px;margin-top:12px;padding:10px 14px;
+  border-radius:9px;font-size:.98rem;line-height:1.45;
+  background:rgba(91,155,213,.1);border:1px solid rgba(91,155,213,.35);color:#a8cce8;}
+.info-box svg{flex-shrink:0;width:20px;height:20px;margin-top:2px;color:#7db8e8;}
+
+/* Numbered steps (protocole) */
+.steps{list-style:none;margin:10px 0;padding:0;counter-reset:step-counter;}
+.steps li{position:relative;padding:8px 0 8px 48px;font-size:1.05rem;line-height:1.5;
+  color:var(--parchment);counter-increment:step-counter;
+  border-bottom:1px solid rgba(181,113,43,.1);}
+.steps li:last-child{border-bottom:none;}
+.steps li::before{content:counter(step-counter);position:absolute;left:0;top:6px;
+  width:30px;height:30px;border-radius:50%;
+  background:linear-gradient(160deg,var(--ocre),var(--ocre-deep));
+  color:#fff5e6;font-family:'Cinzel',serif;font-weight:900;font-size:.85rem;
+  display:flex;align-items:center;justify-content:center;line-height:1;
+  box-shadow:0 2px 0 var(--rust);}
+.steps li strong{color:var(--sand-1);}
+
+/* Reeduc list */
+.reeduc-list{list-style:none;margin:10px 0 0;padding:0;}
+.reeduc-list li{position:relative;padding:8px 0 8px 24px;font-size:1.05rem;line-height:1.5;
+  border-bottom:1px solid rgba(61,220,132,.12);}
+.reeduc-list li:last-child{border-bottom:none;}
+.reeduc-list li::before{content:"\25B8";position:absolute;left:6px;top:9px;color:var(--chakra-glow);font-size:.9rem;}
+.reeduc-list li strong{color:var(--chakra);}
+
+footer{text-align:center;margin-top:30px;color:var(--sand-deep);font-style:italic;}
+footer .seal{color:var(--ocre);font-family:'Cinzel',serif;}
+
+@media(max-width:700px){
+  .cards-row{grid-template-columns:1fr;}
+  .body-list li{padding-left:46px;}
+}
+@media(max-width:480px){
+  .panel{padding:16px 14px 16px 18px;}
+  .steps li{padding-left:40px;}
+  .steps li::before{width:26px;height:26px;font-size:.78rem;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="back-btn"><a href="index.html">&larr; Retour au hub</a></div>
+  <header>
+    <div class="crest"><svg viewBox="0 0 100 100" fill="none">
+      <circle cx="50" cy="50" r="30" stroke="#b5712b" stroke-width="4"/>
+      <path d="M50 22 L58 44 L50 50 L42 44 Z" fill="#b5712b"/>
+      <path d="M50 78 L42 56 L50 50 L58 56 Z" fill="#b5712b"/>
+      <circle cx="50" cy="50" r="6" fill="#8a4f1a"/>
+    </svg></div>
+    <h1>Les Articulations</h1>
+    <div class="sub">Section M&eacute;dicale Seimei &middot; Sunagakure</div>
+    <div class="divider"></div>
+    <p class="intro">Comprendre les articulations est essentiel pour tout m&eacute;decin ninja. Les blessures articulaires sont fr&eacute;quentes au combat et n&eacute;cessitent une prise en charge rapide et pr&eacute;cise.</p>
+  </header>
+
+  <!-- ============================================================ -->
+  <!-- 1. QU'EST-CE QU'UNE ARTICULATION ? -->
+  <!-- ============================================================ -->
+  <div class="panel panel-definition">
+    <span class="section-num section-num-sand">1 &mdash; D&eacute;finition</span>
+    <h2>Qu&rsquo;est-ce qu&rsquo;une articulation&nbsp;?</h2>
+
+    <p class="lead">Une articulation est la jonction entre deux os ou plus. Elle permet le mouvement du corps. Elle est compos&eacute;e de&nbsp;:</p>
+
+    <ul class="comp-list">
+      <li><strong>Os</strong> &mdash; la structure rigide</li>
+      <li><strong>Cartilage</strong> &mdash; surface lisse qui recouvre les extr&eacute;mit&eacute;s osseuses, amortit les chocs</li>
+      <li><strong>Ligaments</strong> &mdash; bandes fibreuses qui relient les os entre eux et stabilisent l&rsquo;articulation</li>
+      <li><strong>Tendons</strong> &mdash; relient les muscles aux os, transmettent la force musculaire</li>
+      <li><strong>Capsule articulaire</strong> &mdash; enveloppe qui contient le liquide synovial</li>
+      <li><strong>Liquide synovial</strong> &mdash; lubrifiant naturel qui r&eacute;duit les frottements</li>
+    </ul>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 2. LES TYPES D'ARTICULATIONS -->
+  <!-- ============================================================ -->
+  <div class="panel panel-types">
+    <span class="section-num section-num-green">2 &mdash; Types</span>
+    <h2>Les types d&rsquo;articulations</h2>
+
+    <div class="cards-row">
+      <div class="type-card card-mobile">
+        <h3>Mobiles</h3>
+        <div class="card-sub">Diarthroses</div>
+        <p>Mouvement libre. Ex&nbsp;: &eacute;paule, genou, coude, hanche.</p>
+        <span class="card-tag">Les plus bless&eacute;es au combat</span>
+      </div>
+      <div class="type-card card-semi">
+        <h3>Semi-mobiles</h3>
+        <div class="card-sub">Amphiarthroses</div>
+        <p>Mouvement limit&eacute;. Ex&nbsp;: vert&egrave;bres, symphyse pubienne.</p>
+        <span class="card-tag">Mouvement restreint</span>
+      </div>
+      <div class="type-card card-fixe">
+        <h3>Fixes</h3>
+        <div class="card-sub">Synarthroses</div>
+        <p>Aucun mouvement. Ex&nbsp;: os du cr&acirc;ne.</p>
+        <span class="card-tag">Soud&eacute;es</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 3. LES PRINCIPALES ARTICULATIONS DU CORPS -->
+  <!-- ============================================================ -->
+  <div class="panel panel-principales">
+    <span class="section-num section-num-orange">3 &mdash; Anatomie</span>
+    <h2>Les principales articulations du corps</h2>
+
+    <ul class="body-list">
+      <li>
+        <div class="body-icon">&#9651;</div>
+        <strong>&Eacute;paule</strong> &mdash; La plus mobile, la plus instable. Luxations fr&eacute;quentes. R&eacute;duction d&rsquo;&eacute;paule = technique Seimei.
+      </li>
+      <li>
+        <div class="body-icon">&#9655;</div>
+        <strong>Coude</strong> &mdash; Flexion/extension. Luxation possible, souvent accompagn&eacute;e de fracture.
+      </li>
+      <li>
+        <div class="body-icon">&#9679;</div>
+        <strong>Poignet</strong> &mdash; 8 petits os (carpe). Entorses et fractures fr&eacute;quentes (chutes).
+      </li>
+      <li>
+        <div class="body-icon">&#9711;</div>
+        <strong>Hanche</strong> &mdash; Tr&egrave;s stable (embo&icirc;tement profond). Luxation = force extr&ecirc;me, urgence.
+      </li>
+      <li>
+        <div class="body-icon">&#9674;</div>
+        <strong>Genou</strong> &mdash; La plus grande articulation. Ligaments crois&eacute;s (LCA/LCP), m&eacute;nisques. Tr&egrave;s vuln&eacute;rable au combat.
+      </li>
+      <li>
+        <div class="body-icon">&#9661;</div>
+        <strong>Cheville</strong> &mdash; Entorse = blessure la plus fr&eacute;quente. Ligaments lat&eacute;raux souvent touch&eacute;s.
+      </li>
+    </ul>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 4. LES BLESSURES ARTICULAIRES -->
+  <!-- ============================================================ -->
+  <div class="panel panel-blessures">
+    <span class="section-num section-num-red">4 &mdash; Blessures</span>
+    <h2>Les blessures articulaires</h2>
+
+    <!-- Entorse -->
+    <div class="injury-panel">
+      <h3>Entorse</h3>
+      <p style="font-size:1.02rem;line-height:1.5;color:var(--parchment);margin-bottom:8px;">&Eacute;tirement ou d&eacute;chirure des ligaments. 3 grades&nbsp;:</p>
+      <ul class="grade-list">
+        <li class="grade-1"><strong>Grade 1 (l&eacute;g&egrave;re)</strong> &mdash; &eacute;tirement sans rupture. Douleur, l&eacute;ger gonflement.</li>
+        <li class="grade-2"><strong>Grade 2 (mod&eacute;r&eacute;e)</strong> &mdash; d&eacute;chirure partielle. Gonflement marqu&eacute;, ecchymose, instabilit&eacute;.</li>
+        <li class="grade-3"><strong>Grade 3 (grave)</strong> &mdash; rupture compl&egrave;te. Instabilit&eacute; totale, douleur intense puis diminu&eacute;e (nerfs sectionn&eacute;s).</li>
+      </ul>
+    </div>
+
+    <!-- Luxation -->
+    <div class="injury-panel">
+      <h3>Luxation</h3>
+      <p style="font-size:1.02rem;line-height:1.5;color:var(--parchment);">L&rsquo;os sort de son logement articulaire. D&eacute;formation visible, impossibilit&eacute; de bouger.</p>
+      <div class="warn-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span>Ne <strong>JAMAIS</strong> tenter de r&eacute;duire sans formation. Risque de l&eacute;sion nerveuse ou vasculaire.</span>
+      </div>
+    </div>
+
+    <!-- Tendinite -->
+    <div class="injury-panel">
+      <h3>Tendinite</h3>
+      <p style="font-size:1.02rem;line-height:1.5;color:var(--parchment);">Inflammation d&rsquo;un tendon par surmenage. Douleur &agrave; l&rsquo;effort, gonflement local. Repos + anti-inflammatoire.</p>
+    </div>
+
+    <!-- Fracture articulaire -->
+    <div class="injury-panel">
+      <h3>Fracture articulaire</h3>
+      <p style="font-size:1.02rem;line-height:1.5;color:var(--parchment);">Fracture touchant la surface articulaire. Plus grave qu&rsquo;une fracture classique car risque d&rsquo;arthrose future.</p>
+      <div class="warn-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span>Immobilisation stricte et transfert imm&eacute;diat vers un grade sup&eacute;rieur. Toute manipulation risque d&rsquo;aggraver les l&eacute;sions.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 5. CONDUITE À TENIR (protocole Seimei) -->
+  <!-- ============================================================ -->
+  <div class="panel panel-protocole">
+    <span class="section-num section-num-gold">5 &mdash; Protocole</span>
+    <h2>Conduite &agrave; tenir (protocole Seimei)</h2>
+
+    <ol class="steps">
+      <li><strong>Immobiliser</strong> &mdash; Ne pas faire bouger l&rsquo;articulation bless&eacute;e</li>
+      <li><strong>&Eacute;valuer</strong> &mdash; Kaiseki Ken&rsquo;shin si disponible, sinon examen visuel et palpatoire</li>
+      <li><strong>Refroidir</strong> &mdash; Appliquer du froid (15-20 min) pour limiter le gonflement</li>
+      <li><strong>Sur&eacute;lever</strong> &mdash; Si membre inf&eacute;rieur, sur&eacute;lever pour r&eacute;duire l&rsquo;&oelig;d&egrave;me</li>
+      <li><strong>Ne pas forcer</strong> &mdash; Aucune tentative de manipulation sans grade suffisant</li>
+      <li><strong>Transmettre</strong> &mdash; Luxation ou fracture articulaire &rarr; grade Adepte minimum</li>
+    </ol>
+
+    <div class="info-box" style="margin-top:14px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <span>Ce protocole s&rsquo;applique en attendant un m&eacute;decin de grade sup&eacute;rieur. L&rsquo;immobilisation et le froid restent les premiers r&eacute;flexes &agrave; avoir.</span>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 6. RÉÉDUCATION -->
+  <!-- ============================================================ -->
+  <div class="panel panel-reeduc">
+    <span class="section-num section-num-teal">6 &mdash; R&eacute;&eacute;ducation</span>
+    <h2>R&eacute;&eacute;ducation</h2>
+
+    <p class="lead">Apr&egrave;s une blessure articulaire&nbsp;:</p>
+
+    <ul class="reeduc-list">
+      <li>Mobilisation progressive et douce</li>
+      <li>Renforcement musculaire autour de l&rsquo;articulation</li>
+      <li><strong>La Paume Spirituelle</strong> (Aspirant) peut acc&eacute;l&eacute;rer la gu&eacute;rison des tissus mous</li>
+      <li><strong>La Paume Mystique</strong> (Expert) pour les cas plus graves</li>
+      <li>Temps de repos obligatoire &mdash; reprendre trop t&ocirc;t = rechute</li>
+    </ul>
+
+    <div class="warn-box" style="margin-top:14px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>Un retour pr&eacute;matur&eacute; au combat sur une articulation mal gu&eacute;rie peut entra&icirc;ner une instabilit&eacute; chronique et des luxations r&eacute;p&eacute;titives.</span>
+    </div>
+  </div>
+
+  <footer>Outil p&eacute;dagogique officiel &middot; <span class="seal">Seimei</span> &middot; Sunagakure</footer>
+</div>
+</body>
+</html>

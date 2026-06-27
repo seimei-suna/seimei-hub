@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seimei &mdash; Pharmacologie | Sunagakure</title>
+<style>
+@import url('vendor/fonts.css');
+:root{
+  --sand-1:#f4e4c1;--sand-deep:#c89b5e;--ocre:#b5712b;--ocre-deep:#8a4f1a;
+  --rust:#7a3b15;--parchment:#f0dfb8;--chakra:#6fcf97;--chakra-glow:#3ddc84;
+  --blood-light:#c4453a;--gold:#ffd86b;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Cormorant Garamond',serif;color:var(--parchment);min-height:100vh;overflow-x:hidden;
+  background:radial-gradient(ellipse at 50% -10%,#5a3d1e 0%,transparent 55%),
+    linear-gradient(160deg,#2e1d0c 0%,#1c1106 60%,#140c04 100%);}
+body::before{content:"";position:fixed;inset:0;opacity:.05;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  z-index:1;}
+.wrap{position:relative;z-index:2;max-width:900px;margin:0 auto;padding:28px 16px 80px;}
+.back-btn{text-align:right;margin-bottom:8px;}
+.back-btn a{font-family:'Cinzel',serif;font-weight:700;font-size:.82rem;letter-spacing:.05em;
+  padding:8px 16px;border:1px solid var(--ocre);border-radius:9px;color:var(--sand-1);
+  text-decoration:none;text-transform:uppercase;transition:.2s;}
+.back-btn a:hover{background:rgba(181,113,43,.2);}
+header{text-align:center;margin-bottom:24px;}
+.crest{width:64px;height:64px;margin:0 auto 10px;border:3px solid var(--chakra);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle,rgba(111,207,151,.2),transparent 70%);
+  box-shadow:0 0 24px rgba(111,207,151,.3);}
+.crest svg{width:36px;height:36px;}
+h1{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(1.6rem,5vw,2.5rem);
+  letter-spacing:.06em;color:var(--sand-1);text-shadow:0 2px 0 var(--rust),0 0 28px rgba(181,113,43,.5);}
+.sub{font-size:1.1rem;color:var(--sand-deep);font-style:italic;margin-top:4px;}
+.divider{height:2px;width:58%;margin:14px auto 0;background:linear-gradient(90deg,transparent,var(--ocre),transparent);}
+.intro-text{font-size:1.08rem;line-height:1.6;text-align:center;margin:20px 0 30px;
+  color:var(--parchment);max-width:780px;margin-left:auto;margin-right:auto;}
+
+/* Category panels */
+.category{margin-bottom:28px;}
+.category-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;
+  padding:14px 18px;border-radius:12px 12px 4px 4px;
+  background:linear-gradient(160deg,rgba(240,223,184,.08),rgba(60,41,20,.18));
+  border:1px solid rgba(181,113,43,.35);border-bottom:none;}
+.category-header h2{font-family:'Cinzel',serif;font-weight:900;font-size:1.15rem;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--sand-1);}
+.category-header .cat-num{font-family:'Cinzel',serif;font-weight:900;font-size:.8rem;
+  letter-spacing:.06em;width:28px;height:28px;display:flex;align-items:center;
+  justify-content:center;border-radius:50%;flex-shrink:0;}
+.cat-orange .category-header{border-left:4px solid var(--ocre);}
+.cat-orange .cat-num{background:rgba(181,113,43,.2);border:1px solid var(--ocre);color:var(--ocre);}
+.cat-blue .category-header{border-left:4px solid #5b9bd5;}
+.cat-blue .cat-num{background:rgba(91,155,213,.15);border:1px solid #5b9bd5;color:#7db8e8;}
+.cat-green .category-header{border-left:4px solid var(--chakra);}
+.cat-green .cat-num{background:rgba(111,207,151,.15);border:1px solid var(--chakra);color:var(--chakra);}
+.cat-purple .category-header{border-left:4px solid #9b72cf;}
+.cat-purple .cat-num{background:rgba(155,114,207,.15);border:1px solid #9b72cf;color:#b48ee0;}
+.cat-gold .category-header{border-left:4px solid var(--gold);}
+.cat-gold .cat-num{background:rgba(255,216,107,.12);border:1px solid var(--gold);color:var(--gold);}
+
+.remedy-list{display:flex;flex-direction:column;gap:12px;}
+
+/* Remedy cards */
+.remedy-card{position:relative;padding:18px 16px 16px;border-radius:12px;
+  background:linear-gradient(160deg,rgba(240,223,184,.06),rgba(60,41,20,.14));
+  border:1px solid rgba(181,113,43,.3);
+  box-shadow:0 6px 20px rgba(0,0,0,.35);transition:transform .2s,box-shadow .2s;}
+.remedy-card:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,0,0,.45);}
+.cat-orange .remedy-card{border-left:3px solid var(--ocre);}
+.cat-blue .remedy-card{border-left:3px solid #5b9bd5;}
+.cat-green .remedy-card{border-left:3px solid var(--chakra);}
+.cat-purple .remedy-card{border-left:3px solid #9b72cf;}
+.cat-gold .remedy-card{border-left:3px solid var(--gold);}
+
+.remedy-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
+  margin-bottom:8px;flex-wrap:wrap;}
+.remedy-name{font-family:'Cinzel',serif;font-weight:700;font-size:1.08rem;color:var(--sand-1);
+  line-height:1.3;}
+.remedy-latin{font-size:.92rem;color:var(--sand-deep);font-style:italic;}
+.remedy-desc{font-size:1rem;line-height:1.5;color:var(--parchment);margin-bottom:6px;}
+.remedy-usage{font-size:.95rem;line-height:1.45;color:var(--sand-deep);}
+.remedy-usage strong{color:var(--sand-1);font-weight:700;}
+
+/* Badges */
+.badge{font-family:'Cinzel',serif;font-weight:700;font-size:.68rem;letter-spacing:.08em;
+  padding:3px 10px;border-radius:6px;text-transform:uppercase;display:inline-flex;
+  align-items:center;gap:5px;flex-shrink:0;white-space:nowrap;}
+.badge svg{width:12px;height:12px;}
+.badge-suna{background:rgba(255,216,107,.15);border:1px solid rgba(255,216,107,.45);color:var(--gold);}
+.badge-suna svg{fill:var(--gold);}
+.badge-chakra{background:rgba(111,207,151,.12);border:1px solid rgba(111,207,151,.4);color:var(--chakra);}
+.badge-chakra svg{fill:var(--chakra);}
+.badge-sand{background:rgba(240,223,184,.1);border:1px solid rgba(181,113,43,.35);color:var(--sand-deep);}
+.badge-sand svg{fill:var(--sand-deep);}
+
+/* Warning boxes */
+.warn-box{display:flex;align-items:flex-start;gap:10px;margin-top:10px;padding:10px 14px;
+  border-radius:9px;font-size:.92rem;line-height:1.45;
+  background:rgba(196,69,58,.12);border:1px solid rgba(196,69,58,.45);color:#ffcaa0;}
+.warn-box svg{flex-shrink:0;width:18px;height:18px;margin-top:2px;fill:var(--blood-light);}
+
+/* Final warning panel */
+.warning-panel{margin-top:28px;padding:20px;border-radius:14px;text-align:center;
+  background:linear-gradient(160deg,rgba(196,69,58,.1),rgba(60,41,20,.18));
+  border:1px solid rgba(196,69,58,.5);box-shadow:0 10px 30px rgba(0,0,0,.45);}
+.warning-panel .warn-icon{width:40px;height:40px;margin:0 auto 12px;display:flex;
+  align-items:center;justify-content:center;border-radius:50%;
+  background:rgba(196,69,58,.2);border:2px solid var(--blood-light);}
+.warning-panel .warn-icon svg{width:22px;height:22px;fill:var(--blood-light);}
+.warning-panel h2{font-family:'Cinzel',serif;font-weight:900;font-size:1.1rem;
+  color:var(--blood-light);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;}
+.warning-panel p{font-size:1.05rem;line-height:1.55;color:#ffcaa0;max-width:700px;margin:0 auto;}
+
+/* Summary table */
+.table-wrap{overflow-x:auto;margin-top:28px;}
+.summary-title{font-family:'Cinzel',serif;font-weight:900;font-size:1.15rem;
+  letter-spacing:.1em;text-transform:uppercase;text-align:center;
+  color:var(--sand-1);margin-bottom:16px;
+  text-shadow:0 0 20px rgba(181,113,43,.4);}
+.summary-title span{display:inline-block;padding:0 16px;position:relative;}
+.summary-title span::before,.summary-title span::after{content:"";position:absolute;top:50%;
+  width:40px;height:1px;background:var(--ocre);}
+.summary-title span::before{right:100%;}
+.summary-title span::after{left:100%;}
+.summary-grid{width:100%;border-collapse:collapse;}
+.summary-grid th,.summary-grid td{padding:9px 12px;text-align:left;font-size:.92rem;
+  border-bottom:1px solid rgba(181,113,43,.2);}
+.summary-grid th{font-family:'Cinzel',serif;font-weight:700;color:var(--ocre);font-size:.82rem;
+  letter-spacing:.06em;text-transform:uppercase;
+  background:rgba(181,113,43,.08);}
+.summary-grid td{color:var(--parchment);}
+.summary-grid tr:last-child td{border-bottom:none;}
+.summary-grid tr:hover td{background:rgba(240,223,184,.04);}
+.summary-grid .sg-cat{font-family:'Cinzel',serif;font-weight:700;font-size:.82rem;
+  letter-spacing:.04em;}
+.sg-cat-orange{color:var(--ocre);}
+.sg-cat-blue{color:#7db8e8;}
+.sg-cat-green{color:var(--chakra);}
+.sg-cat-purple{color:#b48ee0;}
+.sg-cat-gold{color:var(--gold);}
+.sg-grade{font-family:'Cinzel',serif;font-weight:700;font-size:.78rem;
+  letter-spacing:.05em;padding:2px 8px;border-radius:5px;display:inline-block;white-space:nowrap;}
+.sg-tous{background:rgba(240,223,184,.1);border:1px solid rgba(181,113,43,.3);color:var(--sand-deep);}
+.sg-adepte{background:rgba(91,155,213,.12);border:1px solid rgba(91,155,213,.4);color:#7db8e8;}
+.sg-expert{background:rgba(155,114,207,.12);border:1px solid rgba(155,114,207,.4);color:#b48ee0;}
+
+footer{text-align:center;margin-top:30px;color:var(--sand-deep);font-style:italic;font-size:.95rem;}
+footer .seal{color:var(--ocre);font-family:'Cinzel',serif;}
+
+@media(max-width:600px){
+  .category-header h2{font-size:1rem;}
+  .remedy-top{flex-direction:column;gap:6px;}
+  .summary-grid th,.summary-grid td{padding:6px 6px;font-size:.82rem;}
+  .sg-grade{font-size:.7rem;padding:2px 6px;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="back-btn"><a href="index.html">Retour au hub</a></div>
+
+  <header>
+    <div class="crest">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#6fcf97" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 3h6v4H9z"/>
+        <rect x="5" y="7" width="14" height="14" rx="2"/>
+        <path d="M12 11v6"/>
+        <path d="M9 14h6"/>
+      </svg>
+    </div>
+    <h1>Pharmacologie</h1>
+    <div class="sub">Section M&eacute;dicale Seimei &middot; Sunagakure</div>
+    <div class="divider"></div>
+  </header>
+
+  <p class="intro-text">La pharmacologie est l&rsquo;&eacute;tude des substances utilis&eacute;es pour soigner. &Agrave; Sunagakure, nous combinons les rem&egrave;des traditionnels issus de notre registre botanique avec les connaissances m&eacute;dicales avanc&eacute;es.</p>
+
+  <!-- ===== 1. ANTIDOULEURS ===== -->
+  <div class="category cat-orange">
+    <div class="category-header">
+      <div class="cat-num">1</div>
+      <h2>Antidouleurs (Analg&eacute;siques)</h2>
+    </div>
+    <div class="remedy-list">
+
+      <div class="remedy-card">
+        <div class="remedy-top">
+          <div>
+            <div class="remedy-name">Saule blanc</div>
+            <div class="remedy-latin">(Salix alba)</div>
+          </div>
+          <span class="badge badge-sand"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg> Rem&egrave;de</span>
+        </div>
+        <p class="remedy-desc">Effet similaire &agrave; l&rsquo;aspirine. Anti-douleur l&eacute;ger et anti-inflammatoire naturel extrait de l&rsquo;&eacute;corce.</p>
+        <p class="remedy-usage"><strong>Usage :</strong> Douleurs musculaires, maux de t&ecirc;te, fi&egrave;vre l&eacute;g&egrave;re.</p>
+      </div>
+
+      <div class="remedy-card">
+        <div class="remedy-top">
+          <div>
+            <div class="remedy-name">Pavot somnif&egrave;re</div>
+            <div class="remedy-latin">(Papaver somniferum)</div>
+          </div>
+          <span class="badge badge-sand"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg> Rem&egrave;de</span>
+        </div>
+        <p class="remedy-desc">Analg&eacute;sique puissant d&eacute;riv&eacute; de l&rsquo;opium. R&eacute;serv&eacute; aux cas les plus graves en raison de sa puissance.</p>
+        <p class="remedy-usage"><strong>Usage :</strong> Douleurs s&eacute;v&egrave;res post-op&eacute;ratoires, blessures de combat graves.</p>
+        <div class="warn-box">
+          <svg viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 4l8.5 14H3.5L12 6zm-1 5v4h2v-4h-2zm0 6v2h2v-2h-2z"/></svg>
+          <span>Risque de d&eacute;pendance. R&eacute;serv&eacute; aux cas graves. Dosage strict obligatoire.</span>
+        </div>
+      </div>
+
+      <div class="remedy-card">
+        <div class="remedy-top">
+          <div>
+            <div class="remedy-name">Anesth&eacute;sie locale par chakra</div>
+          </div>
+          <span class="badge badge-chakra"><svg viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9"/></svg> Technique</span>
+        </div>
+        <p class="remedy-desc">Le m&eacute;decin ninja peut engourdir une zone cibl&eacute;e en perturbant les signaux nerveux avec son chakra.</p>
+        <p class="remedy-usage"><strong>Usage :</strong> Avant sutures, petites interventions chirurgicales.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== 2. ANTI-INFLAMMATOIRES ===== -->
+  <div class="category cat-blue">
+    <div class="category-header">
+      <div class="cat-num">2</div>
+      <h2>Anti-inflammatoires</h2>
+    </div>
+    <div class="remedy-list">
+
+      <div class="remedy-card">
+        <div class="remedy-top">
+          <div>
+            <div class="remedy-name">Aloe vera</div>
+            <div class="remedy-latin">(Aloe vera)</div>
+          </div>
+          <span class="badge badge-suna"><svg viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9"/></svg> Sp&eacute;cialit&eacute; Suna</span>
+        </div>
+        <p class="remedy-desc">Gel anti-inflammatoire naturel extrait des feuilles. Rem&egrave;de polyvalent du d&eacute;sert, abondant &agrave; Sunagakure.</p>
+        <p class="remedy-usage"><strong>Usage :</strong> Br&ucirc;lures l&eacute;g&egrave;res, irritations cutan&eacute;es, cicatrisation.</p>
+      </div>
+
+      <div class="remedy-card">
+        <div class="remedy-top">
+          <div>
+            <div class="remedy-name">Cactus / Opuntia</div>
+            <div class="remedy-latin">(Figuier de Barbarie)</div>
+          </div>
+          <span class="badge badge-suna"><svg viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9"/></svg> Sp&eacute;cialit&eacute; Suna</span>
+        </div>
+        <p class="remedy-desc">Protection gastrique et hydratation. Ses fibres mucilagineuses forment un gel protecteur pour l&rsquo;estomac.</p>
+        <p class="remedy-usage"><strong>Usage :</strong> Inflammation digestive, compl&eacute;ment nutritionnel en milieu d&eacute;sertique.</p>
+      </div>
+
+      <div class="remedy-card">
+        <div class="remedy-top">
+          <div>
+            <div class="remedy-name">Cataplasme froid</div>
+          </div>
+          <span class="badge badge-sand"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg> Rem&egrave;de</span>
+        </div>
+        <p class="remedy-desc">M&eacute;lange d&rsquo;herbes broy&eacute;es appliqu&eacute; sur une zone enflamm&eacute;e. Pr&eacute;paration simple accessible &agrave; tous les grades.</p>
+        <p class="remedy-usage"><strong>Usage :</strong> Entorses, h&eacute;matomes, gonflements.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== 3. ANTIPOISONS ===== -->
+  <div class="category cat-green">
+    <div class="category-header">
+      <div class="cat-num">3</div>
+      <h2>Antipoisons</h2>
+    </div>
+    <div class="remedy-list">
+
+      <div class="remedy-card">
+        <div class="remedy-top">
+          <div>
+            <div class="remedy-name">Dokunoki no Jutsu</div>
+            <div class="remedy-latin">(Technique d&rsquo;Extraction de Poison)</div>
+          </div>
+          <span class="badge badge-chakra"><svg viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9"/></svg> Technique</span>
+        </div>
+        <p class="remedy-desc">Extraction directe du poison par bulle de chakra. Le traitement le plus efficace contre les empoisonnements, mais requiert le grade Adepte minimum.</p>
+        <p class="remedy-usage"><strong>Usage :</strong> Tout type d&rsquo;empoisonnement. Traitement de r&eacute;f&eacute;rence.</p>
+      </div>
+
+      <div class="remedy-card">
+        <div class="remedy-top">
+          <div>
+            <div class="remedy-name">Charbon actif</div>
+          </div>
+          <span class="badge badge-sand"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg> Rem&egrave;de</span>
+        </div>
+        <p class="remedy-desc">Absorbe les toxines dans l&rsquo;estomac si le poison a &eacute;t&eacute; ing&eacute;r&eacute; r&eacute;cemment (moins de 2 heures).</p>
+        <p class="remedy-usage"><strong>Usage :</strong> Empoisonnement par ingestion. Administration orale imm&eacute;diate.</p>
+      </div>
+
+      <div class="remedy-card">
+        <div class="remedy-top">
+          <div>
+            <div class="remedy-name">Quinquina</div>
+            <div class="remedy-latin">(Cinchona officinalis)</div>
+          </div>
+          <span class="badge badge-sand"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg> Rem&egrave;de</span>
+        </div>
+        <p class="remedy-desc">Antiparasitaire naturel. La quinine extraite de son &eacute;corce neutralise les toxines parasitaires.</p>
+        <p class="remedy-usage"><strong>Usage :</strong> Piq&ucirc;res d&rsquo;insectes venimeux, infections parasitaires.</p>
+      </div>
+
+      <div class="remedy-card">
+        <div class="remedy-top">
+          <div>
+            <div class="remedy-name">Artemisia annua</div>
+            <div class="remedy-latin">(Armoise annuelle)</div>
+          </div>
+          <span class="badge badge-sand"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg> Rem&egrave;de</span>
+        </div>
+        <p class="remedy-desc">Antiparasitaire reconnu dans toutes les nations. L&rsquo;art&eacute;misinine combat les parasites transmis par les insectes.</p>
+        <p class="remedy-usage"><strong>Usage :</strong> Piq&ucirc;res, fi&egrave;vres parasitaires.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== 4. ANESTH&Eacute;SIANTS ===== -->
+  <div class="category cat-purple">
+    <div class="category-header">
+      <div class="cat-num">4</div>
+      <h2>Anesth&eacute;siants</h2>
+    </div>
+    <div class="remedy-list">
+
+      <div class="remedy-card">
+        <div class="remedy-top">
+          <div>
+            <div class="remedy-name">Pavot somnif&egrave;re (dose contr&ocirc;l&eacute;e)</div>
+            <div class="remedy-latin">(Papaver somniferum)</div>
+          </div>
+          <span class="badge badge-sand"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg> Rem&egrave;de</span>
+        </div>
+        <p class="remedy-desc">S&eacute;dation l&eacute;g&egrave;re pour les interventions chirurgicales. Le dosage doit &ecirc;tre calcul&eacute; avec pr&eacute;cision selon le poids du patient.</p>
+        <p class="remedy-usage"><strong>Usage :</strong> Anesth&eacute;sie g&eacute;n&eacute;rale l&eacute;g&egrave;re pour interventions de moyenne dur&eacute;e.</p>
+        <div class="warn-box">
+          <svg viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 4l8.5 14H3.5L12 6zm-1 5v4h2v-4h-2zm0 6v2h2v-2h-2z"/></svg>
+          <span>Dosage critique &mdash; surdosage = arr&ecirc;t respiratoire. Supervision Adepte obligatoire.</span>
+        </div>
+      </div>
+
+      <div class="remedy-card">
+        <div class="remedy-top">
+          <div>
+            <div class="remedy-name">Esmolol</div>
+          </div>
+          <span class="badge badge-sand"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg> Rem&egrave;de</span>
+        </div>
+        <p class="remedy-desc">Agent cardiaque ralentisseur utilis&eacute; en chirurgie pour contr&ocirc;ler le rythme cardiaque pendant les op&eacute;rations d&eacute;licates.</p>
+        <p class="remedy-usage"><strong>Usage :</strong> Chirurgie cardiaque, op&eacute;rations complexes. R&eacute;serv&eacute; aux Experts.</p>
+        <div class="warn-box">
+          <svg viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 4l8.5 14H3.5L12 6zm-1 5v4h2v-4h-2zm0 6v2h2v-2h-2z"/></svg>
+          <span>R&eacute;serv&eacute; au grade Expert. Manipulation incorrecte = risque d&rsquo;arr&ecirc;t cardiaque.</span>
+        </div>
+      </div>
+
+      <div class="remedy-card">
+        <div class="remedy-top">
+          <div>
+            <div class="remedy-name">Engourdissement par chakra</div>
+          </div>
+          <span class="badge badge-chakra"><svg viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9"/></svg> Technique</span>
+        </div>
+        <p class="remedy-desc">Technique de base : le m&eacute;decin ralentit la transmission nerveuse dans une zone cibl&eacute;e. Moins efficace qu&rsquo;une anesth&eacute;sie chimique mais sans effets secondaires.</p>
+        <p class="remedy-usage"><strong>Usage :</strong> Petites interventions, compl&eacute;ment d&rsquo;anesth&eacute;sie chimique.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== 5. CICATRISANTS ===== -->
+  <div class="category cat-gold">
+    <div class="category-header">
+      <div class="cat-num">5</div>
+      <h2>Cicatrisants</h2>
+    </div>
+    <div class="remedy-list">
+
+      <div class="remedy-card">
+        <div class="remedy-top">
+          <div>
+            <div class="remedy-name">Aloe vera</div>
+            <div class="remedy-latin">(Aloe vera)</div>
+          </div>
+          <span class="badge badge-suna"><svg viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9"/></svg> Sp&eacute;cialit&eacute; Suna</span>
+        </div>
+        <p class="remedy-desc">Acc&eacute;l&egrave;re la cicatrisation, hydrate et prot&egrave;ge la peau. Rem&egrave;de de base pour les plaies superficielles.</p>
+        <p class="remedy-usage"><strong>Usage :</strong> Plaies superficielles, br&ucirc;lures l&eacute;g&egrave;res, soins post-op&eacute;ratoires cutan&eacute;s.</p>
+      </div>
+
+      <div class="remedy-card">
+        <div class="remedy-top">
+          <div>
+            <div class="remedy-name">Paume Spirituelle</div>
+            <div class="remedy-latin">(Technique Aspirant)</div>
+          </div>
+          <span class="badge badge-chakra"><svg viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9"/></svg> Technique</span>
+        </div>
+        <p class="remedy-desc">R&eacute;g&eacute;n&eacute;ration des tissus superficiels par chakra. Premi&egrave;re technique de soin apprise par les m&eacute;decins ninjas.</p>
+        <p class="remedy-usage"><strong>Usage :</strong> Cicatrisation acc&eacute;l&eacute;r&eacute;e des plaies l&eacute;g&egrave;res et &eacute;corchures.</p>
+      </div>
+
+      <div class="remedy-card">
+        <div class="remedy-top">
+          <div>
+            <div class="remedy-name">Paume Mystique</div>
+            <div class="remedy-latin">(Technique Expert)</div>
+          </div>
+          <span class="badge badge-chakra"><svg viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9"/></svg> Technique</span>
+        </div>
+        <p class="remedy-desc">R&eacute;g&eacute;n&eacute;ration cellulaire avanc&eacute;e. Permet de refermer les plaies profondes et de r&eacute;parer les tissus internes.</p>
+        <p class="remedy-usage"><strong>Usage :</strong> Blessures profondes, lacerations, r&eacute;paration tissulaire post-chirurgicale.</p>
+      </div>
+
+      <div class="remedy-card">
+        <div class="remedy-top">
+          <div>
+            <div class="remedy-name">Miel m&eacute;dical</div>
+          </div>
+          <span class="badge badge-sand"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg> Rem&egrave;de</span>
+        </div>
+        <p class="remedy-desc">Antiseptique naturel, favorise la cicatrisation en milieu humide. Emp&ecirc;che la prolif&eacute;ration bact&eacute;rienne sur les plaies ouvertes.</p>
+        <p class="remedy-usage"><strong>Usage :</strong> Pansements de plaies chroniques, br&ucirc;lures &eacute;tendues.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== TABLEAU R&Eacute;CAPITULATIF ===== -->
+  <div class="table-wrap">
+    <div class="summary-title"><span>Tableau R&eacute;capitulatif</span></div>
+    <table class="summary-grid">
+      <thead>
+        <tr>
+          <th>Cat&eacute;gorie</th>
+          <th>Rem&egrave;de</th>
+          <th>Grade requis</th>
+          <th>Usage principal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Antidouleurs -->
+        <tr>
+          <td><span class="sg-cat sg-cat-orange">Antidouleurs</span></td>
+          <td>Saule blanc</td>
+          <td><span class="sg-grade sg-tous">Tous</span></td>
+          <td>Douleurs l&eacute;g&egrave;res, fi&egrave;vre</td>
+        </tr>
+        <tr>
+          <td><span class="sg-cat sg-cat-orange">Antidouleurs</span></td>
+          <td>Pavot somnif&egrave;re</td>
+          <td><span class="sg-grade sg-adepte">Adepte</span></td>
+          <td>Douleurs s&eacute;v&egrave;res</td>
+        </tr>
+        <tr>
+          <td><span class="sg-cat sg-cat-orange">Antidouleurs</span></td>
+          <td>Anesth&eacute;sie locale (chakra)</td>
+          <td><span class="sg-grade sg-tous">Tous</span></td>
+          <td>Avant sutures</td>
+        </tr>
+        <!-- Anti-inflammatoires -->
+        <tr>
+          <td><span class="sg-cat sg-cat-blue">Anti-inflam.</span></td>
+          <td>Aloe vera</td>
+          <td><span class="sg-grade sg-tous">Tous</span></td>
+          <td>Br&ucirc;lures, irritations</td>
+        </tr>
+        <tr>
+          <td><span class="sg-cat sg-cat-blue">Anti-inflam.</span></td>
+          <td>Cactus / Opuntia</td>
+          <td><span class="sg-grade sg-tous">Tous</span></td>
+          <td>Inflammation digestive</td>
+        </tr>
+        <tr>
+          <td><span class="sg-cat sg-cat-blue">Anti-inflam.</span></td>
+          <td>Cataplasme froid</td>
+          <td><span class="sg-grade sg-tous">Tous</span></td>
+          <td>Entorses, h&eacute;matomes</td>
+        </tr>
+        <!-- Antipoisons -->
+        <tr>
+          <td><span class="sg-cat sg-cat-green">Antipoisons</span></td>
+          <td>Dokunoki no Jutsu</td>
+          <td><span class="sg-grade sg-adepte">Adepte</span></td>
+          <td>Extraction de poison</td>
+        </tr>
+        <tr>
+          <td><span class="sg-cat sg-cat-green">Antipoisons</span></td>
+          <td>Charbon actif</td>
+          <td><span class="sg-grade sg-tous">Tous</span></td>
+          <td>Ingestion de poison</td>
+        </tr>
+        <tr>
+          <td><span class="sg-cat sg-cat-green">Antipoisons</span></td>
+          <td>Quinquina</td>
+          <td><span class="sg-grade sg-tous">Tous</span></td>
+          <td>Piq&ucirc;res venimeuses</td>
+        </tr>
+        <tr>
+          <td><span class="sg-cat sg-cat-green">Antipoisons</span></td>
+          <td>Artemisia annua</td>
+          <td><span class="sg-grade sg-tous">Tous</span></td>
+          <td>Fi&egrave;vres parasitaires</td>
+        </tr>
+        <!-- Anesth&eacute;siants -->
+        <tr>
+          <td><span class="sg-cat sg-cat-purple">Anesth&eacute;siants</span></td>
+          <td>Pavot (dose contr&ocirc;l&eacute;e)</td>
+          <td><span class="sg-grade sg-adepte">Adepte</span></td>
+          <td>S&eacute;dation chirurgicale</td>
+        </tr>
+        <tr>
+          <td><span class="sg-cat sg-cat-purple">Anesth&eacute;siants</span></td>
+          <td>Esmolol</td>
+          <td><span class="sg-grade sg-expert">Expert</span></td>
+          <td>Contr&ocirc;le cardiaque</td>
+        </tr>
+        <tr>
+          <td><span class="sg-cat sg-cat-purple">Anesth&eacute;siants</span></td>
+          <td>Engourdissement (chakra)</td>
+          <td><span class="sg-grade sg-tous">Tous</span></td>
+          <td>Petites interventions</td>
+        </tr>
+        <!-- Cicatrisants -->
+        <tr>
+          <td><span class="sg-cat sg-cat-gold">Cicatrisants</span></td>
+          <td>Aloe vera</td>
+          <td><span class="sg-grade sg-tous">Tous</span></td>
+          <td>Plaies superficielles</td>
+        </tr>
+        <tr>
+          <td><span class="sg-cat sg-cat-gold">Cicatrisants</span></td>
+          <td>Paume Spirituelle</td>
+          <td><span class="sg-grade sg-tous">Aspirant</span></td>
+          <td>Cicatrisation l&eacute;g&egrave;re</td>
+        </tr>
+        <tr>
+          <td><span class="sg-cat sg-cat-gold">Cicatrisants</span></td>
+          <td>Paume Mystique</td>
+          <td><span class="sg-grade sg-expert">Expert</span></td>
+          <td>Plaies profondes</td>
+        </tr>
+        <tr>
+          <td><span class="sg-cat sg-cat-gold">Cicatrisants</span></td>
+          <td>Miel m&eacute;dical</td>
+          <td><span class="sg-grade sg-tous">Tous</span></td>
+          <td>Plaies chroniques</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ===== AVERTISSEMENT ===== -->
+  <div class="warning-panel">
+    <div class="warn-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 4l8.5 14H3.5L12 6zm-1 5v4h2v-4h-2zm0 6v2h2v-2h-2z"/></svg>
+    </div>
+    <h2>Avertissement</h2>
+    <p>Tout traitement pharmaceutique doit &ecirc;tre administr&eacute; sous la supervision d&rsquo;un grade <strong>Adepte</strong> ou sup&eacute;rieur. Les Stagiaires et Aspirants peuvent pr&eacute;parer les rem&egrave;des mais ne doivent pas les administrer seuls.</p>
+  </div>
+
+  <footer>
+    <p>Outil p&eacute;dagogique officiel &middot; <span class="seal">Seimei</span> &middot; Sunagakure</p>
+  </footer>
+</div>
+</body>
+</html>
