@@ -11,26 +11,18 @@
 :root{--sand-1:#f4e4c1;--sand-deep:#c89b5e;--ocre:#b5712b;--ocre-deep:#8a4f1a;--rust:#7a3b15;
   --parchment:#f0dfb8;--chakra:#6fcf97;--chakra-glow:#3ddc84;--blood-light:#c4453a;--gold:#ffd86b;}
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Cormorant Garamond',serif;color:var(--parchment);min-height:100vh;
+body{font-family:'Cormorant Garamond',serif;color:var(--parchment);min-height:100vh;overflow-x:hidden;
   background:radial-gradient(ellipse at 50% -10%,#5a3d1e 0%,transparent 55%),
     linear-gradient(160deg,#2e1d0c 0%,#1c1106 60%,#140c04 100%);}
 body::before{content:"";position:fixed;inset:0;opacity:.05;pointer-events:none;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   z-index:1;}
-.wrap{position:relative;z-index:2;max-width:1100px;margin:0 auto;padding:30px 16px 70px;}
-.back-btn{text-align:right;margin-bottom:14px;}
-.back-btn a{font-family:'Cinzel',serif;font-weight:700;font-size:.82rem;letter-spacing:.05em;
-  padding:8px 16px;border:1px solid var(--ocre);border-radius:9px;color:var(--sand-1);
-  text-decoration:none;text-transform:uppercase;}
-header{text-align:center;margin-bottom:22px;}
-h1{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(1.6rem,4vw,2.4rem);
-  color:var(--sand-1);text-shadow:0 2px 0 var(--rust);letter-spacing:.05em;}
-.sub{color:var(--sand-deep);font-style:italic;font-size:1.1rem;margin-top:4px;}
-.divider{height:2px;width:55%;margin:14px auto 0;background:linear-gradient(90deg,transparent,var(--ocre),transparent);}
+
+/* LOGIN */
+#loginWrap{position:relative;z-index:2;max-width:420px;margin:80px auto;padding:0 16px;}
 .panel{background:linear-gradient(160deg,rgba(240,223,184,.07),rgba(60,41,20,.15));
-  border:1px solid rgba(181,113,43,.45);border-radius:14px;padding:22px;margin-bottom:20px;
+  border:1px solid rgba(181,113,43,.45);border-radius:14px;padding:22px;
   box-shadow:0 10px 30px rgba(0,0,0,.45);}
-#login{max-width:420px;margin:40px auto;}
 label{display:block;color:var(--sand-deep);margin-bottom:6px;}
 input[type=password],input[type=text]{width:100%;padding:13px 16px;font-family:inherit;font-size:1.1rem;
   background:rgba(20,12,4,.6);color:var(--sand-1);border:1px solid var(--ocre);border-radius:8px;outline:none;}
@@ -40,13 +32,56 @@ input[type=password],input[type=text]{width:100%;padding:13px 16px;font-family:i
   box-shadow:0 4px 0 var(--rust);transition:transform .12s;}
 .btn:hover{transform:translateY(-2px);}
 .btn.ghost{background:transparent;border:1px solid var(--ocre);box-shadow:none;color:var(--sand-1);}
-#dash{display:none;}
-.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
-.tab{font-family:'Cinzel',serif;font-weight:700;font-size:.85rem;letter-spacing:.05em;
-  padding:9px 18px;border-radius:8px;cursor:pointer;border:1px solid rgba(181,113,43,.4);
-  background:transparent;color:var(--sand-deep);text-transform:uppercase;transition:.2s;}
-.tab:hover{color:var(--sand-1);border-color:var(--ocre);}
-.tab.active{background:linear-gradient(160deg,var(--ocre),var(--ocre-deep));color:#fff5e6;border-color:var(--gold);box-shadow:0 4px 0 var(--rust);}
+.btn.sm{padding:6px 14px;font-size:.78rem;}
+.btn.danger{background:linear-gradient(160deg,var(--blood-light),#8b2a22);box-shadow:0 4px 0 #5a1a14;}
+.err{color:#ffcaa0;background:rgba(196,69,58,.12);border:1px solid rgba(196,69,58,.5);border-radius:8px;padding:12px;}
+
+/* LAYOUT */
+#dashWrap{position:relative;z-index:2;display:none;min-height:100vh;}
+.layout{display:flex;min-height:100vh;}
+.sidebar{width:250px;flex-shrink:0;position:sticky;top:0;height:100vh;
+  background:linear-gradient(160deg,rgba(240,223,184,.07),rgba(40,25,12,.3));
+  border-right:1px solid rgba(181,113,43,.35);padding:20px 14px;
+  display:flex;flex-direction:column;overflow-y:auto;}
+.sb-brand{display:flex;align-items:center;gap:10px;padding:4px 6px 16px;
+  border-bottom:1px solid rgba(181,113,43,.3);margin-bottom:14px;}
+.sb-crest{width:38px;height:38px;border:2px solid var(--ocre);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  background:radial-gradient(circle,rgba(181,113,43,.25),transparent 70%);}
+.sb-crest svg{width:22px;height:22px;}
+.sb-title{font-family:'Cinzel',serif;font-weight:700;font-size:15px;color:var(--sand-1);line-height:1.15;}
+.sb-title small{font-weight:400;font-size:9px;opacity:.6;letter-spacing:.4px;text-transform:uppercase;display:block;margin-top:2px;}
+.sb-section{margin-bottom:16px;}
+.sb-section-title{font-family:'Cinzel',serif;font-weight:700;font-size:.7rem;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--sand-deep);padding:0 8px 6px;opacity:.7;}
+.sb-link{display:flex;align-items:center;gap:8px;width:100%;padding:9px 10px;margin-bottom:3px;
+  font-family:'Cinzel',serif;font-weight:700;font-size:.8rem;letter-spacing:.03em;
+  color:var(--sand-deep);text-decoration:none;border:1px solid transparent;
+  border-radius:8px;cursor:pointer;transition:.2s;background:transparent;}
+.sb-link:hover{color:var(--sand-1);border-color:rgba(181,113,43,.4);background:rgba(181,113,43,.1);}
+.sb-link.active{color:var(--gold);border-color:var(--ocre);
+  background:linear-gradient(160deg,rgba(181,113,43,.2),rgba(138,79,26,.15));
+  box-shadow:0 2px 0 rgba(122,59,21,.4);}
+.sb-link svg{width:16px;height:16px;flex-shrink:0;}
+.sb-foot{margin-top:auto;padding-top:14px;border-top:1px solid rgba(181,113,43,.3);}
+.sb-foot a{display:block;text-align:center;font-family:'Cinzel',serif;font-weight:700;
+  font-size:.78rem;padding:8px;border:1px solid var(--ocre);border-radius:8px;
+  color:var(--sand-1);text-decoration:none;text-transform:uppercase;transition:.2s;}
+.sb-foot a:hover{background:rgba(181,113,43,.2);}
+
+/* MAIN */
+.main{flex:1;min-width:0;padding:30px 28px 60px;}
+.main header{text-align:center;margin-bottom:24px;}
+.main h1{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(1.6rem,4vw,2.4rem);
+  color:var(--sand-1);text-shadow:0 2px 0 var(--rust);letter-spacing:.05em;}
+.sub{color:var(--sand-deep);font-style:italic;font-size:1.1rem;margin-top:4px;}
+.divider{height:2px;width:55%;margin:14px auto 0;background:linear-gradient(90deg,transparent,var(--ocre),transparent);}
+
+/* SECTION VIEWS */
+.section-view{display:none;}
+.section-view.active{display:block;}
+
+/* RESULTS */
 .summary{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:18px;}
 .card{flex:1 1 130px;text-align:center;background:rgba(20,12,4,.5);
   border:1px solid rgba(181,113,43,.4);border-radius:10px;padding:12px 6px;}
@@ -71,21 +106,54 @@ tr:hover td{background:rgba(181,113,43,.07);}
 .scoreCell{font-family:'Cinzel',serif;font-weight:700;color:var(--chakra-glow);}
 .muted{color:var(--sand-deep);font-size:.92rem;}
 .empty{text-align:center;color:var(--sand-deep);font-style:italic;padding:30px;}
-.err{color:#ffcaa0;background:rgba(196,69,58,.12);border:1px solid rgba(196,69,58,.5);border-radius:8px;padding:12px;}
 .tablewrap{overflow-x:auto;}
-footer{text-align:center;margin-top:24px;color:var(--sand-deep);font-style:italic;}
+footer{text-align:center;margin-top:40px;color:var(--sand-deep);font-style:italic;}
 footer .seal{color:var(--ocre);font-family:'Cinzel',serif;}
-.tab svg{width:1em;height:1em;vertical-align:-.14em;margin-right:.35em}</style>
+
+/* HIERARCHY */
+.hier-section{margin-bottom:26px;}
+.hier-section-title{font-family:'Cinzel',serif;font-weight:700;font-size:1.05rem;color:var(--gold);
+  letter-spacing:.04em;padding:10px 14px;margin-bottom:8px;
+  background:rgba(181,113,43,.12);border:1px solid rgba(181,113,43,.35);border-radius:10px;
+  display:flex;align-items:center;justify-content:space-between;}
+.hier-section-title .rang-text{flex:1;}
+.hier-section-title .ordre-badge{font-size:.7rem;padding:2px 8px;border-radius:5px;
+  background:rgba(181,113,43,.3);color:var(--sand-deep);margin-right:8px;}
+.hier-member{display:flex;align-items:center;gap:10px;padding:8px 14px 8px 28px;
+  border-left:2px solid rgba(181,113,43,.3);margin-left:16px;margin-bottom:4px;transition:.15s;}
+.hier-member:hover{background:rgba(181,113,43,.06);border-radius:0 8px 8px 0;}
+.hier-member .name{flex:1;color:var(--parchment);font-size:1rem;}
+.hier-member .btn{opacity:.6;transition:.15s;}
+.hier-member:hover .btn{opacity:1;}
+.hier-add-form{display:flex;gap:8px;margin:6px 0 0 28px;}
+.hier-add-form input{flex:1;padding:8px 12px;font-family:inherit;font-size:.95rem;
+  background:rgba(20,12,4,.6);color:var(--sand-1);border:1px solid rgba(181,113,43,.4);border-radius:8px;outline:none;}
+.add-rang-bar{margin-bottom:24px;padding:16px;background:rgba(20,12,4,.35);
+  border:1px dashed rgba(181,113,43,.4);border-radius:10px;display:flex;gap:10px;align-items:center;}
+.add-rang-bar input{flex:1;padding:10px 14px;font-family:inherit;font-size:1rem;
+  background:rgba(20,12,4,.6);color:var(--sand-1);border:1px solid var(--ocre);border-radius:8px;outline:none;}
+
+@media(max-width:760px){
+  .layout{flex-direction:column;}
+  .sidebar{width:auto;position:static;height:auto;flex-direction:row;flex-wrap:wrap;
+    border-right:none;border-bottom:1px solid rgba(181,113,43,.35);padding:12px;gap:6px;}
+  .sb-brand{width:100%;margin-bottom:8px;padding-bottom:10px;}
+  .sb-section{margin-bottom:4px;display:flex;flex-wrap:wrap;gap:4px;}
+  .sb-section-title{width:100%;padding:4px 6px;}
+  .sb-foot{width:100%;margin-top:8px;padding-top:8px;}
+  .main{padding:20px 14px 40px;}
+}
+</style>
 </head>
 <body>
-<div class="wrap">
-  <div class="back-btn"><a href="index.html">← Retour au menu</a></div>
-  <header>
-    <h1>Tableau de bord — Seimei</h1>
+
+<!-- LOGIN -->
+<div id="loginWrap">
+  <div style="text-align:center;margin-bottom:20px;">
+    <h1 style="font-family:'Cinzel',serif;font-weight:900;font-size:1.8rem;color:var(--sand-1);text-shadow:0 2px 0 var(--rust);">Espace Formateur</h1>
     <div class="sub">Section Médicale · Sunagakure</div>
-    <div class="divider"></div>
-  </header>
-  <div id="login" class="panel">
+  </div>
+  <div class="panel">
     <label for="pw">Mot de passe formateur</label>
     <input type="password" id="pw" placeholder="••••••••" autocomplete="off">
     <div style="margin-top:16px;text-align:center;">
@@ -93,153 +161,360 @@ footer .seal{color:var(--ocre);font-family:'Cinzel',serif;}
     </div>
     <div id="loginErr" class="err" style="display:none;margin-top:12px;">Mot de passe incorrect.</div>
   </div>
-  <div id="dash">
-    <div class="tabs">
-      <button class="tab active" data-mod="sutures"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20c5-1 8-4 10-9"/><path d="M14 11l6-6"/><path d="M17 4.5 19.5 7"/></svg> Sutures</button>
-      <button class="tab" data-mod="brulures"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c2 3 5 5 5 9a5 5 0 0 1-10 0c0-2 1-3.5 2.5-4.5C9 9.5 11 8 12 3Z"/></svg> Brûlures</button>
-      <button class="tab" data-mod="fractures"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6"/><circle cx="6.5" cy="17.5" r="2.2"/><circle cx="17.5" cy="6.5" r="2.2"/></svg> Fractures</button>
-      <button class="tab" data-mod="attelles"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9.5" width="18" height="5" rx="2.5" transform="rotate(-45 12 12)"/><path d="M10 10l4 4M14 10l-4 4"/></svg> Attelles</button>
-      <button class="tab" data-mod="rcr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5 4.8 13a4.6 4.6 0 0 1 7.2-5.6A4.6 4.6 0 0 1 19.2 13Z"/><path d="M7.5 12h2l1.5-3 2 6 1.5-3h2"/></svg> RCR</button>
-      <button class="tab" data-mod="prelevement"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l3-3"/><path d="M5 19 15 9"/><path d="M12 6l6 6"/><path d="M14.5 3.5 20.5 9.5"/></svg> Prélèvement</button>
-      <button class="tab" data-mod="bandage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="16" rx="2"/><path d="M6 9h12M6 14h12"/></svg> Bandage</button>
-      <button class="tab" data-mod="garrot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="9.5" width="10" height="5" rx="2.5"/><rect x="11.5" y="9.5" width="10" height="5" rx="2.5"/></svg> Garrot</button>
-      <button class="tab" data-mod="epaule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20v-5a3 3 0 0 1 3-3h4l2.5-3.5 3 2-3 5.5A4 4 0 0 1 12 18H9"/></svg> Épaule</button>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashWrap">
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-crest">
+        <svg viewBox="0 0 100 100" fill="none">
+          <circle cx="50" cy="50" r="30" stroke="#b5712b" stroke-width="4"/>
+          <path d="M50 22 L58 44 L50 50 L42 44 Z" fill="#b5712b"/>
+          <path d="M50 78 L42 56 L50 50 L58 56 Z" fill="#b5712b"/>
+          <circle cx="50" cy="50" r="6" fill="#8a4f1a"/>
+        </svg>
+      </div>
+      <span class="sb-title">Formateur<small>Seimei · Sunagakure</small></span>
     </div>
-    <div class="panel">
-      <div class="summary" id="summary"></div>
-      <div class="toolbar">
-        <input type="text" class="search" id="search" placeholder="Rechercher un apprenti...">
-        <div style="display:flex;gap:10px;">
-          <button class="btn ghost" id="refreshBtn">Actualiser</button>
-          <button class="btn ghost" id="csvBtn">Exporter CSV</button>
+
+    <div class="sb-section">
+      <div class="sb-section-title">Gestion</div>
+      <a class="sb-link active" data-section="hierarchie">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Hiérarchie
+      </a>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-section-title">Résultats</div>
+      <a class="sb-link" data-section="sutures">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20c5-1 8-4 10-9"/><path d="M14 11l6-6"/><path d="M17 4.5 19.5 7"/></svg>
+        Sutures
+      </a>
+      <a class="sb-link" data-section="brulures">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c2 3 5 5 5 9a5 5 0 0 1-10 0c0-2 1-3.5 2.5-4.5C9 9.5 11 8 12 3Z"/></svg>
+        Brûlures
+      </a>
+      <a class="sb-link" data-section="fractures">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6"/><circle cx="6.5" cy="17.5" r="2.2"/><circle cx="17.5" cy="6.5" r="2.2"/></svg>
+        Fractures
+      </a>
+      <a class="sb-link" data-section="attelles">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9.5" width="18" height="5" rx="2.5" transform="rotate(-45 12 12)"/><path d="M10 10l4 4M14 10l-4 4"/></svg>
+        Attelles
+      </a>
+      <a class="sb-link" data-section="rcr">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5 4.8 13a4.6 4.6 0 0 1 7.2-5.6A4.6 4.6 0 0 1 19.2 13Z"/><path d="M7.5 12h2l1.5-3 2 6 1.5-3h2"/></svg>
+        RCR
+      </a>
+      <a class="sb-link" data-section="prelevement">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l3-3"/><path d="M5 19 15 9"/><path d="M12 6l6 6"/><path d="M14.5 3.5 20.5 9.5"/></svg>
+        Prélèvement
+      </a>
+      <a class="sb-link" data-section="bandage">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="16" rx="2"/><path d="M6 9h12M6 14h12"/></svg>
+        Bandage
+      </a>
+      <a class="sb-link" data-section="garrot">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="9.5" width="10" height="5" rx="2.5"/><rect x="11.5" y="9.5" width="10" height="5" rx="2.5"/></svg>
+        Garrot
+      </a>
+      <a class="sb-link" data-section="epaule">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20v-5a3 3 0 0 1 3-3h4l2.5-3.5 3 2-3 5.5A4 4 0 0 1 12 18H9"/></svg>
+        Épaule
+      </a>
+    </div>
+
+    <div class="sb-foot">
+      <a href="index.html">&larr; Retour au hub</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header>
+      <h1>Tableau de bord</h1>
+      <div class="sub">Section Médicale · Sunagakure</div>
+      <div class="divider"></div>
+    </header>
+
+    <!-- HIÉRARCHIE -->
+    <div class="section-view active" id="sec-hierarchie">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+        <div style="font-family:'Cinzel',serif;font-weight:700;font-size:1.1rem;color:var(--ocre);letter-spacing:.05em;display:flex;align-items:center;gap:8px;">
+          <span style="width:7px;height:7px;background:var(--ocre);transform:rotate(45deg);display:inline-block;"></span>
+          Hiérarchie Seimei
+        </div>
+        <button class="btn ghost sm" id="hierRefreshBtn">Actualiser</button>
+      </div>
+
+      <div class="add-rang-bar">
+        <input type="text" id="newRangInput" placeholder="Nouveau rang (ex: Médecin en chef)">
+        <button class="btn sm" id="addRangBtn">Ajouter un rang</button>
+      </div>
+
+      <div id="hierContent"><div class="empty">Chargement...</div></div>
+    </div>
+
+    <!-- RESULTS (one shared view for all exercise modules) -->
+    <div class="section-view" id="sec-results">
+      <div style="font-family:'Cinzel',serif;font-weight:700;font-size:1.1rem;color:var(--ocre);letter-spacing:.05em;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+        <span style="width:7px;height:7px;background:var(--ocre);transform:rotate(45deg);display:inline-block;"></span>
+        <span id="resultsTitle">Résultats</span>
+      </div>
+      <div class="panel">
+        <div class="summary" id="summary"></div>
+        <div class="toolbar">
+          <input type="text" class="search" id="search" placeholder="Rechercher un apprenti...">
+          <div style="display:flex;gap:10px;">
+            <button class="btn ghost sm" id="refreshBtn">Actualiser</button>
+            <button class="btn ghost sm" id="csvBtn">Exporter CSV</button>
+          </div>
+        </div>
+        <div class="tablewrap">
+          <table>
+            <thead id="thead"></thead>
+            <tbody id="tbody"><tr><td colspan="6" class="empty">Chargement...</td></tr></tbody>
+          </table>
         </div>
       </div>
-      <div class="tablewrap">
-        <table>
-          <thead id="thead"></thead>
-          <tbody id="tbody"><tr><td colspan="6" class="empty">Chargement...</td></tr></tbody>
-        </table>
-      </div>
     </div>
+
+    <footer>Données en temps réel · <span class="seal">Seimei</span> · Sunagakure</footer>
   </div>
-  <footer>Données en temps réel · <span class="seal">Seimei</span> · Sunagakure</footer>
 </div>
+</div>
+
 <script>
 (function(){
 var el=function(id){return document.getElementById(id);};
-var rows=[],sortKey='created_at',sortDir=-1,sb=null,currentMod='sutures';
+var sb=null;
 
-// Module configurations
-var MODULES={
-  sutures:{table:'scores',columns:[
-    {k:'created_at',l:'Date',type:'date'},
-    {k:'name',l:'Apprenti'},
-    {k:'diff',l:'Difficulté'},
-    {k:'score',l:'Score',type:'score'},
-    {k:'grade',l:'Note',type:'grade'},
-    {k:'precision',l:'Précision'},
-    {k:'spacing',l:'Espacement'}
-  ]},
-  brulures:{table:'brulures_scores',columns:[
-    {k:'created_at',l:'Date',type:'date'},
-    {k:'name',l:'Apprenti'},
-    {k:'score',l:'Score',type:'score'},
-    {k:'grade',l:'Note',type:'grade'},
-    {k:'correct',l:'Cas parfaits'}
-  ]},
-  fractures:{table:'fractures_scores',columns:[
-    {k:'created_at',l:'Date',type:'date'},
-    {k:'name',l:'Apprenti'},
-    {k:'score',l:'Score',type:'score'},
-    {k:'grade',l:'Note',type:'grade'},
-    {k:'correct',l:'Cas parfaits'}
-  ]},
-  attelles:{table:'attelle_scores',columns:[
-    {k:'created_at',l:'Date',type:'date'},
-    {k:'name',l:'Apprenti'},
-    {k:'score',l:'Score',type:'score'},
-    {k:'grade',l:'Note',type:'grade'},
-    {k:'correct',l:'Cas parfaits'}
-  ]},
-  rcr:{table:'rcr_scores',columns:[
-    {k:'created_at',l:'Date',type:'date'},
-    {k:'name',l:'Apprenti'},
-    {k:'score',l:'Score',type:'score'},
-    {k:'grade',l:'Note',type:'grade'},
-    {k:'correct',l:'Compressions bonnes'}
-  ]},
-  prelevement:{table:'prelevement_scores',columns:[
-    {k:'created_at',l:'Date',type:'date'},
-    {k:'name',l:'Apprenti'},
-    {k:'score',l:'Score',type:'score'},
-    {k:'grade',l:'Note',type:'grade'},
-    {k:'correct',l:'Étapes réussies'}
-  ]},
-  bandage:{table:'bandage_scores',columns:[
-    {k:'created_at',l:'Date',type:'date'},
-    {k:'name',l:'Apprenti'},
-    {k:'score',l:'Score',type:'score'},
-    {k:'grade',l:'Note',type:'grade'},
-    {k:'correct',l:'Échantillons OK'}
-  ]},
-  garrot:{table:'garrot_scores',columns:[
-    {k:'created_at',l:'Date',type:'date'},
-    {k:'name',l:'Apprenti'},
-    {k:'score',l:'Score',type:'score'},
-    {k:'grade',l:'Note',type:'grade'},
-    {k:'correct',l:'Phases réussies'}
-  ]},
-  epaule:{table:'epaule_scores',columns:[
-    {k:'created_at',l:'Date',type:'date'},
-    {k:'name',l:'Apprenti'},
-    {k:'score',l:'Score',type:'score'},
-    {k:'grade',l:'Note',type:'grade'},
-    {k:'correct',l:'Phases réussies'}
-  ]}
-};
-
+/* ── LOGIN ───────────────────────────────────────────── */
 function doLogin(){
   var pw=el('pw').value;
   var expected=(typeof FORMATEUR_PASSWORD!=='undefined')?FORMATEUR_PASSWORD:'seimei2024';
-  if(pw===expected){el('login').style.display='none';el('dash').style.display='block';init();load();}
+  if(pw===expected){el('loginWrap').style.display='none';el('dashWrap').style.display='block';initSupa();loadHierarchie();}
   else{el('loginErr').style.display='block';}
 }
 el('loginBtn').addEventListener('click',doLogin);
 el('pw').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
 
-function init(){
+function initSupa(){
   if(typeof SUPABASE_URL==='undefined')return;
   try{sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);}catch(e){sb=null;}
 }
 
-function load(){
+/* ── SIDEBAR NAV ─────────────────────────────────────── */
+var links=document.querySelectorAll('.sb-link[data-section]');
+var currentSection='hierarchie';
+
+links.forEach(function(link){
+  link.addEventListener('click',function(){
+    links.forEach(function(l){l.classList.remove('active');});
+    link.classList.add('active');
+    currentSection=link.dataset.section;
+    if(currentSection==='hierarchie'){
+      el('sec-hierarchie').classList.add('active');
+      el('sec-results').classList.remove('active');
+      loadHierarchie();
+    } else {
+      el('sec-hierarchie').classList.remove('active');
+      el('sec-results').classList.add('active');
+      currentMod=currentSection;
+      el('resultsTitle').textContent=LABELS[currentMod]||currentMod;
+      sortKey='created_at'; sortDir=-1;
+      loadResults();
+    }
+  });
+});
+
+var LABELS={sutures:'Sutures',brulures:'Brûlures',fractures:'Fractures',attelles:'Attelles',
+  rcr:'Réanimation RCR',prelevement:'Prélèvement sanguin',bandage:'Bandage compressif',
+  garrot:'Pose de garrot',epaule:'Réduction d\'épaule'};
+
+/* ── HIÉRARCHIE ──────────────────────────────────────── */
+var hierRows=[];
+
+function loadHierarchie(){
+  if(!sb){el('hierContent').innerHTML='<div class="err">Configuration absente.</div>';return;}
+  el('hierContent').innerHTML='<div class="empty">Chargement...</div>';
+  sb.from('seimei_hierarchie').select('*').order('ordre',{ascending:true}).order('created_at',{ascending:true}).then(function(res){
+    if(res.error){el('hierContent').innerHTML='<div class="err">'+esc(res.error.message)+'</div>';return;}
+    hierRows=res.data||[];
+    renderHierarchie();
+  });
+}
+
+function renderHierarchie(){
+  var box=el('hierContent');
+  if(!hierRows.length){box.innerHTML='<div class="empty">Aucun rang défini. Ajoutez-en un ci-dessus.</div>';return;}
+  var rangs={};var rangOrdre={};
+  hierRows.forEach(function(r){
+    if(!rangs[r.rang])rangs[r.rang]=[];
+    if(r.membre)rangs[r.rang].push(r);
+    rangOrdre[r.rang]=r.ordre;
+  });
+  var sortedRangs=Object.keys(rangs).sort(function(a,b){return (rangOrdre[a]||0)-(rangOrdre[b]||0);});
+
+  var html='';
+  sortedRangs.forEach(function(rang){
+    var members=rangs[rang];
+    html+='<div class="hier-section">';
+    html+='<div class="hier-section-title">';
+    html+='<span class="ordre-badge">'+((rangOrdre[rang]||0)+1)+'</span>';
+    html+='<span class="rang-text">'+esc(rang)+'</span>';
+    html+='<span style="display:flex;gap:6px;">';
+    html+='<button class="btn ghost sm" onclick="hierMoveRang(\''+escAttr(rang)+'\',-1)" title="Monter">&uarr;</button>';
+    html+='<button class="btn ghost sm" onclick="hierMoveRang(\''+escAttr(rang)+'\',1)" title="Descendre">&darr;</button>';
+    html+='<button class="btn danger sm" onclick="hierDeleteRang(\''+escAttr(rang)+'\')" title="Supprimer le rang">&times;</button>';
+    html+='</span></div>';
+
+    members.forEach(function(m){
+      if(!m.membre)return;
+      html+='<div class="hier-member">';
+      html+='<span class="name">'+esc(m.membre)+'</span>';
+      html+='<button class="btn danger sm" onclick="hierDeleteMember('+m.id+')">Retirer</button>';
+      html+='</div>';
+    });
+
+    html+='<div class="hier-add-form">';
+    html+='<input type="text" placeholder="Ajouter un membre..." id="addm_'+escAttr(rang)+'">';
+    html+='<button class="btn sm" onclick="hierAddMember(\''+escAttr(rang)+'\')">+</button>';
+    html+='</div>';
+    html+='</div>';
+  });
+  box.innerHTML=html;
+}
+
+window.hierAddMember=function(rang){
+  var inp=document.getElementById('addm_'+rang);
+  if(!inp)return;
+  var name=inp.value.trim();
+  if(!name)return;
+  var ordre=0;
+  hierRows.forEach(function(r){if(r.rang===rang)ordre=r.ordre;});
+  sb.from('seimei_hierarchie').insert({rang:rang,membre:name,ordre:ordre}).then(function(res){
+    if(res.error){alert(res.error.message);return;}
+    loadHierarchie();
+  });
+};
+
+window.hierDeleteMember=function(id){
+  sb.from('seimei_hierarchie').delete().eq('id',id).then(function(res){
+    if(res.error){alert(res.error.message);return;}
+    loadHierarchie();
+  });
+};
+
+window.hierDeleteRang=function(rang){
+  if(!confirm('Supprimer le rang "'+rang+'" et tous ses membres ?'))return;
+  sb.from('seimei_hierarchie').delete().eq('rang',rang).then(function(res){
+    if(res.error){alert(res.error.message);return;}
+    loadHierarchie();
+  });
+};
+
+window.hierMoveRang=function(rang,dir){
+  var rangsUniq=[];var seen={};
+  hierRows.forEach(function(r){
+    if(!seen[r.rang]){seen[r.rang]=true;rangsUniq.push({rang:r.rang,ordre:r.ordre});}
+  });
+  rangsUniq.sort(function(a,b){return a.ordre-b.ordre;});
+  var idx=-1;
+  rangsUniq.forEach(function(r,i){if(r.rang===rang)idx=i;});
+  if(idx<0)return;
+  var swapIdx=idx+dir;
+  if(swapIdx<0||swapIdx>=rangsUniq.length)return;
+  var oA=rangsUniq[idx].ordre,oB=rangsUniq[swapIdx].ordre;
+  if(oA===oB){oB=oA+dir;}
+  Promise.all([
+    sb.from('seimei_hierarchie').update({ordre:oB}).eq('rang',rangsUniq[idx].rang),
+    sb.from('seimei_hierarchie').update({ordre:oA}).eq('rang',rangsUniq[swapIdx].rang)
+  ]).then(function(){loadHierarchie();});
+};
+
+el('addRangBtn').addEventListener('click',function(){
+  var name=el('newRangInput').value.trim();
+  if(!name)return;
+  var maxOrdre=-1;
+  hierRows.forEach(function(r){if(r.ordre>maxOrdre)maxOrdre=r.ordre;});
+  sb.from('seimei_hierarchie').insert({rang:name,membre:'',ordre:maxOrdre+1}).then(function(res){
+    if(res.error){alert(res.error.message);return;}
+    el('newRangInput').value='';
+    loadHierarchie();
+  });
+});
+
+el('hierRefreshBtn').addEventListener('click',loadHierarchie);
+
+/* ── RÉSULTATS EXERCICES ─────────────────────────────── */
+var rows=[],sortKey='created_at',sortDir=-1,currentMod='sutures';
+
+var MODULES={
+  sutures:{table:'scores',columns:[
+    {k:'created_at',l:'Date',type:'date'},{k:'name',l:'Apprenti'},
+    {k:'diff',l:'Difficulté'},{k:'score',l:'Score',type:'score'},
+    {k:'grade',l:'Note',type:'grade'},{k:'precision',l:'Précision'},{k:'spacing',l:'Espacement'}
+  ]},
+  brulures:{table:'brulures_scores',columns:[
+    {k:'created_at',l:'Date',type:'date'},{k:'name',l:'Apprenti'},
+    {k:'score',l:'Score',type:'score'},{k:'grade',l:'Note',type:'grade'},{k:'correct',l:'Cas parfaits'}
+  ]},
+  fractures:{table:'fractures_scores',columns:[
+    {k:'created_at',l:'Date',type:'date'},{k:'name',l:'Apprenti'},
+    {k:'score',l:'Score',type:'score'},{k:'grade',l:'Note',type:'grade'},{k:'correct',l:'Cas parfaits'}
+  ]},
+  attelles:{table:'attelle_scores',columns:[
+    {k:'created_at',l:'Date',type:'date'},{k:'name',l:'Apprenti'},
+    {k:'score',l:'Score',type:'score'},{k:'grade',l:'Note',type:'grade'},{k:'correct',l:'Cas parfaits'}
+  ]},
+  rcr:{table:'rcr_scores',columns:[
+    {k:'created_at',l:'Date',type:'date'},{k:'name',l:'Apprenti'},
+    {k:'score',l:'Score',type:'score'},{k:'grade',l:'Note',type:'grade'},{k:'correct',l:'Compressions bonnes'}
+  ]},
+  prelevement:{table:'prelevement_scores',columns:[
+    {k:'created_at',l:'Date',type:'date'},{k:'name',l:'Apprenti'},
+    {k:'score',l:'Score',type:'score'},{k:'grade',l:'Note',type:'grade'},{k:'correct',l:'Étapes réussies'}
+  ]},
+  bandage:{table:'bandage_scores',columns:[
+    {k:'created_at',l:'Date',type:'date'},{k:'name',l:'Apprenti'},
+    {k:'score',l:'Score',type:'score'},{k:'grade',l:'Note',type:'grade'},{k:'correct',l:'Échantillons OK'}
+  ]},
+  garrot:{table:'garrot_scores',columns:[
+    {k:'created_at',l:'Date',type:'date'},{k:'name',l:'Apprenti'},
+    {k:'score',l:'Score',type:'score'},{k:'grade',l:'Note',type:'grade'},{k:'correct',l:'Phases réussies'}
+  ]},
+  epaule:{table:'epaule_scores',columns:[
+    {k:'created_at',l:'Date',type:'date'},{k:'name',l:'Apprenti'},
+    {k:'score',l:'Score',type:'score'},{k:'grade',l:'Note',type:'grade'},{k:'correct',l:'Phases réussies'}
+  ]}
+};
+
+function loadResults(){
   if(!sb){el('tbody').innerHTML='<tr><td colspan="6" class="err">Configuration absente.</td></tr>';return;}
   var mod=MODULES[currentMod];
   el('tbody').innerHTML='<tr><td colspan="6" class="empty">Chargement...</td></tr>';
   sb.from(mod.table).select('*').order('created_at',{ascending:false}).then(function(res){
     if(res.error){el('tbody').innerHTML='<tr><td colspan="6" class="err">'+esc(res.error.message)+'</td></tr>';return;}
-    rows=res.data||[];render();
+    rows=res.data||[];renderResults();
   });
 }
 
-function render(){
+function renderResults(){
   var mod=MODULES[currentMod];
-  // header
   var th=el('thead');
   th.innerHTML='<tr>'+mod.columns.map(function(c){return '<th data-sort="'+c.k+'">'+c.l+'</th>';}).join('')+'</tr>';
   th.querySelectorAll('th[data-sort]').forEach(function(thEl){
     thEl.addEventListener('click',function(){
       var k=thEl.dataset.sort;
       if(sortKey===k){sortDir*=-1;}else{sortKey=k;sortDir=(k==='created_at')?-1:1;}
-      render();
+      renderResults();
     });
   });
-
-  // filter + sort
   var q=el('search').value.toLowerCase().trim();
   var list=rows.filter(function(r){return !q||(r.name||'').toLowerCase().indexOf(q)>=0;});
-
-  // summary
   var sum=el('summary');
   if(rows.length){
     var n=list.length,avg=n?Math.round(list.reduce(function(a,r){return a+(r.score||0);},0)/n):0;
@@ -247,15 +522,12 @@ function render(){
     var uniq=new Set(list.map(function(r){return (r.name||'').toLowerCase();})).size;
     sum.innerHTML=card('Tentatives',n)+card('Apprentis',uniq)+card('Score moyen',avg,true)+card('Meilleur',best,true);
   } else sum.innerHTML='';
-
-  // sort
   list.sort(function(a,b){
     var x=a[sortKey],y=b[sortKey];
     if(sortKey==='created_at'){x=new Date(x);y=new Date(y);}
     if(typeof x==='string'){x=x.toLowerCase();y=(y||'').toLowerCase();}
     if(x<y)return -1*sortDir;if(x>y)return 1*sortDir;return 0;
   });
-
   var tb=el('tbody');
   if(!list.length){tb.innerHTML='<tr><td colspan="'+mod.columns.length+'" class="empty">Aucun score.</td></tr>';return;}
   tb.innerHTML='';
@@ -275,20 +547,10 @@ function render(){
 function card(l,n,g){return '<div class="card"><div class="lbl">'+l+'</div><div class="num'+(g?' green':'')+'">'+n+'</div></div>';}
 function fmtDate(d){if(!d)return '-';var dt=new Date(d);if(isNaN(dt))return d;var p=function(x){return(x<10?'0':'')+x;};return p(dt.getDate())+'/'+p(dt.getMonth()+1)+' '+p(dt.getHours())+':'+p(dt.getMinutes());}
 function esc(t){t=(t==null?'':''+t);return t.replace(/[&<>"']/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];});}
+function escAttr(t){return esc(t).replace(/'/g,'\\&#39;');}
 
-// tabs
-document.querySelectorAll('.tab').forEach(function(t){
-  t.addEventListener('click',function(){
-    document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active');});
-    t.classList.add('active');
-    currentMod=t.dataset.mod;
-    sortKey='created_at'; sortDir=-1;
-    load();
-  });
-});
-
-el('search').addEventListener('input',render);
-el('refreshBtn').addEventListener('click',load);
+el('search').addEventListener('input',renderResults);
+el('refreshBtn').addEventListener('click',loadResults);
 el('csvBtn').addEventListener('click',function(){
   if(!rows.length)return;
   var mod=MODULES[currentMod];
