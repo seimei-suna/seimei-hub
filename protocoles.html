@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seimei &mdash; Protocoles d&rsquo;Urgence | Sunagakure</title>
+<style>
+@import url('vendor/fonts.css');
+:root{
+  --sand-1:#f4e4c1;--sand-deep:#c89b5e;--ocre:#b5712b;--ocre-deep:#8a4f1a;
+  --rust:#7a3b15;--parchment:#f0dfb8;--chakra:#6fcf97;--chakra-glow:#3ddc84;
+  --blood-light:#c4453a;--gold:#ffd86b;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Cormorant Garamond',serif;color:var(--parchment);min-height:100vh;overflow-x:hidden;
+  background:radial-gradient(ellipse at 50% -10%,#5a3d1e 0%,transparent 55%),
+    linear-gradient(160deg,#2e1d0c 0%,#1c1106 60%,#140c04 100%);}
+body::before{content:"";position:fixed;inset:0;opacity:.05;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  z-index:1;}
+.wrap{position:relative;z-index:2;max-width:900px;margin:0 auto;padding:28px 16px 80px;}
+.back-btn{text-align:right;margin-bottom:8px;}
+.back-btn a{font-family:'Cinzel',serif;font-weight:700;font-size:.82rem;letter-spacing:.05em;
+  padding:8px 16px;border:1px solid var(--ocre);border-radius:9px;color:var(--sand-1);
+  text-decoration:none;text-transform:uppercase;transition:.2s;}
+.back-btn a:hover{background:rgba(181,113,43,.2);}
+header{text-align:center;margin-bottom:32px;}
+.crest{width:64px;height:64px;margin:0 auto 10px;border:3px solid var(--ocre);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle,rgba(181,113,43,.25),transparent 70%);
+  box-shadow:0 0 24px rgba(181,113,43,.35);}
+.crest svg{width:36px;height:36px;}
+h1{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(1.5rem,4.5vw,2.3rem);
+  letter-spacing:.06em;color:var(--sand-1);text-shadow:0 2px 0 var(--rust),0 0 28px rgba(181,113,43,.5);}
+.sub{font-size:1.1rem;color:var(--sand-deep);font-style:italic;margin-top:4px;}
+.divider{height:2px;width:58%;margin:14px auto 0;background:linear-gradient(90deg,transparent,var(--ocre),transparent);}
+
+/* ─── Flowchart layout ─── */
+.flow-section{margin-bottom:36px;}
+.flow-section-title{font-family:'Cinzel',serif;font-weight:700;font-size:1.1rem;color:var(--sand-deep);
+  letter-spacing:.06em;text-transform:uppercase;text-align:center;margin-bottom:20px;}
+
+.flow-step{position:relative;margin-bottom:0;}
+
+/* Step number badge */
+.step-badge{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:'Cinzel',serif;font-weight:900;font-size:1.2rem;color:#fff5e6;margin:0 auto 0;
+  background:linear-gradient(160deg,var(--ocre),var(--ocre-deep));
+  box-shadow:0 3px 0 var(--rust),0 0 20px rgba(181,113,43,.4);position:relative;z-index:3;}
+
+/* Question box */
+.question-box{background:linear-gradient(160deg,rgba(240,223,184,.1),rgba(60,41,20,.2));
+  border:2px solid var(--ocre);border-radius:14px;padding:18px 22px;margin:10px auto 0;
+  max-width:600px;text-align:center;position:relative;z-index:2;
+  box-shadow:0 8px 24px rgba(0,0,0,.4);}
+.question-box .q-label{font-family:'Cinzel',serif;font-weight:700;font-size:.78rem;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ocre);margin-bottom:6px;}
+.question-box .q-text{font-size:1.15rem;line-height:1.5;color:var(--sand-1);font-weight:600;}
+.question-box .q-detail{font-size:.95rem;color:var(--sand-deep);font-style:italic;margin-top:4px;}
+
+/* Arrow connector between step and branches */
+.arrow-down{width:3px;height:28px;background:var(--ocre);margin:0 auto;position:relative;z-index:1;}
+.arrow-down::after{content:"";position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);
+  width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;
+  border-top:8px solid var(--ocre);}
+
+/* Branch connector (fork) */
+.branch-fork{display:flex;justify-content:center;gap:0;margin:0 auto;max-width:700px;position:relative;}
+.branch-fork::before{content:"";position:absolute;top:0;left:25%;right:25%;height:3px;background:var(--ocre);}
+
+/* Individual branch */
+.branch{flex:1;display:flex;flex-direction:column;align-items:center;padding:0 8px;position:relative;min-width:0;}
+.branch-line{width:3px;height:20px;background:var(--ocre);position:relative;}
+.branch-line::after{content:"";position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);
+  width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;
+  border-top:7px solid var(--ocre);}
+
+/* Answer boxes */
+.answer-box{border-radius:12px;padding:14px 16px;text-align:center;width:100%;
+  font-size:1.02rem;line-height:1.45;margin-top:8px;
+  box-shadow:0 6px 18px rgba(0,0,0,.35);}
+.answer-box .a-label{font-family:'Cinzel',serif;font-weight:700;font-size:.78rem;letter-spacing:.08em;
+  text-transform:uppercase;margin-bottom:5px;display:block;}
+
+.answer-yes{background:rgba(61,220,132,.08);border:2px solid rgba(61,220,132,.45);}
+.answer-yes .a-label{color:var(--chakra);}
+.answer-yes p{color:#c8f0d4;}
+
+.answer-no{background:rgba(196,69,58,.1);border:2px solid rgba(196,69,58,.45);}
+.answer-no .a-label{color:var(--blood-light);}
+.answer-no p{color:#ffcaa0;}
+
+/* Continue arrow from a branch down to next step */
+.continue-arrow{display:flex;flex-direction:column;align-items:center;margin:0 auto;}
+.continue-arrow .arrow-down{height:36px;}
+.continue-label{font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--sand-deep);background:rgba(20,12,4,.7);padding:2px 10px;border-radius:6px;
+  border:1px solid rgba(181,113,43,.3);margin-top:6px;margin-bottom:6px;}
+
+/* ─── Bilan secondaire (step 5) ─── */
+.bilan-box{background:linear-gradient(160deg,rgba(240,223,184,.07),rgba(60,41,20,.15));
+  border:2px solid var(--gold);border-radius:14px;padding:20px 24px;margin:10px auto 0;
+  max-width:650px;box-shadow:0 8px 24px rgba(0,0,0,.4);}
+.bilan-box h3{font-family:'Cinzel',serif;font-weight:700;font-size:1rem;color:var(--gold);
+  letter-spacing:.04em;margin-bottom:10px;text-align:center;}
+.bilan-list{list-style:none;padding:0;}
+.bilan-list li{position:relative;padding:5px 0 5px 24px;font-size:1.05rem;line-height:1.5;color:var(--parchment);}
+.bilan-list li::before{content:"\25C6";position:absolute;left:0;top:5px;color:var(--gold);font-size:.7rem;}
+
+/* ─── Protocoles sp&eacute;cifiques (panels) ─── */
+.proto-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px;}
+.proto-card{background:linear-gradient(160deg,rgba(240,223,184,.07),rgba(60,41,20,.15));
+  border:1px solid rgba(181,113,43,.45);border-radius:14px;padding:18px 18px 18px 22px;
+  box-shadow:0 10px 30px rgba(0,0,0,.45);border-left:5px solid var(--ocre);}
+.proto-card h3{font-family:'Cinzel',serif;font-weight:700;font-size:.95rem;color:var(--ocre);
+  letter-spacing:.04em;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.proto-card h3::before{content:"";width:7px;height:7px;background:var(--ocre);transform:rotate(45deg);flex-shrink:0;}
+.proto-card .proto-steps{list-style:none;padding:0;margin:0;}
+.proto-card .proto-steps li{position:relative;padding:3px 0 3px 18px;font-size:.98rem;line-height:1.45;color:var(--parchment);}
+.proto-card .proto-steps li::before{content:"\2192";position:absolute;left:0;top:3px;color:var(--sand-deep);font-size:.85rem;}
+
+.proto-burn{border-left-color:var(--ocre);}
+.proto-burn h3{color:var(--ocre);}
+.proto-burn h3::before{background:var(--ocre);}
+
+.proto-fracture{border-left-color:var(--blood-light);}
+.proto-fracture h3{color:var(--blood-light);}
+.proto-fracture h3::before{background:var(--blood-light);}
+
+.proto-poison{border-left-color:#9b59b6;}
+.proto-poison h3{color:#c89bdb;}
+.proto-poison h3::before{background:#9b59b6;}
+
+.proto-pls{border-left-color:var(--chakra);}
+.proto-pls h3{color:var(--chakra);}
+.proto-pls h3::before{background:var(--chakra);}
+
+footer{text-align:center;margin-top:40px;color:var(--sand-deep);font-style:italic;}
+footer .seal{color:var(--ocre);font-family:'Cinzel',serif;}
+
+@media(max-width:640px){
+  .branch-fork{flex-direction:column;align-items:center;gap:10px;}
+  .branch-fork::before{display:none;}
+  .branch{width:100%;max-width:400px;}
+  .branch-line{height:12px;}
+  .proto-grid{grid-template-columns:1fr;}
+  .question-box{padding:14px 16px;}
+}
+@media(max-width:480px){
+  .step-badge{width:40px;height:40px;font-size:1rem;}
+  .question-box .q-text{font-size:1.05rem;}
+  .answer-box{padding:12px 12px;}
+  .bilan-box{padding:16px 16px;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="back-btn"><a href="index.html">&larr; Retour au hub</a></div>
+  <header>
+    <div class="crest"><svg viewBox="0 0 100 100" fill="none">
+      <circle cx="50" cy="50" r="30" stroke="#b5712b" stroke-width="4"/>
+      <path d="M50 22 L58 44 L50 50 L42 44 Z" fill="#b5712b"/>
+      <path d="M50 78 L42 56 L50 50 L58 56 Z" fill="#b5712b"/>
+      <circle cx="50" cy="50" r="6" fill="#8a4f1a"/>
+    </svg></div>
+    <h1>Protocoles d&rsquo;Urgence</h1>
+    <div class="sub">Section M&eacute;dicale Seimei &middot; Sunagakure</div>
+    <div class="divider"></div>
+  </header>
+
+  <!-- ============================================================ -->
+  <!-- ARBRE DÉCISIONNEL PRINCIPAL                                   -->
+  <!-- ============================================================ -->
+
+  <div class="flow-section">
+    <div class="flow-section-title">&mdash; Arbre d&eacute;cisionnel d&rsquo;urgence &mdash;</div>
+
+    <!-- ── ÉTAPE 1 : SÉCURITÉ ── -->
+    <div class="flow-step">
+      <div class="step-badge">1</div>
+      <div class="arrow-down" style="height:12px;"></div>
+      <div class="question-box">
+        <div class="q-label">&Eacute;tape 1 &mdash; S&eacute;curit&eacute;</div>
+        <div class="q-text">La zone est-elle s&ucirc;re&nbsp;?</div>
+      </div>
+      <div class="arrow-down"></div>
+      <div class="branch-fork">
+        <div class="branch">
+          <div class="branch-line"></div>
+          <div class="answer-box answer-yes">
+            <span class="a-label">Oui</span>
+            <p>Zone s&eacute;curis&eacute;e &mdash; continuer l&rsquo;&eacute;valuation de la victime.</p>
+          </div>
+        </div>
+        <div class="branch">
+          <div class="branch-line"></div>
+          <div class="answer-box answer-no">
+            <span class="a-label">Non</span>
+            <p><strong>S&eacute;curiser d&rsquo;abord</strong> ou <strong>&eacute;vacuer</strong> la victime avant toute intervention.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="continue-arrow">
+      <div class="arrow-down"></div>
+      <div class="continue-label">Zone s&ucirc;re &rarr; continuer</div>
+      <div class="arrow-down" style="height:20px;"></div>
+    </div>
+
+    <!-- ── ÉTAPE 2 : CONSCIENCE ── -->
+    <div class="flow-step">
+      <div class="step-badge">2</div>
+      <div class="arrow-down" style="height:12px;"></div>
+      <div class="question-box">
+        <div class="q-label">&Eacute;tape 2 &mdash; Conscience</div>
+        <div class="q-text">La victime est-elle consciente&nbsp;?</div>
+      </div>
+      <div class="arrow-down"></div>
+      <div class="branch-fork">
+        <div class="branch">
+          <div class="branch-line"></div>
+          <div class="answer-box answer-yes">
+            <span class="a-label">Oui</span>
+            <p>La victime r&eacute;pond. L&rsquo;interroger sur ses <strong>sympt&ocirc;mes</strong> et <strong>douleurs</strong>. Examiner visuellement.</p>
+          </div>
+        </div>
+        <div class="branch">
+          <div class="branch-line"></div>
+          <div class="answer-box answer-no">
+            <span class="a-label">Non</span>
+            <p>Victime inconsciente &mdash; passer imm&eacute;diatement &agrave; l&rsquo;&eacute;tape&nbsp;3.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="continue-arrow">
+      <div class="arrow-down"></div>
+      <div class="continue-label">Inconsciente &rarr; continuer</div>
+      <div class="arrow-down" style="height:20px;"></div>
+    </div>
+
+    <!-- ── ÉTAPE 3 : RESPIRATION ── -->
+    <div class="flow-step">
+      <div class="step-badge">3</div>
+      <div class="arrow-down" style="height:12px;"></div>
+      <div class="question-box">
+        <div class="q-label">&Eacute;tape 3 &mdash; Respiration</div>
+        <div class="q-text">La victime respire-t-elle&nbsp;?</div>
+        <div class="q-detail">Basculer la t&ecirc;te, &eacute;couter, sentir, regarder pendant 10&nbsp;secondes.</div>
+      </div>
+      <div class="arrow-down"></div>
+      <div class="branch-fork">
+        <div class="branch">
+          <div class="branch-line"></div>
+          <div class="answer-box answer-yes">
+            <span class="a-label">Oui</span>
+            <p><strong>Position Lat&eacute;rale de S&eacute;curit&eacute; (PLS)</strong>. Surveiller la respiration en continu.</p>
+          </div>
+        </div>
+        <div class="branch">
+          <div class="branch-line"></div>
+          <div class="answer-box answer-no">
+            <span class="a-label">Non</span>
+            <p><strong>Arr&ecirc;t cardiaque</strong> &rarr; R&eacute;animation imm&eacute;diate&nbsp;: <strong>30&nbsp;compressions / 2&nbsp;insufflations</strong>, rythme <strong>100&ndash;120/min</strong>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="continue-arrow">
+      <div class="arrow-down"></div>
+      <div class="continue-label">Victime stabilis&eacute;e &rarr; continuer</div>
+      <div class="arrow-down" style="height:20px;"></div>
+    </div>
+
+    <!-- ── ÉTAPE 4 : HÉMORRAGIE ── -->
+    <div class="flow-step">
+      <div class="step-badge">4</div>
+      <div class="arrow-down" style="height:12px;"></div>
+      <div class="question-box">
+        <div class="q-label">&Eacute;tape 4 &mdash; H&eacute;morragie</div>
+        <div class="q-text">Y a-t-il une h&eacute;morragie&nbsp;?</div>
+      </div>
+      <div class="arrow-down"></div>
+      <div class="branch-fork">
+        <div class="branch">
+          <div class="branch-line"></div>
+          <div class="answer-box answer-yes" style="border-color:rgba(196,69,58,.55);">
+            <span class="a-label">Oui</span>
+            <p><strong>Compression directe</strong> forte et continue. Si insuffisant &rarr; <strong>garrot sur membre</strong>.</p>
+          </div>
+        </div>
+        <div class="branch">
+          <div class="branch-line"></div>
+          <div class="answer-box answer-no" style="background:rgba(61,220,132,.06);border-color:rgba(61,220,132,.35);">
+            <span class="a-label" style="color:var(--chakra);">Non</span>
+            <p style="color:#c8f0d4;">Pas d&rsquo;h&eacute;morragie visible. Continuer l&rsquo;examen.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="continue-arrow">
+      <div class="arrow-down"></div>
+      <div class="continue-label">Apr&egrave;s stabilisation &rarr; bilan</div>
+      <div class="arrow-down" style="height:20px;"></div>
+    </div>
+
+    <!-- ── ÉTAPE 5 : BILAN SECONDAIRE ── -->
+    <div class="flow-step">
+      <div class="step-badge">5</div>
+      <div class="arrow-down" style="height:12px;"></div>
+      <div class="bilan-box">
+        <h3>&Eacute;tape 5 &mdash; Bilan Secondaire</h3>
+        <ul class="bilan-list">
+          <li>Rechercher <strong>fractures</strong>, <strong>br&ucirc;lures</strong>, <strong>plaies</strong></li>
+          <li>Prendre les constantes&nbsp;: <strong>pouls</strong>, <strong>respiration</strong>, <strong>temp&eacute;rature</strong></li>
+          <li>Rassurer la victime, maintenir le contact</li>
+          <li>Transmettre au <strong>grade sup&eacute;rieur</strong> si n&eacute;cessaire</li>
+        </ul>
+      </div>
+    </div>
+
+  </div><!-- /flow-section -->
+
+
+  <!-- ============================================================ -->
+  <!-- PROTOCOLES SPÉCIFIQUES                                        -->
+  <!-- ============================================================ -->
+
+  <div class="flow-section">
+    <div class="flow-section-title">&mdash; Protocoles sp&eacute;cifiques &mdash;</div>
+
+    <div class="proto-grid">
+
+      <!-- Brûlure -->
+      <div class="proto-card proto-burn">
+        <h3>Br&ucirc;lure</h3>
+        <ul class="proto-steps">
+          <li>Refroidir &agrave; l&rsquo;eau fra&icirc;che pendant <strong>20&nbsp;minutes</strong></li>
+          <li>Couvrir d&rsquo;un pansement <strong>non serr&eacute;</strong></li>
+          <li>3<sup>e</sup> degr&eacute;&nbsp;: <strong>ne rien appliquer</strong>, urgence absolue</li>
+        </ul>
+      </div>
+
+      <!-- Fracture ouverte -->
+      <div class="proto-card proto-fracture">
+        <h3>Fracture ouverte</h3>
+        <ul class="proto-steps">
+          <li><strong>Ne pas bouger</strong> l&rsquo;os expos&eacute;</li>
+          <li>Couvrir la plaie d&rsquo;un pansement st&eacute;rile</li>
+          <li>Comprimer <strong>autour</strong> de la fracture, jamais dessus</li>
+          <li>Urgence &mdash; transmettre imm&eacute;diatement</li>
+        </ul>
+      </div>
+
+      <!-- Empoisonnement -->
+      <div class="proto-card proto-poison">
+        <h3>Empoisonnement</h3>
+        <ul class="proto-steps">
+          <li><strong>Identifier</strong> le poison (type, quantit&eacute;, voie)</li>
+          <li>Si Adepte+ &rarr; technique <strong>Dokunoki</strong></li>
+          <li>Sinon &rarr; <strong>stabiliser</strong> et transmettre au sup&eacute;rieur</li>
+        </ul>
+      </div>
+
+      <!-- Inconscient qui respire -->
+      <div class="proto-card proto-pls">
+        <h3>Inconscient qui respire</h3>
+        <ul class="proto-steps">
+          <li>Mettre en <strong>Position Lat&eacute;rale de S&eacute;curit&eacute;</strong></li>
+          <li>Surveiller la respiration en continu</li>
+          <li><strong>Ne jamais laisser seul</strong></li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>Outil p&eacute;dagogique officiel &middot; <span class="seal">Seimei</span> &middot; Sunagakure</footer>
+</div>
+</body>
+</html>
