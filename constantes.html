@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seimei &mdash; Constantes Vitales | Sunagakure</title>
+<style>
+@import url('vendor/fonts.css');
+:root{
+  --sand-1:#f4e4c1;--sand-deep:#c89b5e;--ocre:#b5712b;--ocre-deep:#8a4f1a;
+  --rust:#7a3b15;--parchment:#f0dfb8;--chakra:#6fcf97;--chakra-glow:#3ddc84;
+  --blood-light:#c4453a;--gold:#ffd86b;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none;}
+body{font-family:'Cormorant Garamond',serif;color:var(--parchment);min-height:100vh;overflow-x:hidden;
+  background:radial-gradient(ellipse at 50% -10%,#5a3d1e 0%,transparent 55%),
+    linear-gradient(160deg,#2e1d0c 0%,#1c1106 60%,#140c04 100%);}
+body::before{content:"";position:fixed;inset:0;opacity:.05;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  z-index:1;}
+.wrap{position:relative;z-index:2;max-width:800px;margin:0 auto;padding:28px 16px 80px;}
+.back-btn{text-align:right;margin-bottom:8px;}
+.back-btn a{font-family:'Cinzel',serif;font-weight:700;font-size:.82rem;letter-spacing:.05em;
+  padding:8px 16px;border:1px solid var(--ocre);border-radius:9px;color:var(--sand-1);
+  text-decoration:none;text-transform:uppercase;transition:.2s;}
+.back-btn a:hover{background:rgba(181,113,43,.2);}
+header{text-align:center;margin-bottom:24px;}
+.crest{width:64px;height:64px;margin:0 auto 10px;border:3px solid var(--ocre);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle,rgba(181,113,43,.25),transparent 70%);
+  box-shadow:0 0 24px rgba(181,113,43,.35);}
+.crest svg{width:36px;height:36px;}
+h1{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(1.5rem,4.5vw,2.3rem);
+  letter-spacing:.06em;color:var(--sand-1);text-shadow:0 2px 0 var(--rust),0 0 28px rgba(181,113,43,.5);}
+.sub{font-size:1.1rem;color:var(--sand-deep);font-style:italic;margin-top:4px;}
+.divider{height:2px;width:58%;margin:14px auto 0;background:linear-gradient(90deg,transparent,var(--ocre),transparent);}
+
+.panel{background:linear-gradient(160deg,rgba(240,223,184,.07),rgba(60,41,20,.15));
+  border:1px solid rgba(181,113,43,.45);border-radius:14px;padding:22px;margin-bottom:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,.45);}
+.panel h2{font-family:'Cinzel',serif;font-weight:700;color:var(--ocre);font-size:1.18rem;
+  letter-spacing:.05em;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.panel h2::before{content:"";width:7px;height:7px;background:var(--ocre);transform:rotate(45deg);}
+
+.btn{font-family:'Cinzel',serif;font-weight:700;letter-spacing:.05em;cursor:pointer;border:none;
+  border-radius:9px;padding:12px 22px;font-size:.92rem;text-transform:uppercase;
+  background:linear-gradient(160deg,var(--ocre),var(--ocre-deep));color:#fff5e6;
+  box-shadow:0 5px 0 var(--rust),0 8px 16px rgba(0,0,0,.4);transition:transform .12s,box-shadow .12s;
+  text-decoration:none;display:inline-block;}
+.btn:hover{transform:translateY(-2px);}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--rust);}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none !important;box-shadow:0 5px 0 var(--rust) !important;}
+.btn.ghost{background:transparent;border:1px solid var(--ocre);box-shadow:none;color:var(--sand-1);font-size:.82rem;padding:7px 14px;}
+
+.controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:16px;}
+
+/* Progress bar */
+.progress-bar{display:flex;gap:6px;justify-content:center;margin-bottom:18px;}
+.progress-dot{width:28px;height:6px;border-radius:3px;background:rgba(181,113,43,.25);border:1px solid rgba(181,113,43,.35);transition:.3s;}
+.progress-dot.done-ok{background:var(--chakra);border-color:var(--chakra);}
+.progress-dot.done-bad{background:var(--blood-light);border-color:var(--blood-light);}
+.progress-dot.current{background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(255,216,107,.5);}
+
+/* Patient card */
+.patient-card{background:rgba(20,12,4,.55);border:1px solid rgba(181,113,43,.35);border-radius:12px;
+  padding:18px 20px;margin-bottom:18px;}
+.patient-name{font-family:'Cinzel',serif;font-weight:700;font-size:1.15rem;color:var(--sand-1);
+  letter-spacing:.04em;margin-bottom:4px;}
+.patient-age{font-size:.95rem;color:var(--sand-deep);margin-bottom:8px;}
+.patient-situation{font-size:1.05rem;color:var(--sand-deep);font-style:italic;line-height:1.5;}
+
+/* Vital signs dashboard */
+.vitals-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;}
+.vital-box{background:rgba(8,5,2,.7);border:2px solid rgba(181,113,43,.3);border-radius:10px;
+  padding:14px 16px;cursor:pointer;transition:.25s;position:relative;}
+.vital-box:hover{border-color:rgba(181,113,43,.6);}
+.vital-label{font-family:'Cinzel',serif;font-weight:700;font-size:.78rem;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--sand-deep);margin-bottom:6px;}
+.vital-value{font-family:'Cinzel',serif;font-weight:900;font-size:1.6rem;color:var(--sand-1);
+  margin-bottom:4px;line-height:1.2;}
+.vital-unit{font-size:.82rem;color:rgba(200,155,94,.6);font-style:italic;}
+.vital-tag{position:absolute;top:10px;right:10px;font-family:'Cinzel',serif;font-weight:700;
+  font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;
+  border-radius:5px;opacity:0;transition:.25s;}
+.vital-box.marked-normal{border-color:var(--chakra);box-shadow:0 0 12px rgba(61,220,132,.2);}
+.vital-box.marked-normal .vital-tag{opacity:1;background:rgba(61,220,132,.2);border:1px solid rgba(61,220,132,.5);color:var(--chakra-glow);}
+.vital-box.marked-anormal{border-color:var(--blood-light);box-shadow:0 0 12px rgba(196,69,58,.2);}
+.vital-box.marked-anormal .vital-tag{opacity:1;background:rgba(196,69,58,.2);border:1px solid rgba(196,69,58,.5);color:#ffcaa0;}
+
+/* After validation colors */
+.vital-box.correct-normal{border-color:var(--chakra);box-shadow:0 0 14px rgba(61,220,132,.3);}
+.vital-box.correct-normal .vital-value{color:var(--chakra-glow);}
+.vital-box.correct-anormal{border-color:var(--blood-light);box-shadow:0 0 14px rgba(196,69,58,.3);}
+.vital-box.correct-anormal .vital-value{color:#e8796e;}
+.vital-box.wrong{border-color:var(--gold);box-shadow:0 0 14px rgba(255,216,107,.3);}
+.vital-box.wrong .vital-tag{opacity:1;background:rgba(255,216,107,.2);border:1px solid rgba(255,216,107,.5);color:var(--gold);}
+
+.vital-range{font-size:.82rem;color:var(--sand-deep);margin-top:6px;font-style:italic;display:none;}
+.vital-box.revealed .vital-range{display:block;}
+
+/* Condition choices */
+.choices-title{font-family:'Cinzel',serif;font-weight:700;font-size:.95rem;color:var(--ocre);
+  letter-spacing:.04em;margin-bottom:10px;}
+.choices{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
+.choice{background:rgba(20,12,4,.5);border:1.5px solid rgba(181,113,43,.35);border-radius:9px;
+  padding:12px 16px;cursor:pointer;font-size:1.02rem;color:var(--parchment);
+  transition:.2s;line-height:1.4;}
+.choice:hover{border-color:var(--ocre);background:rgba(181,113,43,.1);}
+.choice.selected{border-color:var(--gold);background:rgba(255,216,107,.12);color:var(--gold);}
+.choice.correct{border-color:var(--chakra);background:rgba(61,220,132,.12);color:var(--chakra-glow);}
+.choice.incorrect{border-color:var(--blood-light);background:rgba(196,69,58,.12);color:#ffcaa0;}
+.choice.disabled{cursor:default;opacity:.6;}
+.choice.disabled.correct{opacity:1;}
+.choice.disabled.incorrect{opacity:1;}
+.choice.disabled.selected.incorrect{opacity:1;}
+
+/* Explanation box */
+.explanation{background:rgba(20,12,4,.5);border:1px dashed var(--ocre);border-radius:10px;
+  padding:14px 16px;margin-top:14px;display:none;line-height:1.5;font-size:.98rem;color:var(--parchment);}
+.explanation.visible{display:block;}
+.explanation strong{color:var(--sand-1);}
+
+/* Score display */
+.score-display{font-family:'Cinzel',serif;font-weight:700;font-size:1rem;color:var(--sand-deep);
+  text-align:center;margin-bottom:10px;letter-spacing:.04em;}
+.score-display .val{color:var(--sand-1);font-size:1.1rem;}
+
+/* End screen */
+#endScreen{display:none;}
+.final-score{font-family:'Cinzel',serif;font-weight:900;font-size:3rem;text-align:center;
+  margin:10px 0;}
+.final-score.excellent{color:var(--chakra-glow);text-shadow:0 0 24px rgba(61,220,132,.6);}
+.final-score.good{color:var(--gold);text-shadow:0 0 18px rgba(255,216,107,.4);}
+.final-score.average{color:var(--sand-1);}
+.final-score.poor{color:var(--blood-light);}
+.final-verdict{text-align:center;font-size:1.12rem;margin-bottom:18px;line-height:1.5;color:var(--parchment);}
+.recap-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;
+  border-bottom:1px solid rgba(181,113,43,.2);font-size:1rem;}
+.recap-item:last-child{border:none;}
+.recap-item .scenario-name{color:var(--sand-deep);flex:1;}
+.recap-item .recap-result{font-family:'Cinzel',serif;font-weight:700;font-size:.85rem;
+  padding:3px 10px;border-radius:5px;}
+.recap-ok{background:rgba(61,220,132,.15);color:var(--chakra-glow);}
+.recap-fail{background:rgba(196,69,58,.15);color:#ffcaa0;}
+
+footer{text-align:center;margin-top:30px;color:var(--sand-deep);font-style:italic;}
+footer .seal{color:var(--ocre);font-family:'Cinzel',serif;}
+
+@media(max-width:520px){
+  .vitals-grid{grid-template-columns:1fr;}
+  .vital-value{font-size:1.3rem;}
+  .panel{padding:16px 14px;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="back-btn"><a href="index.html">&larr; Retour au hub</a></div>
+  <header>
+    <div class="crest"><svg viewBox="0 0 100 100" fill="none">
+      <circle cx="50" cy="50" r="30" stroke="#b5712b" stroke-width="4"/>
+      <path d="M50 22 L58 44 L50 50 L42 44 Z" fill="#b5712b"/>
+      <path d="M50 78 L42 56 L50 50 L58 56 Z" fill="#b5712b"/>
+      <circle cx="50" cy="50" r="6" fill="#8a4f1a"/>
+    </svg></div>
+    <h1>Constantes Vitales</h1>
+    <div class="sub">Section M&eacute;dicale &mdash; Seimei &middot; Sunagakure</div>
+    <div class="divider"></div>
+  </header>
+
+  <!-- INTRO -->
+  <div id="intro">
+    <div class="panel">
+      <h2>Briefing</h2>
+      <p style="font-size:1.08rem;line-height:1.55;">Savoir lire les <strong>constantes vitales</strong> d&rsquo;un patient est la base de tout diagnostic. Identifie les valeurs <strong>normales</strong> et <strong>anormales</strong>, puis d&eacute;termine la pathologie probable.</p>
+      <p style="margin-top:10px;font-size:.97rem;color:var(--sand-deep);font-style:italic;">8 patients vont se pr&eacute;senter. Pour chacun, clique sur chaque constante pour la classer, puis choisis le bon diagnostic.</p>
+    </div>
+    <div class="panel">
+      <h2>Rappel &mdash; Valeurs normales</h2>
+      <div class="vitals-grid" style="cursor:default;">
+        <div class="vital-box" style="cursor:default;border-color:rgba(61,220,132,.3);">
+          <div class="vital-label">Pouls</div>
+          <div class="vital-value" style="font-size:1.2rem;color:var(--chakra);">60 &ndash; 100</div>
+          <div class="vital-unit">bpm</div>
+        </div>
+        <div class="vital-box" style="cursor:default;border-color:rgba(61,220,132,.3);">
+          <div class="vital-label">Tension art&eacute;rielle</div>
+          <div class="vital-value" style="font-size:1.2rem;color:var(--chakra);">90-140 / 60-90</div>
+          <div class="vital-unit">mmHg</div>
+        </div>
+        <div class="vital-box" style="cursor:default;border-color:rgba(61,220,132,.3);">
+          <div class="vital-label">Fr&eacute;quence respiratoire</div>
+          <div class="vital-value" style="font-size:1.2rem;color:var(--chakra);">12 &ndash; 20</div>
+          <div class="vital-unit">resp/min</div>
+        </div>
+        <div class="vital-box" style="cursor:default;border-color:rgba(61,220,132,.3);">
+          <div class="vital-label">Temp&eacute;rature</div>
+          <div class="vital-value" style="font-size:1.2rem;color:var(--chakra);">36.0 &ndash; 37.5</div>
+          <div class="vital-unit">&deg;C</div>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn" id="startBtn">Commencer l&rsquo;exercice</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div id="game" style="display:none;">
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="score-display">Score : <span class="val" id="scoreLbl">0 / 0</span></div>
+
+    <div class="panel">
+      <h2 id="patientTitle">Patient 1 / 8</h2>
+
+      <div class="patient-card">
+        <div class="patient-name" id="patientName"></div>
+        <div class="patient-age" id="patientAge"></div>
+        <div class="patient-situation" id="patientSituation"></div>
+      </div>
+
+      <div class="vitals-grid" id="vitalsGrid">
+        <div class="vital-box" id="vital-pouls" data-key="pouls">
+          <div class="vital-label">Pouls</div>
+          <div class="vital-value" id="val-pouls"></div>
+          <div class="vital-unit">bpm</div>
+          <div class="vital-tag" id="tag-pouls"></div>
+          <div class="vital-range" id="range-pouls">Normal : 60 &ndash; 100 bpm</div>
+        </div>
+        <div class="vital-box" id="vital-ta" data-key="ta">
+          <div class="vital-label">Tension art&eacute;rielle</div>
+          <div class="vital-value" id="val-ta"></div>
+          <div class="vital-unit">mmHg</div>
+          <div class="vital-tag" id="tag-ta"></div>
+          <div class="vital-range" id="range-ta">Normal : 90-140 / 60-90 mmHg</div>
+        </div>
+        <div class="vital-box" id="vital-fr" data-key="fr">
+          <div class="vital-label">Fr&eacute;quence respiratoire</div>
+          <div class="vital-value" id="val-fr"></div>
+          <div class="vital-unit">resp/min</div>
+          <div class="vital-tag" id="tag-fr"></div>
+          <div class="vital-range" id="range-fr">Normal : 12 &ndash; 20 resp/min</div>
+        </div>
+        <div class="vital-box" id="vital-temp" data-key="temp">
+          <div class="vital-label">Temp&eacute;rature</div>
+          <div class="vital-value" id="val-temp"></div>
+          <div class="vital-unit">&deg;C</div>
+          <div class="vital-tag" id="tag-temp"></div>
+          <div class="vital-range" id="range-temp">Normal : 36.0 &ndash; 37.5 &deg;C</div>
+        </div>
+      </div>
+
+      <div class="choices-title">Quel est le diagnostic probable ?</div>
+      <div class="choices" id="choicesBox"></div>
+
+      <div class="controls" id="gameControls">
+        <button class="btn" id="validateBtn" disabled>Valider</button>
+      </div>
+
+      <div class="explanation" id="explanationBox"></div>
+
+      <div class="controls" id="nextControls" style="display:none;">
+        <button class="btn" id="nextBtn">Patient suivant</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- END SCREEN -->
+  <div id="endScreen">
+    <div class="panel" style="text-align:center;">
+      <h2 style="justify-content:center;">&Eacute;valuation termin&eacute;e</h2>
+      <div class="final-score" id="finalScore"></div>
+      <div class="final-verdict" id="finalVerdict"></div>
+    </div>
+    <div class="panel">
+      <h2>R&eacute;capitulatif</h2>
+      <div id="recapList"></div>
+    </div>
+    <div class="controls" style="margin-top:6px;">
+      <button class="btn ghost" id="retryBtn">Recommencer</button>
+    </div>
+  </div>
+
+  <footer>Outil p&eacute;dagogique officiel &middot; <span class="seal">Seimei</span> &middot; Sunagakure</footer>
+</div>
+
+<script>
+(function(){
+  /* ===== Helpers ===== */
+  var el = function(id){ return document.getElementById(id); };
+
+  function shuffle(arr){
+    var a = arr.slice();
+    for(var i = a.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  function pickRandom(arr, n){
+    var shuffled = shuffle(arr);
+    return shuffled.slice(0, n);
+  }
+
+  /* ===== Patient names pool ===== */
+  var FIRST_NAMES = [
+    "Haruki","Yuna","Daiki","Sakura","Ren","Mio","Takeshi","Aoi",
+    "Kaito","Hana","Shin","Mei","Ryo","Sora","Kenji","Nami"
+  ];
+  var LAST_NAMES = [
+    "Tanaka","Ishikawa","Moriyama","Fujita","Nakamura","Hayashi",
+    "Sasaki","Kimura","Oshiro","Watanabe","Kobayashi","Yamamoto"
+  ];
+
+  function randomName(){
+    var f = FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)];
+    var l = LAST_NAMES[Math.floor(Math.random() * LAST_NAMES.length)];
+    return f + " " + l;
+  }
+
+  function randomAge(min, max){
+    return min + Math.floor(Math.random() * (max - min + 1));
+  }
+
+  /* ===== Normal ranges ===== */
+  var RANGES = {
+    pouls:    {min: 60,   max: 100},
+    taSys:    {min: 90,   max: 140},
+    taDia:    {min: 60,   max: 90},
+    fr:       {min: 12,   max: 20},
+    temp:     {min: 36.0, max: 37.5}
+  };
+
+  /* ===== Scenarios pool ===== */
+  var ALL_SCENARIOS = [
+    {
+      situation: "Arrivé après un combat violent, plaie ouverte au flanc.",
+      ageRange: [18,35],
+      pouls: 130, taSys: 80, taDia: 50, fr: 24, temp: 37.2,
+      abnormals: {pouls:true, ta:true, fr:true, temp:false},
+      condition: "Choc hémorragique",
+      distractors: ["Hyperthermie", "Crise d’angoisse", "Déshydratation"],
+      explanation: "Pouls élevé (130 bpm), tension basse (80/50) et fréquence respiratoire haute (24) : signes classiques d’un choc hémorragique. Le corps compense la perte de sang."
+    },
+    {
+      situation: "Trouvé inconscient dans le désert après une longue mission.",
+      ageRange: [20,40],
+      pouls: 110, taSys: 100, taDia: 65, fr: 22, temp: 40.5,
+      abnormals: {pouls:true, ta:false, fr:true, temp:true},
+      condition: "Hyperthermie / coup de chaleur",
+      distractors: ["Infection", "Choc hémorragique", "Normal"],
+      explanation: "Température très élevée (40.5°C) avec pouls et FR en compensation. Exposition prolongée à la chaleur du désert — urgence thermique."
+    },
+    {
+      situation: "Venu pour un contrôle de routine, aucune plainte.",
+      ageRange: [22,45],
+      pouls: 72, taSys: 120, taDia: 80, fr: 16, temp: 36.8,
+      abnormals: {pouls:false, ta:false, fr:false, temp:false},
+      condition: "Normal — patient sain",
+      distractors: ["Déshydratation légère", "Infection débutante", "Bradycardie"],
+      explanation: "Toutes les constantes sont dans les normes. Patient en bonne santé, aucune anomalie à signaler."
+    },
+    {
+      situation: "A ingéré une substance inconnue lors d’une mission d’infiltration.",
+      ageRange: [18,30],
+      pouls: 45, taSys: 85, taDia: 55, fr: 8, temp: 35.2,
+      abnormals: {pouls:true, ta:true, fr:true, temp:true},
+      condition: "Empoisonnement / bradycardie",
+      distractors: ["Hypothermie simple", "Normal — patient endormi", "Déshydratation"],
+      explanation: "Toutes les constantes sont basses : pouls à 45 (bradycardie), TA basse, FR à 8 (bradypnée), température à 35.2°C. Tableau typique d’un empoisonnement avec dépression générale des fonctions vitales."
+    },
+    {
+      situation: "Fièvre depuis 2 jours, frissons et sueurs nocturnes.",
+      ageRange: [16,50],
+      pouls: 100, taSys: 110, taDia: 70, fr: 22, temp: 39.5,
+      abnormals: {pouls:false, ta:false, fr:true, temp:true},
+      condition: "Infection / fièvre",
+      distractors: ["Coup de chaleur", "Crise d’angoisse", "Normal"],
+      explanation: "Température élevée (39.5°C) et FR augmentée (22) en réponse à l’infection. Le pouls à 100 est à la limite haute mais reste dans les normes — compensation physiologique."
+    },
+    {
+      situation: "Fracture ouverte du tibia après une chute en entraînement.",
+      ageRange: [15,28],
+      pouls: 95, taSys: 140, taDia: 90, fr: 20, temp: 37.0,
+      abnormals: {pouls:false, ta:false, fr:false, temp:false},
+      condition: "Douleur aiguë / stress",
+      distractors: ["Choc hémorragique", "Hypertension chronique", "Infection"],
+      explanation: "Les constantes sont à la limite haute des normes (TA 140/90, pouls 95) mais restent techniquement normales. C’est la réaction au stress et à la douleur — pas de choc, pas d’infection."
+    },
+    {
+      situation: "Retrouvé à l’aube après une nuit passée dans le désert sans équipement.",
+      ageRange: [18,35],
+      pouls: 50, taSys: 95, taDia: 60, fr: 10, temp: 34.0,
+      abnormals: {pouls:true, ta:false, fr:true, temp:true},
+      condition: "Hypothermie",
+      distractors: ["Empoisonnement", "Normal — sportif", "Déshydratation"],
+      explanation: "Température très basse (34.0°C), pouls ralenti (50) et FR basse (10). Le corps est en hypothermie : tout ralentit pour conserver l’énergie."
+    },
+    {
+      situation: "Panique après une explosion proche, tremblements, sensation d’étouffement.",
+      ageRange: [16,30],
+      pouls: 120, taSys: 130, taDia: 85, fr: 28, temp: 37.1,
+      abnormals: {pouls:true, ta:false, fr:true, temp:false},
+      condition: "Hyperventilation / anxiété",
+      distractors: ["Choc hémorragique", "Infection", "Coup de chaleur"],
+      explanation: "Pouls élevé (120) et FR très haute (28) mais température et TA normales. Tableau typique d’une crise d’angoisse / hyperventilation, sans cause organique."
+    },
+    {
+      situation: "État de conscience altéré, amené en urgence par son équipe.",
+      ageRange: [20,45],
+      pouls: 35, taSys: 60, taDia: 40, fr: 6, temp: 36.5,
+      abnormals: {pouls:true, ta:true, fr:true, temp:false},
+      condition: "État critique / pré-arrêt cardiaque",
+      distractors: ["Hypothermie", "Empoisonnement", "Normal — sportif"],
+      explanation: "Pouls très bas (35), TA effondrant (60/40), FR minimale (6). Situation d’urgence absolue — le patient est en pré-arrêt cardiaque. La température normale exclut l’hypothermie."
+    },
+    {
+      situation: "Longue marche dans le désert sans eau, lèvres craquelées, confusion légère.",
+      ageRange: [18,40],
+      pouls: 105, taSys: 90, taDia: 60, fr: 18, temp: 37.8,
+      abnormals: {pouls:true, ta:false, fr:false, temp:false},
+      condition: "Déshydratation",
+      distractors: ["Infection", "Coup de chaleur", "Choc hémorragique"],
+      explanation: "Pouls élevé (105) pour compenser la baisse de volume sanguin. TA à la limite basse (90/60), FR et température quasi normales. Déshydratation à traiter rapidement."
+    },
+    {
+      situation: "Shinobi expérimenté, contrôle post-mission. Se sent parfaitement bien.",
+      ageRange: [25,40],
+      pouls: 55, taSys: 115, taDia: 75, fr: 14, temp: 36.6,
+      abnormals: {pouls:false, ta:false, fr:false, temp:false},
+      condition: "Normal — sportif entraîné",
+      distractors: ["Bradycardie pathologique", "Hypothermie débutante", "Empoisonnement"],
+      explanation: "Pouls à 55 bpm — en dessous de 60, mais normal pour un ninja/sportif très entraîné (bradycardie physiologique). Toutes les autres constantes sont parfaitement normales."
+    },
+    {
+      situation: "Brûlures étendues sur le torse et les bras après un jutsu Katon.",
+      ageRange: [17,35],
+      pouls: 125, taSys: 85, taDia: 55, fr: 26, temp: 38.5,
+      abnormals: {pouls:true, ta:true, fr:true, temp:true},
+      condition: "Choc + brûlure grave",
+      distractors: ["Infection", "Hyperthermie simple", "Crise d’angoisse"],
+      explanation: "Tout est perturbé : pouls très élevé (125), TA basse (85/55), FR haute (26), fièvre (38.5°C). Les brûlures étendues provoquent un choc hypovolémique avec réaction inflammatoire systémique."
+    }
+  ];
+
+  /* ===== State ===== */
+  var TOTAL_ROUNDS = 8;
+  var scenarios = [];
+  var currentRound = 0;
+  var score = 0;
+  var results = []; // {scenario, correct}
+  var marks = {}; // pouls, ta, fr, temp -> 'normal' | 'anormal' | null
+  var selectedChoice = null;
+  var validated = false;
+
+  /* ===== Init ===== */
+  el('startBtn').addEventListener('click', startGame);
+  el('validateBtn').addEventListener('click', validateRound);
+  el('nextBtn').addEventListener('click', nextPatient);
+  el('retryBtn').addEventListener('click', function(){ location.reload(); });
+
+  function startGame(){
+    scenarios = pickRandom(ALL_SCENARIOS, TOTAL_ROUNDS);
+    currentRound = 0;
+    score = 0;
+    results = [];
+    el('intro').style.display = 'none';
+    el('game').style.display = '';
+    el('endScreen').style.display = 'none';
+    buildProgressBar();
+    loadRound();
+  }
+
+  function buildProgressBar(){
+    var bar = el('progressBar');
+    bar.innerHTML = '';
+    for(var i = 0; i < TOTAL_ROUNDS; i++){
+      var dot = document.createElement('div');
+      dot.className = 'progress-dot';
+      if(i === 0) dot.className += ' current';
+      dot.id = 'dot-' + i;
+      bar.appendChild(dot);
+    }
+  }
+
+  function updateProgress(){
+    for(var i = 0; i < TOTAL_ROUNDS; i++){
+      var dot = el('dot-' + i);
+      dot.className = 'progress-dot';
+      if(i < results.length){
+        dot.className += results[i].correct ? ' done-ok' : ' done-bad';
+      } else if(i === currentRound){
+        dot.className += ' current';
+      }
+    }
+  }
+
+  function loadRound(){
+    var sc = scenarios[currentRound];
+    validated = false;
+    marks = {pouls: null, ta: null, fr: null, temp: null};
+    selectedChoice = null;
+
+    el('patientTitle').textContent = 'Patient ' + (currentRound + 1) + ' / ' + TOTAL_ROUNDS;
+    el('patientName').textContent = randomName();
+    el('patientAge').textContent = randomAge(sc.ageRange[0], sc.ageRange[1]) + ' ans';
+    el('patientSituation').textContent = sc.situation;
+
+    // Display vitals
+    el('val-pouls').textContent = sc.pouls;
+    el('val-ta').textContent = sc.taSys + ' / ' + sc.taDia;
+    el('val-fr').textContent = sc.fr;
+    el('val-temp').textContent = sc.temp.toFixed(1);
+
+    // Reset vital boxes
+    var keys = ['pouls','ta','fr','temp'];
+    for(var i = 0; i < keys.length; i++){
+      var box = el('vital-' + keys[i]);
+      box.className = 'vital-box';
+      el('tag-' + keys[i]).textContent = '';
+    }
+
+    // Build choices
+    var allChoices = shuffle([sc.condition].concat(sc.distractors));
+    var choicesBox = el('choicesBox');
+    choicesBox.innerHTML = '';
+    for(var j = 0; j < allChoices.length; j++){
+      var div = document.createElement('div');
+      div.className = 'choice';
+      div.textContent = allChoices[j];
+      div.setAttribute('data-value', allChoices[j]);
+      div.addEventListener('click', onChoiceClick);
+      choicesBox.appendChild(div);
+    }
+
+    // Reset controls
+    el('validateBtn').disabled = true;
+    el('gameControls').style.display = '';
+    el('nextControls').style.display = 'none';
+    el('explanationBox').className = 'explanation';
+    el('explanationBox').innerHTML = '';
+    el('scoreLbl').textContent = score + ' / ' + currentRound;
+
+    updateProgress();
+    setupVitalClicks();
+  }
+
+  function setupVitalClicks(){
+    var keys = ['pouls','ta','fr','temp'];
+    for(var i = 0; i < keys.length; i++){
+      (function(key){
+        var box = el('vital-' + key);
+        // Remove old listeners by cloning
+        var newBox = box.cloneNode(true);
+        box.parentNode.replaceChild(newBox, box);
+        newBox.addEventListener('click', function(){
+          if(validated) return;
+          toggleMark(key);
+        });
+      })(keys[i]);
+    }
+  }
+
+  function toggleMark(key){
+    if(marks[key] === null){
+      marks[key] = 'normal';
+    } else if(marks[key] === 'normal'){
+      marks[key] = 'anormal';
+    } else {
+      marks[key] = 'normal';
+    }
+
+    var box = el('vital-' + key);
+    var tag = el('tag-' + key);
+    box.className = 'vital-box';
+    if(marks[key] === 'normal'){
+      box.className += ' marked-normal';
+      tag.textContent = 'Normal';
+    } else if(marks[key] === 'anormal'){
+      box.className += ' marked-anormal';
+      tag.textContent = 'Anormal';
+    }
+
+    checkCanValidate();
+  }
+
+  function onChoiceClick(e){
+    if(validated) return;
+    var choices = el('choicesBox').children;
+    for(var i = 0; i < choices.length; i++){
+      choices[i].className = 'choice';
+    }
+    e.currentTarget.className = 'choice selected';
+    selectedChoice = e.currentTarget.getAttribute('data-value');
+    checkCanValidate();
+  }
+
+  function checkCanValidate(){
+    var allMarked = marks.pouls !== null && marks.ta !== null && marks.fr !== null && marks.temp !== null;
+    el('validateBtn').disabled = !(allMarked && selectedChoice !== null);
+  }
+
+  function validateRound(){
+    if(validated) return;
+    validated = true;
+    var sc = scenarios[currentRound];
+    var roundCorrect = true;
+
+    // Check vital marks
+    var keys = ['pouls','ta','fr','temp'];
+    var vitalScore = 0;
+    for(var i = 0; i < keys.length; i++){
+      var key = keys[i];
+      var box = el('vital-' + key);
+      var tag = el('tag-' + key);
+      var isAbnormal = sc.abnormals[key];
+      var playerSaidAbnormal = (marks[key] === 'anormal');
+      var correct = (isAbnormal === playerSaidAbnormal);
+
+      box.className = 'vital-box revealed';
+      if(correct){
+        vitalScore++;
+        if(isAbnormal){
+          box.className += ' correct-anormal';
+          tag.textContent = 'Anormal ✔';
+          tag.style.cssText = 'opacity:1;background:rgba(196,69,58,.2);border:1px solid rgba(196,69,58,.5);color:#ffcaa0;';
+        } else {
+          box.className += ' correct-normal';
+          tag.textContent = 'Normal ✔';
+          tag.style.cssText = 'opacity:1;background:rgba(61,220,132,.2);border:1px solid rgba(61,220,132,.5);color:#3ddc84;';
+        }
+      } else {
+        roundCorrect = false;
+        box.className += ' wrong';
+        var correctLabel = isAbnormal ? 'Anormal' : 'Normal';
+        tag.textContent = correctLabel + ' ✘';
+        tag.style.cssText = 'opacity:1;background:rgba(255,216,107,.2);border:1px solid rgba(255,216,107,.5);color:#ffd86b;';
+      }
+    }
+
+    // Check condition
+    var conditionCorrect = (selectedChoice === sc.condition);
+    if(!conditionCorrect) roundCorrect = false;
+
+    var choices = el('choicesBox').children;
+    for(var j = 0; j < choices.length; j++){
+      var ch = choices[j];
+      var val = ch.getAttribute('data-value');
+      ch.className = 'choice disabled';
+      if(val === sc.condition){
+        ch.className += ' correct';
+      } else if(val === selectedChoice && !conditionCorrect){
+        ch.className += ' selected incorrect';
+      }
+    }
+
+    // Score: round counts as correct only if ALL vitals + condition correct
+    if(roundCorrect) score++;
+
+    results.push({
+      scenario: sc,
+      correct: roundCorrect,
+      vitalScore: vitalScore,
+      conditionCorrect: conditionCorrect
+    });
+
+    el('scoreLbl').textContent = score + ' / ' + (currentRound + 1);
+
+    // Explanation
+    var expBox = el('explanationBox');
+    var expHTML = '';
+    if(roundCorrect){
+      expHTML += '<p style="color:var(--chakra-glow);font-weight:600;margin-bottom:8px;">✔ Parfait — diagnostic et constantes corrects !</p>';
+    } else {
+      expHTML += '<p style="color:#ffcaa0;font-weight:600;margin-bottom:8px;">✘ Quelques erreurs sur ce patient.</p>';
+    }
+    expHTML += '<p><strong>Diagnostic :</strong> ' + sc.condition + '</p>';
+    expHTML += '<p style="margin-top:6px;">' + sc.explanation + '</p>';
+    expBox.innerHTML = expHTML;
+    expBox.className = 'explanation visible';
+
+    // Switch controls
+    el('gameControls').style.display = 'none';
+    if(currentRound < TOTAL_ROUNDS - 1){
+      el('nextBtn').textContent = 'Patient suivant';
+    } else {
+      el('nextBtn').textContent = 'Voir les résultats';
+    }
+    el('nextControls').style.display = '';
+    updateProgress();
+  }
+
+  function nextPatient(){
+    currentRound++;
+    if(currentRound >= TOTAL_ROUNDS){
+      showEndScreen();
+      return;
+    }
+    loadRound();
+  }
+
+  function showEndScreen(){
+    el('game').style.display = 'none';
+    el('endScreen').style.display = '';
+
+    var pct = Math.round((score / TOTAL_ROUNDS) * 100);
+    var fs = el('finalScore');
+    fs.textContent = score + ' / ' + TOTAL_ROUNDS;
+
+    if(pct >= 88){
+      fs.className = 'final-score excellent';
+      el('finalVerdict').textContent = 'Excellent travail. Tu maîtrises la lecture des constantes vitales et les diagnostics associés. Prêt pour le terrain.';
+    } else if(pct >= 63){
+      fs.className = 'final-score good';
+      el('finalVerdict').textContent = 'Bon niveau. Quelques confusions à revoir, mais les bases sont solides. Continue de t’entraîner.';
+    } else if(pct >= 38){
+      fs.className = 'final-score average';
+      el('finalVerdict').textContent = 'Résultat moyen. Revois les valeurs normales et les tableaux cliniques typiques avant ta prochaine garde.';
+    } else {
+      fs.className = 'final-score poor';
+      el('finalVerdict').textContent = 'Insuffisant. La lecture des constantes est une compétence vitale — reprends le briefing et recommence.';
+    }
+
+    // Recap
+    var list = el('recapList');
+    list.innerHTML = '';
+    for(var i = 0; i < results.length; i++){
+      var r = results[i];
+      var item = document.createElement('div');
+      item.className = 'recap-item';
+      var nameSpan = document.createElement('span');
+      nameSpan.className = 'scenario-name';
+      nameSpan.textContent = 'Patient ' + (i+1) + ' — ' + r.scenario.condition;
+      var resultSpan = document.createElement('span');
+      resultSpan.className = 'recap-result ' + (r.correct ? 'recap-ok' : 'recap-fail');
+      resultSpan.textContent = r.correct ? 'Correct' : 'Incorrect';
+      item.appendChild(nameSpan);
+      item.appendChild(resultSpan);
+      list.appendChild(item);
+    }
+  }
+
+})();
+</script>
+</body>
+</html>
