@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Seimei &mdash; Constantes Vitales | Sunagakure</title>
+<script src="vendor/supabase.js"></script>
+<script src="config.js"></script>
 <style>
 @import url('vendor/fonts.css');
 :root{
@@ -198,6 +200,11 @@ footer .seal{color:var(--ocre);font-family:'Cinzel',serif;}
           <div class="vital-value" style="font-size:1.2rem;color:var(--chakra);">36.0 &ndash; 37.5</div>
           <div class="vital-unit">&deg;C</div>
         </div>
+      </div>
+      <div style="margin-top:14px;">
+        <label style="display:block;font-size:1.05rem;color:var(--sand-deep);margin-bottom:6px;">Nom de shinobi</label>
+        <input type="text" id="nameInput" placeholder="Ex : Artel Ga&iuml;a" maxlength="28" autocomplete="off"
+          style="width:100%;padding:13px 16px;font-family:inherit;font-size:1.15rem;background:rgba(20,12,4,.6);color:var(--sand-1);border:1px solid var(--ocre);border-radius:8px;outline:none;">
       </div>
       <div class="controls">
         <button class="btn" id="startBtn">Commencer l&rsquo;exercice</button>
@@ -449,8 +456,9 @@ footer .seal{color:var(--ocre);font-family:'Cinzel',serif;}
   var scenarios = [];
   var currentRound = 0;
   var score = 0;
-  var results = []; // {scenario, correct}
-  var marks = {}; // pouls, ta, fr, temp -> 'normal' | 'anormal' | null
+  var playerName = '';
+  var results = [];
+  var marks = {};
   var selectedChoice = null;
   var validated = false;
 
@@ -461,6 +469,10 @@ footer .seal{color:var(--ocre);font-family:'Cinzel',serif;}
   el('retryBtn').addEventListener('click', function(){ location.reload(); });
 
   function startGame(){
+    var nm = el('nameInput').value.trim();
+    if(!nm){ el('nameInput').style.borderColor='var(--blood-light)';
+      setTimeout(function(){el('nameInput').style.borderColor='';},900); return; }
+    playerName = nm;
     scenarios = pickRandom(ALL_SCENARIOS, TOTAL_ROUNDS);
     currentRound = 0;
     score = 0;
@@ -722,6 +734,9 @@ footer .seal{color:var(--ocre);font-family:'Cinzel',serif;}
       el('finalVerdict').textContent = 'Insuffisant. La lecture des constantes est une compétence vitale — reprends le briefing et recommence.';
     }
 
+    // Save to Supabase
+    saveScore(pct);
+
     // Recap
     var list = el('recapList');
     list.innerHTML = '';
@@ -739,6 +754,17 @@ footer .seal{color:var(--ocre);font-family:'Cinzel',serif;}
       item.appendChild(resultSpan);
       list.appendChild(item);
     }
+  }
+
+  function saveScore(pct){
+    var grade;
+    if(pct>=90)grade='S';else if(pct>=75)grade='A';else if(pct>=60)grade='B';
+    else if(pct>=40)grade='C';else grade='D';
+    if(typeof SUPABASE_URL==='undefined')return;
+    try{
+      var sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+      sb.from('constantes_scores').insert([{name:playerName,score:pct,grade:grade,correct:score,total:TOTAL_ROUNDS}]);
+    }catch(e){}
   }
 
 })();
