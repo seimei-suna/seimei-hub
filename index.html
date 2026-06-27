@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Section M&eacute;dicale Seimei | Sunagakure</title>
+<script src="vendor/supabase.js"></script>
+<script src="config.js"></script>
 <style>
 @import url('vendor/fonts.css');
 :root{
@@ -82,6 +84,35 @@ body::before{content:"";position:fixed;inset:0;opacity:.05;pointer-events:none;
 .module p{font-size:.92rem;color:var(--sand-deep);line-height:1.4;}
 footer{text-align:center;margin-top:40px;color:var(--sand-deep);font-style:italic;font-size:.9rem;}
 footer .seal{color:var(--ocre);font-family:'Cinzel',serif;}
+/* hierarchy tree */
+.hier-tree{display:flex;flex-direction:column;gap:0;position:relative;}
+.hier-rank{position:relative;padding-left:32px;margin-bottom:0;}
+.hier-rank::before{content:"";position:absolute;left:11px;top:0;bottom:0;width:2px;
+  background:linear-gradient(180deg,var(--ocre),rgba(181,113,43,.2));}
+.hier-rank:last-child::before{bottom:50%;}
+.hier-rank-head{position:relative;display:flex;align-items:center;gap:10px;
+  padding:10px 16px;margin-bottom:2px;
+  background:linear-gradient(160deg,rgba(181,113,43,.15),rgba(60,41,20,.2));
+  border:1px solid rgba(181,113,43,.5);border-radius:10px;
+  font-family:'Cinzel',serif;font-weight:700;font-size:1.05rem;color:var(--gold);
+  letter-spacing:.04em;}
+.hier-rank-head::before{content:"";position:absolute;left:-22px;top:50%;width:20px;height:2px;
+  background:var(--ocre);}
+.hier-rank-head .hier-num{width:26px;height:26px;border-radius:50%;
+  background:rgba(181,113,43,.3);border:1px solid var(--ocre);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  font-size:.75rem;color:var(--sand-1);}
+.hier-members{padding:4px 0 12px 18px;}
+.hier-member-row{position:relative;display:flex;align-items:center;gap:8px;
+  padding:6px 12px;margin-bottom:3px;border-radius:8px;
+  color:var(--parchment);font-size:1rem;transition:.15s;}
+.hier-member-row:hover{background:rgba(181,113,43,.08);}
+.hier-member-row::before{content:"";position:absolute;left:-18px;top:50%;width:16px;height:2px;
+  background:rgba(181,113,43,.25);}
+.hier-member-row .hier-dot{width:7px;height:7px;border-radius:50%;background:var(--chakra-glow);
+  flex-shrink:0;box-shadow:0 0 6px rgba(61,220,132,.4);}
+.hier-empty{color:var(--sand-deep);font-style:italic;padding:8px 12px 8px 30px;font-size:.95rem;}
+.hier-loading{text-align:center;color:var(--sand-deep);font-style:italic;padding:30px;}
 @media(max-width:760px){
   .layout{flex-direction:column;}
   .sidebar{width:auto;position:static;height:auto;flex-direction:row;flex-wrap:wrap;
@@ -107,6 +138,14 @@ footer .seal{color:var(--ocre);font-family:'Cinzel',serif;}
         </svg>
       </div>
       <span class="sb-title">Section M&eacute;dicale<small>Seimei &middot; Sunagakure</small></span>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-section-title">Organisation</div>
+      <a class="sb-link" data-section="hierarchie">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Hi&eacute;rarchie
+      </a>
     </div>
 
     <div class="sb-section">
@@ -161,6 +200,12 @@ footer .seal{color:var(--ocre);font-family:'Cinzel',serif;}
       <div class="subtitle">Seimei &middot; Sunagakure</div>
       <div class="divider"></div>
     </header>
+
+    <!-- HIÉRARCHIE -->
+    <div class="section-view" id="sec-hierarchie">
+      <div class="section-title">Hi&eacute;rarchie Seimei</div>
+      <div id="hierTree" class="hier-loading">Chargement de la hi&eacute;rarchie...</div>
+    </div>
 
     <!-- EXERCICES -->
     <div class="section-view active" id="sec-exercices">
@@ -283,14 +328,56 @@ footer .seal{color:var(--ocre);font-family:'Cinzel',serif;}
 (function(){
   var links=document.querySelectorAll('.sb-link[data-section]');
   var views=document.querySelectorAll('.section-view');
+  var hierLoaded=false;
+
   links.forEach(function(link){
     link.addEventListener('click',function(){
       links.forEach(function(l){l.classList.remove('active');});
       link.classList.add('active');
       var sec=link.dataset.section;
       views.forEach(function(v){v.classList.toggle('active',v.id==='sec-'+sec);});
+      if(sec==='hierarchie'&&!hierLoaded){hierLoaded=true;loadHier();}
     });
   });
+
+  function esc(t){t=(t==null?'':''+t);return t.replace(/[&<>"']/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];});}
+
+  function loadHier(){
+    var box=document.getElementById('hierTree');
+    if(typeof SUPABASE_URL==='undefined'){box.innerHTML='<div class="hier-empty">Configuration absente.</div>';return;}
+    var sb;
+    try{sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);}catch(e){box.innerHTML='<div class="hier-empty">Erreur de connexion.</div>';return;}
+    sb.from('seimei_hierarchie').select('*').order('ordre',{ascending:true}).order('created_at',{ascending:true}).then(function(res){
+      if(res.error){box.innerHTML='<div class="hier-empty">'+esc(res.error.message)+'</div>';return;}
+      var rows=res.data||[];
+      if(!rows.length){box.innerHTML='<div class="hier-empty">Aucune hiérarchie définie pour le moment.</div>';return;}
+      var rangs={};var rangOrdre={};
+      rows.forEach(function(r){
+        if(!rangs[r.rang])rangs[r.rang]=[];
+        if(r.membre)rangs[r.rang].push(r.membre);
+        rangOrdre[r.rang]=r.ordre;
+      });
+      var sorted=Object.keys(rangs).sort(function(a,b){return(rangOrdre[a]||0)-(rangOrdre[b]||0);});
+      var html='<div class="hier-tree">';
+      sorted.forEach(function(rang,i){
+        var members=rangs[rang];
+        html+='<div class="hier-rank">';
+        html+='<div class="hier-rank-head"><span class="hier-num">'+(i+1)+'</span>'+esc(rang)+'</div>';
+        if(members.length){
+          html+='<div class="hier-members">';
+          members.forEach(function(m){
+            html+='<div class="hier-member-row"><span class="hier-dot"></span>'+esc(m)+'</div>';
+          });
+          html+='</div>';
+        } else {
+          html+='<div class="hier-empty">Aucun membre</div>';
+        }
+        html+='</div>';
+      });
+      html+='</div>';
+      box.innerHTML=html;
+    });
+  }
 })();
 </script>
 </body>
