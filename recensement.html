@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seimei &mdash; Recensement Sanguin | Sunagakure</title>
+<style>
+@import url('vendor/fonts.css');
+:root{
+  --sand-1:#f4e4c1;--sand-deep:#c89b5e;--ocre:#b5712b;--ocre-deep:#8a4f1a;
+  --rust:#7a3b15;--parchment:#f0dfb8;--chakra:#6fcf97;--chakra-glow:#3ddc84;
+  --blood-light:#c4453a;--gold:#ffd86b;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Cormorant Garamond',serif;color:var(--parchment);min-height:100vh;overflow-x:hidden;
+  background:radial-gradient(ellipse at 50% -10%,#5a3d1e 0%,transparent 55%),
+    linear-gradient(160deg,#2e1d0c 0%,#1c1106 60%,#140c04 100%);}
+body::before{content:"";position:fixed;inset:0;opacity:.05;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  z-index:1;}
+.wrap{position:relative;z-index:2;max-width:860px;margin:0 auto;padding:28px 16px 80px;}
+.back-btn{text-align:right;margin-bottom:8px;}
+.back-btn a{font-family:'Cinzel',serif;font-weight:700;font-size:.82rem;letter-spacing:.05em;
+  padding:8px 16px;border:1px solid var(--ocre);border-radius:9px;color:var(--sand-1);
+  text-decoration:none;text-transform:uppercase;transition:.2s;}
+.back-btn a:hover{background:rgba(181,113,43,.2);}
+header{text-align:center;margin-bottom:24px;}
+.crest{width:64px;height:64px;margin:0 auto 10px;border:3px solid var(--ocre);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle,rgba(181,113,43,.25),transparent 70%);
+  box-shadow:0 0 24px rgba(181,113,43,.35);}
+.crest svg{width:36px;height:36px;}
+h1{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(1.5rem,4.5vw,2.3rem);
+  letter-spacing:.06em;color:var(--sand-1);text-shadow:0 2px 0 var(--rust),0 0 28px rgba(181,113,43,.5);}
+.sub{font-size:1.1rem;color:var(--sand-deep);font-style:italic;margin-top:4px;}
+.divider{height:2px;width:58%;margin:14px auto 0;background:linear-gradient(90deg,transparent,var(--ocre),transparent);}
+
+.panel{background:linear-gradient(160deg,rgba(240,223,184,.07),rgba(60,41,20,.15));
+  border:1px solid rgba(181,113,43,.45);border-radius:14px;padding:22px;margin-bottom:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,.45);}
+.panel h2{font-family:'Cinzel',serif;font-weight:700;color:var(--ocre);font-size:1.18rem;
+  letter-spacing:.05em;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.panel h2::before{content:"";width:7px;height:7px;background:var(--ocre);transform:rotate(45deg);}
+.lead{font-size:1.08rem;line-height:1.6;}
+
+.steps{counter-reset:step;list-style:none;margin:16px 0;padding:0;}
+.steps li{counter-increment:step;position:relative;padding:14px 16px 14px 56px;margin-bottom:10px;
+  background:rgba(20,12,4,.45);border:1px solid rgba(181,113,43,.3);border-radius:10px;
+  font-size:1.05rem;line-height:1.5;color:var(--parchment);transition:.2s;}
+.steps li:hover{border-color:rgba(181,113,43,.5);background:rgba(181,113,43,.08);}
+.steps li::before{content:counter(step);position:absolute;left:14px;top:50%;transform:translateY(-50%);
+  width:30px;height:30px;border-radius:50%;background:rgba(181,113,43,.25);
+  border:2px solid var(--ocre);display:flex;align-items:center;justify-content:center;
+  font-family:'Cinzel',serif;font-weight:700;font-size:.9rem;color:var(--gold);}
+.steps li strong{color:var(--sand-1);}
+
+.note-box{display:flex;align-items:flex-start;gap:10px;margin-top:12px;padding:10px 14px;
+  border-radius:9px;font-size:.98rem;line-height:1.45;}
+.note-box svg{flex-shrink:0;width:20px;height:20px;margin-top:2px;}
+.note-warning{background:rgba(196,69,58,.12);border:1px solid rgba(196,69,58,.45);color:#ffcaa0;}
+.note-warning svg{color:var(--blood-light);}
+.note-info{background:rgba(91,155,213,.1);border:1px solid rgba(91,155,213,.35);color:#a8cce8;}
+.note-info svg{color:#7db8e8;}
+
+.img-full{width:100%;border-radius:10px;border:2px solid rgba(181,113,43,.4);
+  box-shadow:0 6px 20px rgba(0,0,0,.5);margin:14px 0;}
+
+.tech-list{list-style:none;margin:10px 0;padding:0;}
+.tech-list li{position:relative;padding:4px 0 4px 20px;font-size:1.02rem;line-height:1.45;color:var(--parchment);}
+.tech-list li::before{content:"";position:absolute;left:2px;top:11px;width:6px;height:6px;
+  background:var(--ocre);transform:rotate(45deg);}
+
+.group-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:14px 0;}
+.group-card{background:rgba(20,12,4,.5);border:1px solid rgba(181,113,43,.35);border-radius:10px;
+  padding:14px;text-align:center;transition:.2s;}
+.group-card:hover{border-color:var(--ocre);transform:translateY(-2px);}
+.group-card .group-name{font-family:'Cinzel',serif;font-weight:900;font-size:1.4rem;
+  margin-bottom:4px;letter-spacing:.04em;}
+.group-card .group-pct{font-size:.95rem;color:var(--sand-deep);}
+.group-card .group-desc{font-size:.88rem;color:var(--sand-deep);font-style:italic;margin-top:4px;}
+.g-o{color:var(--chakra-glow);}
+.g-a{color:var(--gold);}
+.g-b{color:#7db8e8;}
+.g-ab{color:#b48ee0;}
+
+footer{text-align:center;margin-top:26px;color:var(--sand-deep);font-style:italic;}
+footer .seal{color:var(--ocre);font-family:'Cinzel',serif;}
+@media(max-width:480px){
+  .group-grid{grid-template-columns:1fr 1fr;}
+  .steps li{padding-left:48px;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="back-btn"><a href="index.html">&larr; Retour au hub</a></div>
+  <header>
+    <div class="crest"><svg viewBox="0 0 100 100" fill="none">
+      <circle cx="50" cy="50" r="30" stroke="#b5712b" stroke-width="4"/>
+      <path d="M50 22 L58 44 L50 50 L42 44 Z" fill="#b5712b"/>
+      <path d="M50 78 L42 56 L50 50 L58 56 Z" fill="#b5712b"/>
+      <circle cx="50" cy="50" r="6" fill="#8a4f1a"/>
+    </svg></div>
+    <h1>Recensement Sanguin</h1>
+    <div class="sub">Section M&eacute;dicale Seimei &middot; Sunagakure</div>
+    <div class="divider"></div>
+  </header>
+
+  <!-- INTRODUCTION -->
+  <div class="panel">
+    <h2>Objectif</h2>
+    <p class="lead">Le <strong>recensement sanguin</strong> est une proc&eacute;dure m&eacute;dicale fondamentale. Chaque shinobi de Sunagakure doit avoir son <strong>groupe sanguin</strong> r&eacute;pertori&eacute; dans les registres de la Seimei. En cas de blessure grave, conna&icirc;tre le groupe sanguin permet de proc&eacute;der &agrave; une <strong>transfusion compatible</strong> sans d&eacute;lai.</p>
+  </div>
+
+  <!-- PROTOCOLE DE PRÉLÈVEMENT -->
+  <div class="panel">
+    <h2>Protocole de pr&eacute;l&egrave;vement sanguin</h2>
+    <p class="lead">Le pr&eacute;l&egrave;vement suit un protocole strict pour garantir la fiabilit&eacute; de l&rsquo;analyse et la s&eacute;curit&eacute; du patient.</p>
+
+    <ol class="steps">
+      <li><strong>Identification du patient</strong> &mdash; V&eacute;rifier l&rsquo;identit&eacute; du shinobi (nom, pr&eacute;nom, unit&eacute;). &Eacute;tiqueter le tube de pr&eacute;l&egrave;vement avant le geste.</li>
+      <li><strong>Pr&eacute;paration du mat&eacute;riel</strong> &mdash; Rassembler : garrot, compresses st&eacute;riles, antiseptique, aiguille de pr&eacute;l&egrave;vement, tube de collecte, pansement.</li>
+      <li><strong>Pose du garrot</strong> &mdash; Placer le garrot &agrave; environ 10 cm au-dessus du site de ponction (pli du coude). Demander au patient de serrer le poing pour faire ressortir la veine.</li>
+      <li><strong>D&eacute;sinfection de la zone</strong> &mdash; Appliquer l&rsquo;antiseptique en mouvements circulaires du centre vers l&rsquo;ext&eacute;rieur. <strong>Ne plus toucher la zone apr&egrave;s d&eacute;sinfection.</strong></li>
+      <li><strong>Ponction veineuse</strong> &mdash; Ins&eacute;rer l&rsquo;aiguille biseau vers le haut, &agrave; un angle d&rsquo;environ <strong>20&deg;</strong>. Remplir le tube de collecte.</li>
+      <li><strong>Retrait et compression</strong> &mdash; Retirer le garrot, puis l&rsquo;aiguille. Appliquer imm&eacute;diatement une compresse st&eacute;rile et demander au patient de maintenir la pression 2 &agrave; 3 minutes.</li>
+      <li><strong>Envoi en analyse</strong> &mdash; Acheminer le tube &eacute;tiquet&eacute; au laboratoire de la Seimei pour d&eacute;termination du groupe sanguin et du rh&eacute;sus.</li>
+    </ol>
+
+    <div class="note-box note-warning">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>Toujours porter des gants et respecter les r&egrave;gles d&rsquo;hygi&egrave;ne. Un pr&eacute;l&egrave;vement mal r&eacute;alis&eacute; peut causer un h&eacute;matome, une infection ou un r&eacute;sultat fauss&eacute;.</span>
+    </div>
+  </div>
+
+  <!-- GROUPES SANGUINS -->
+  <div class="panel">
+    <h2>Les groupes sanguins</h2>
+    <p class="lead">Il existe <strong>4 groupes sanguins principaux</strong> d&eacute;finis par le syst&egrave;me ABO, chacun pouvant &ecirc;tre <strong>Rh&eacute;sus positif (+)</strong> ou <strong>n&eacute;gatif (&minus;)</strong>.</p>
+
+    <div class="group-grid">
+      <div class="group-card">
+        <div class="group-name g-o">O</div>
+        <div class="group-pct">~44 % de la population</div>
+        <div class="group-desc">Donneur universel (O&minus;)</div>
+      </div>
+      <div class="group-card">
+        <div class="group-name g-a">A</div>
+        <div class="group-pct">~42 % de la population</div>
+        <div class="group-desc">Donne &agrave; A et AB</div>
+      </div>
+      <div class="group-card">
+        <div class="group-name g-b">B</div>
+        <div class="group-pct">~10 % de la population</div>
+        <div class="group-desc">Donne &agrave; B et AB</div>
+      </div>
+      <div class="group-card">
+        <div class="group-name g-ab">AB</div>
+        <div class="group-pct">~4 % de la population</div>
+        <div class="group-desc">Receveur universel</div>
+      </div>
+    </div>
+
+    <h3 style="font-family:'Cinzel',serif;font-weight:700;color:var(--ocre);font-size:1rem;letter-spacing:.04em;margin:18px 0 8px;">R&eacute;partition des groupes sanguins</h3>
+    <img src="r%C3%A9partitions%20des%20groupe%20sanguins.png" alt="Répartition des groupes sanguins" class="img-full">
+  </div>
+
+  <!-- COMPATIBILITÉ -->
+  <div class="panel">
+    <h2>Compatibilit&eacute; transfusionnelle</h2>
+    <p class="lead">Avant toute transfusion, il est <strong>imp&eacute;ratif</strong> de v&eacute;rifier la compatibilit&eacute; entre le donneur et le receveur. Une transfusion incompatible provoque une <strong>r&eacute;action h&eacute;molytique</strong> pouvant &ecirc;tre fatale.</p>
+
+    <ul class="tech-list">
+      <li><strong>O&minus;</strong> est le <strong>donneur universel</strong> : ses globules rouges peuvent &ecirc;tre re&ccedil;us par tous les groupes.</li>
+      <li><strong>AB+</strong> est le <strong>receveur universel</strong> : il peut recevoir du sang de tous les groupes.</li>
+      <li>Le <strong>rh&eacute;sus</strong> compte : un patient Rh&minus; ne peut recevoir que du sang Rh&minus;, tandis qu&rsquo;un patient Rh+ peut recevoir Rh+ ou Rh&minus;.</li>
+      <li>En cas de doute, <strong>toujours transfuser du O&minus;</strong> en urgence.</li>
+    </ul>
+
+    <h3 style="font-family:'Cinzel',serif;font-weight:700;color:var(--ocre);font-size:1rem;letter-spacing:.04em;margin:18px 0 8px;">Tableau de compatibilit&eacute;</h3>
+    <img src="tableau-compatibilite-sang.png" alt="Tableau de compatibilité sanguine" class="img-full">
+
+    <div class="note-box note-info" style="margin-top:14px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <span>Ce tableau doit &ecirc;tre consult&eacute; syst&eacute;matiquement avant toute transfusion. M&ecirc;me en situation d&rsquo;urgence, une v&eacute;rification rapide peut sauver une vie.</span>
+    </div>
+  </div>
+
+  <!-- IMPORTANCE DU RECENSEMENT -->
+  <div class="panel">
+    <h2>Pourquoi recenser ?</h2>
+    <ul class="tech-list">
+      <li>Permet une <strong>transfusion imm&eacute;diate</strong> en cas de blessure grave sur le terrain</li>
+      <li>Acc&eacute;l&egrave;re la prise en charge &agrave; l&rsquo;h&ocirc;pital &mdash; pas besoin de refaire l&rsquo;analyse</li>
+      <li>Identifie les <strong>donneurs universels</strong> (O&minus;) pour les r&eacute;serves de sang d&rsquo;urgence</li>
+      <li>Permet de constituer un <strong>registre de la Seimei</strong> mis &agrave; jour et accessible aux m&eacute;decins de garde</li>
+    </ul>
+    <div class="note-box note-info" style="margin-top:12px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <span>Tout nouveau shinobi doit &ecirc;tre recens&eacute; d&egrave;s son int&eacute;gration &agrave; la section. Le formulaire de recensement est disponible aupr&egrave;s des g&eacute;rants.</span>
+    </div>
+  </div>
+
+  <footer>Outil p&eacute;dagogique officiel &middot; <span class="seal">Seimei</span> &middot; Sunagakure</footer>
+</div>
+</body>
+</html>
