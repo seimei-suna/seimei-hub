@@ -229,6 +229,10 @@ footer .seal{color:var(--ocre);font-family:'Cinzel',serif;}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
         Constantes
       </a>
+      <a class="sb-link" data-section="pharma">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6v4H9z"/><rect x="5" y="7" width="14" height="14" rx="2"/><path d="M12 11v6"/><path d="M9 14h6"/></svg>
+        Pharmacologie
+      </a>
     </div>
 
     <div class="sb-foot">
@@ -336,7 +340,7 @@ links.forEach(function(link){
 
 var LABELS={sutures:'Sutures',brulures:'Brûlures',fractures:'Fractures',attelles:'Attelles',
   rcr:'Réanimation RCR',prelevement:'Prélèvement sanguin',bandage:'Bandage compressif',
-  garrot:'Pose de garrot',epaule:'Réduction d\'épaule',constantes:'Prise de constantes'};
+  garrot:'Pose de garrot',epaule:'Réduction d\'épaule',constantes:'Prise de constantes',pharma:'Quiz Pharmacologie'};
 
 /* ── HIÉRARCHIE ──────────────────────────────────────── */
 var hierRows=[];
@@ -497,6 +501,10 @@ var MODULES={
   constantes:{table:'constantes_scores',columns:[
     {k:'created_at',l:'Date',type:'date'},{k:'name',l:'Apprenti'},
     {k:'score',l:'Score',type:'score'},{k:'grade',l:'Note',type:'grade'},{k:'correct',l:'Patients corrects'}
+  ]},
+  pharma:{table:'pharma_scores',columns:[
+    {k:'created_at',l:'Date',type:'date'},{k:'name',l:'Apprenti'},
+    {k:'score',l:'Score',type:'score'},{k:'grade',l:'Note',type:'grade'},{k:'correct',l:'Cas corrects'}
   ]}
 };
 

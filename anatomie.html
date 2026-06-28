@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seimei &mdash; Anatomie de base | Sunagakure</title>
+<style>
+@import url('vendor/fonts.css');
+:root{
+  --sand-1:#f4e4c1;--sand-deep:#c89b5e;--ocre:#b5712b;--ocre-deep:#8a4f1a;
+  --rust:#7a3b15;--parchment:#f0dfb8;--chakra:#6fcf97;--chakra-glow:#3ddc84;
+  --blood-light:#c4453a;--gold:#ffd86b;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Cormorant Garamond',serif;color:var(--parchment);min-height:100vh;overflow-x:hidden;
+  background:radial-gradient(ellipse at 50% -10%,#5a3d1e 0%,transparent 55%),
+    linear-gradient(160deg,#2e1d0c 0%,#1c1106 60%,#140c04 100%);}
+body::before{content:"";position:fixed;inset:0;opacity:.05;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  z-index:1;}
+.wrap{position:relative;z-index:2;max-width:860px;margin:0 auto;padding:28px 16px 80px;}
+.back-btn{text-align:right;margin-bottom:8px;}
+.back-btn a{font-family:'Cinzel',serif;font-weight:700;font-size:.82rem;letter-spacing:.05em;
+  padding:8px 16px;border:1px solid var(--ocre);border-radius:9px;color:var(--sand-1);
+  text-decoration:none;text-transform:uppercase;transition:.2s;}
+.back-btn a:hover{background:rgba(181,113,43,.2);}
+header{text-align:center;margin-bottom:24px;}
+.crest{width:64px;height:64px;margin:0 auto 10px;border:3px solid var(--ocre);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle,rgba(181,113,43,.25),transparent 70%);
+  box-shadow:0 0 24px rgba(181,113,43,.35);}
+.crest svg{width:36px;height:36px;}
+h1{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(1.5rem,4.5vw,2.3rem);
+  letter-spacing:.06em;color:var(--sand-1);text-shadow:0 2px 0 var(--rust),0 0 28px rgba(181,113,43,.5);}
+.sub{font-size:1.1rem;color:var(--sand-deep);font-style:italic;margin-top:4px;}
+.divider{height:2px;width:58%;margin:14px auto 0;background:linear-gradient(90deg,transparent,var(--ocre),transparent);}
+
+.panel{background:linear-gradient(160deg,rgba(240,223,184,.07),rgba(60,41,20,.15));
+  border:1px solid rgba(181,113,43,.45);border-radius:14px;padding:22px;margin-bottom:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,.45);}
+.panel h2{font-family:'Cinzel',serif;font-weight:700;color:var(--ocre);font-size:1.18rem;
+  letter-spacing:.05em;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.panel h2::before{content:"";width:7px;height:7px;background:var(--ocre);transform:rotate(45deg);}
+.lead{font-size:1.08rem;line-height:1.6;}
+
+.organ-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:16px 0;}
+.organ-card{background:rgba(20,12,4,.5);border:1px solid rgba(181,113,43,.35);border-radius:12px;
+  padding:16px;transition:.2s;}
+.organ-card:hover{border-color:var(--ocre);transform:translateY(-2px);}
+.organ-card h3{font-family:'Cinzel',serif;font-weight:700;font-size:1.05rem;color:var(--gold);
+  margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+.organ-card h3 .organ-icon{width:28px;height:28px;border-radius:50%;
+  background:rgba(181,113,43,.2);border:1px solid var(--ocre);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.85rem;}
+.organ-card p{font-size:.98rem;line-height:1.5;color:var(--parchment);}
+.organ-card .organ-danger{margin-top:8px;font-size:.9rem;color:var(--blood-light);font-style:italic;}
+
+.tech-list{list-style:none;margin:10px 0;padding:0;}
+.tech-list li{position:relative;padding:4px 0 4px 20px;font-size:1.02rem;line-height:1.45;color:var(--parchment);}
+.tech-list li::before{content:"";position:absolute;left:2px;top:11px;width:6px;height:6px;
+  background:var(--ocre);transform:rotate(45deg);}
+.tech-list li strong{color:var(--sand-1);}
+
+.note-box{display:flex;align-items:flex-start;gap:10px;margin-top:12px;padding:10px 14px;
+  border-radius:9px;font-size:.98rem;line-height:1.45;}
+.note-box svg{flex-shrink:0;width:20px;height:20px;margin-top:2px;}
+.note-warning{background:rgba(196,69,58,.12);border:1px solid rgba(196,69,58,.45);color:#ffcaa0;}
+.note-warning svg{color:var(--blood-light);}
+.note-info{background:rgba(91,155,213,.1);border:1px solid rgba(91,155,213,.35);color:#a8cce8;}
+.note-info svg{color:#7db8e8;}
+
+.zone-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0;}
+.zone-card{padding:14px;border-radius:10px;font-size:.98rem;line-height:1.45;}
+.zone-safe{background:rgba(61,220,132,.08);border:1px solid rgba(61,220,132,.35);}
+.zone-safe h3{color:var(--chakra-glow);font-family:'Cinzel',serif;font-weight:700;font-size:.95rem;margin-bottom:6px;}
+.zone-danger{background:rgba(196,69,58,.08);border:1px solid rgba(196,69,58,.35);}
+.zone-danger h3{color:var(--blood-light);font-family:'Cinzel',serif;font-weight:700;font-size:.95rem;margin-bottom:6px;}
+
+.chakra-list{list-style:none;margin:14px 0;padding:0;}
+.chakra-item{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;margin-bottom:8px;
+  background:rgba(20,12,4,.45);border:1px solid rgba(111,207,151,.25);border-radius:10px;transition:.2s;}
+.chakra-item:hover{border-color:rgba(111,207,151,.5);}
+.chakra-dot{width:12px;height:12px;border-radius:50%;background:var(--chakra);flex-shrink:0;margin-top:4px;
+  box-shadow:0 0 8px rgba(111,207,151,.5);}
+.chakra-item strong{color:var(--chakra-glow);}
+
+.grade-section{margin-top:28px;margin-bottom:14px;text-align:center;}
+.grade-section-title{font-family:'Cinzel',serif;font-weight:900;font-size:1rem;
+  letter-spacing:.08em;text-transform:uppercase;padding:6px 18px;display:inline-block;
+  border-radius:8px;color:var(--ocre);border:1px solid rgba(181,113,43,.35);
+  background:rgba(181,113,43,.08);}
+.grade-section-line{height:1px;margin:8px auto 0;width:70%;
+  background:linear-gradient(90deg,transparent,rgba(181,113,43,.3),transparent);}
+
+footer{text-align:center;margin-top:26px;color:var(--sand-deep);font-style:italic;}
+footer .seal{color:var(--ocre);font-family:'Cinzel',serif;}
+@media(max-width:520px){
+  .organ-grid{grid-template-columns:1fr;}
+  .zone-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="back-btn"><a href="index.html">&larr; Retour au hub</a></div>
+  <header>
+    <div class="crest"><svg viewBox="0 0 100 100" fill="none">
+      <circle cx="50" cy="50" r="30" stroke="#b5712b" stroke-width="4"/>
+      <path d="M50 22 L58 44 L50 50 L42 44 Z" fill="#b5712b"/>
+      <path d="M50 78 L42 56 L50 50 L58 56 Z" fill="#b5712b"/>
+      <circle cx="50" cy="50" r="6" fill="#8a4f1a"/>
+    </svg></div>
+    <h1>Anatomie de base</h1>
+    <div class="sub">Section M&eacute;dicale Seimei &middot; Sunagakure</div>
+    <div class="divider"></div>
+  </header>
+
+  <!-- INTRODUCTION -->
+  <div class="panel">
+    <h2>Pourquoi conna&icirc;tre l&rsquo;anatomie ?</h2>
+    <p class="lead">Un m&eacute;decin ninja qui ne conna&icirc;t pas l&rsquo;anatomie est un danger pour ses patients. Savoir <strong>o&ugrave; se trouvent les organes</strong>, <strong>quelles zones sont critiques</strong> et <strong>comment circule le chakra m&eacute;dical</strong> est indispensable avant tout geste de soin.</p>
+  </div>
+
+  <!-- ORGANES VITAUX -->
+  <div class="grade-section">
+    <span class="grade-section-title">Les organes vitaux</span>
+    <div class="grade-section-line"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Les 5 organes essentiels</h2>
+    <p class="lead">Ces organes sont indispensables &agrave; la survie. Toute blessure les touchant est une <strong>urgence absolue</strong>.</p>
+
+    <div class="organ-grid">
+      <div class="organ-card">
+        <h3><span class="organ-icon">&hearts;</span> C&oelig;ur</h3>
+        <p>Pompe le sang dans tout le corps. Situ&eacute; l&eacute;g&egrave;rement &agrave; gauche dans la cage thoracique, prot&eacute;g&eacute; par le sternum et les c&ocirc;tes.</p>
+        <div class="organ-danger">L&eacute;sion = arr&ecirc;t cardiaque en quelques minutes.</div>
+      </div>
+      <div class="organ-card">
+        <h3><span class="organ-icon">&#9729;</span> Poumons</h3>
+        <p>Assurent les &eacute;changes gazeux (oxyg&egrave;ne/CO2). Deux poumons occupent la majeure partie de la cage thoracique.</p>
+        <div class="organ-danger">Perforation = pneumothorax, d&eacute;tresse respiratoire.</div>
+      </div>
+      <div class="organ-card">
+        <h3><span class="organ-icon">&#9670;</span> Foie</h3>
+        <p>Filtre le sang, neutralise les toxines, produit la bile. Situ&eacute; sous les c&ocirc;tes &agrave; droite. Organe tr&egrave;s vascularis&eacute;.</p>
+        <div class="organ-danger">Rupture = h&eacute;morragie interne massive.</div>
+      </div>
+      <div class="organ-card">
+        <h3><span class="organ-icon">&#9673;</span> Reins</h3>
+        <p>Filtrent le sang et produisent l&rsquo;urine. Situ&eacute;s dans le bas du dos, de chaque c&ocirc;t&eacute; de la colonne vert&eacute;brale.</p>
+        <div class="organ-danger">L&eacute;sion = insuffisance r&eacute;nale, empoisonnement progressif.</div>
+      </div>
+      <div class="organ-card">
+        <h3><span class="organ-icon">&#9733;</span> Cerveau</h3>
+        <p>Centre de commande du corps et du r&eacute;seau de chakra. Prot&eacute;g&eacute; par le cr&acirc;ne mais extr&ecirc;mement fragile aux chocs.</p>
+        <div class="organ-danger">Trauma cr&acirc;nien = coma, s&eacute;quelles d&eacute;finitives.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUTRES ORGANES -->
+  <div class="panel">
+    <h2>Organes secondaires importants</h2>
+    <ul class="tech-list">
+      <li><strong>Rate</strong> &mdash; Filtre les globules rouges us&eacute;s et stocke le sang. Situ&eacute;e &agrave; gauche, sous les c&ocirc;tes. Rupture = h&eacute;morragie grave.</li>
+      <li><strong>Estomac</strong> &mdash; Dig&egrave;re les aliments. Prot&eacute;g&eacute; par les muscles abdominaux. Perforation = p&eacute;ritonite.</li>
+      <li><strong>Intestins</strong> &mdash; Absorbent les nutriments (gr&ecirc;le) et l&rsquo;eau (c&ocirc;lon). Perforation = infection abdominale grave.</li>
+      <li><strong>Vessie</strong> &mdash; Stocke l&rsquo;urine. Situ&eacute;e dans le bas-ventre. Rupture = infection interne.</li>
+      <li><strong>Diaphragme</strong> &mdash; Muscle de la respiration entre thorax et abdomen. S&rsquo;il est paralys&eacute;, le patient ne peut plus respirer.</li>
+    </ul>
+  </div>
+
+  <!-- ZONES CRITIQUES -->
+  <div class="grade-section">
+    <span class="grade-section-title">Zones critiques du corps</span>
+    <div class="grade-section-line"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Zones &agrave; conna&icirc;tre</h2>
+    <p class="lead">En tant que m&eacute;decin ninja, tu dois savoir distinguer les zones o&ugrave; tu peux intervenir en s&eacute;curit&eacute; de celles o&ugrave; le moindre geste peut &ecirc;tre fatal.</p>
+
+    <div class="zone-grid">
+      <div class="zone-card zone-danger">
+        <h3>&#9888; Zones interdites sans expertise</h3>
+        <ul class="tech-list">
+          <li><strong>Cou / gorge</strong> &mdash; Art&egrave;res carotides, trach&eacute;e, moelle &eacute;pini&egrave;re</li>
+          <li><strong>Tempes</strong> &mdash; Os tr&egrave;s fin, art&egrave;re temporale</li>
+          <li><strong>Colonne vert&eacute;brale</strong> &mdash; Moelle &eacute;pini&egrave;re = paralysie</li>
+          <li><strong>Creux axillaire</strong> &mdash; Art&egrave;re axillaire, plexus nerveux</li>
+          <li><strong>Aine / triangle f&eacute;moral</strong> &mdash; Art&egrave;re f&eacute;morale</li>
+        </ul>
+      </div>
+      <div class="zone-card zone-safe">
+        <h3>&#10003; Zones d&rsquo;intervention courantes</h3>
+        <ul class="tech-list">
+          <li><strong>Avant-bras</strong> &mdash; Sutures, pr&eacute;l&egrave;vements, attelles</li>
+          <li><strong>Mollet / cuisse</strong> &mdash; Bandages, garrots, injections</li>
+          <li><strong>Torse (surface)</strong> &mdash; Compressions, pansements</li>
+          <li><strong>Cr&acirc;ne (surface)</strong> &mdash; Pansements, compression</li>
+          <li><strong>Mains / pieds</strong> &mdash; Soins mineurs, attelles</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note-box note-warning">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>Un Aspirant ne doit <strong>jamais</strong> intervenir sur une zone critique sans supervision d&rsquo;un Expert ou Ma&icirc;tre. En cas de doute, stabilise et transmets.</span>
+    </div>
+  </div>
+
+  <!-- VAISSEAUX -->
+  <div class="panel">
+    <h2>Syst&egrave;me circulatoire &mdash; Les vaisseaux cl&eacute;s</h2>
+    <p class="lead">Conna&icirc;tre les principales art&egrave;res permet de comprendre o&ugrave; poser un garrot, o&ugrave; comprimer, et o&ugrave; ne <strong>jamais</strong> couper.</p>
+    <ul class="tech-list">
+      <li><strong>Art&egrave;re carotide</strong> (cou) &mdash; Irrigue le cerveau. Section = mort en quelques minutes.</li>
+      <li><strong>Art&egrave;re f&eacute;morale</strong> (aine/cuisse) &mdash; Irrigue la jambe. H&eacute;morragie = choc en 2-3 min. Point de garrot f&eacute;moral.</li>
+      <li><strong>Art&egrave;re brachiale</strong> (bras) &mdash; Irrigue le bras. Compression au pli du coude.</li>
+      <li><strong>Art&egrave;re radiale</strong> (poignet) &mdash; O&ugrave; on prend le pouls. Pr&eacute;l&egrave;vement sanguin au pli du coude (veine, pas art&egrave;re).</li>
+      <li><strong>Aorte</strong> (torse) &mdash; Plus grosse art&egrave;re du corps. Rupture = mort quasi imm&eacute;diate.</li>
+    </ul>
+  </div>
+
+  <!-- POINTS DE CHAKRA -->
+  <div class="grade-section">
+    <span class="grade-section-title">Points de chakra m&eacute;dical</span>
+    <div class="grade-section-line"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Le r&eacute;seau de chakra et la m&eacute;decine</h2>
+    <p class="lead">Le chakra circule &agrave; travers le corps via un r&eacute;seau de canaux (les <strong>keirakukei</strong>). Certains points sont particuli&egrave;rement importants pour le ninjutsu m&eacute;dical.</p>
+
+    <div class="chakra-list">
+      <div class="chakra-item">
+        <div class="chakra-dot"></div>
+        <div><strong>Paumes des mains</strong> &mdash; Point d&rsquo;&eacute;mission principal du chakra m&eacute;dical. C&rsquo;est par l&agrave; que passent la Paume Spirituelle, la Paume Mystique et le Kaiseki Kenshin.</div>
+      </div>
+      <div class="chakra-item">
+        <div class="chakra-dot"></div>
+        <div><strong>Bout des doigts</strong> &mdash; Pr&eacute;cision maximale. Utilis&eacute;s pour le Scalpel de Chakra et les techniques chirurgicales de pr&eacute;cision.</div>
+      </div>
+      <div class="chakra-item">
+        <div class="chakra-dot"></div>
+        <div><strong>Plexus solaire</strong> (centre du torse) &mdash; N&oelig;ud de chakra majeur. Le Transfert de Chakra est plus efficace quand il vise cette zone.</div>
+      </div>
+      <div class="chakra-item">
+        <div class="chakra-dot"></div>
+        <div><strong>Front</strong> (entre les yeux) &mdash; Li&eacute; &agrave; la perception. Le Kaiseki Kenshin utilise ce point pour &laquo; scanner &raquo; le corps du patient.</div>
+      </div>
+      <div class="chakra-item">
+        <div class="chakra-dot"></div>
+        <div><strong>Tenketsu</strong> (362 points) &mdash; Points de lib&eacute;ration du chakra r&eacute;partis sur tout le corps. Un m&eacute;decin doit savoir les localiser pour d&eacute;tecter les blocages.</div>
+      </div>
+    </div>
+
+    <div class="note-box note-info">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <span>Le Kaiseki Kenshin permet de visualiser le r&eacute;seau de chakra du patient et d&rsquo;identifier les blocages ou anomalies. C&rsquo;est la premi&egrave;re &eacute;tape de tout diagnostic avanc&eacute;.</span>
+    </div>
+  </div>
+
+  <!-- RÉSUMÉ -->
+  <div class="panel">
+    <h2>Ce qu&rsquo;un Aspirant doit retenir</h2>
+    <ul class="tech-list">
+      <li>Les <strong>5 organes vitaux</strong> : c&oelig;ur, poumons, foie, reins, cerveau</li>
+      <li>Les <strong>art&egrave;res principales</strong> et leur localisation (carotide, f&eacute;morale, brachiale)</li>
+      <li>Les <strong>zones interdites</strong> sans supervision Expert (cou, tempes, colonne, aine)</li>
+      <li>Les <strong>points de chakra m&eacute;dical</strong> (paumes, doigts, plexus solaire)</li>
+      <li>R&egrave;gle d&rsquo;or : <strong>si tu ne sais pas, stabilise et transmets</strong></li>
+    </ul>
+  </div>
+
+  <footer>Outil p&eacute;dagogique officiel &middot; <span class="seal">Seimei</span> &middot; Sunagakure</footer>
+</div>
+</body>
+</html>

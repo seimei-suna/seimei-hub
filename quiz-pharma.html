@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seimei &mdash; Quiz Pharmacologie | Sunagakure</title>
+<script src="vendor/supabase.js"></script>
+<script src="config.js"></script>
+<style>
+@import url('vendor/fonts.css');
+:root{
+  --sand-1:#f4e4c1;--sand-deep:#c89b5e;--ocre:#b5712b;--ocre-deep:#8a4f1a;
+  --rust:#7a3b15;--parchment:#f0dfb8;--chakra:#6fcf97;--chakra-glow:#3ddc84;
+  --blood-light:#c4453a;--gold:#ffd86b;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Cormorant Garamond',serif;color:var(--parchment);min-height:100vh;overflow-x:hidden;
+  background:radial-gradient(ellipse at 50% -10%,#5a3d1e 0%,transparent 55%),
+    linear-gradient(160deg,#2e1d0c 0%,#1c1106 60%,#140c04 100%);}
+body::before{content:"";position:fixed;inset:0;opacity:.05;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  z-index:1;}
+.wrap{position:relative;z-index:2;max-width:760px;margin:0 auto;padding:28px 16px 80px;}
+.back-btn{text-align:right;margin-bottom:8px;}
+.back-btn a{font-family:'Cinzel',serif;font-weight:700;font-size:.82rem;letter-spacing:.05em;
+  padding:8px 16px;border:1px solid var(--ocre);border-radius:9px;color:var(--sand-1);
+  text-decoration:none;text-transform:uppercase;transition:.2s;}
+.back-btn a:hover{background:rgba(181,113,43,.2);}
+header{text-align:center;margin-bottom:24px;}
+.crest{width:64px;height:64px;margin:0 auto 10px;border:3px solid var(--chakra);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle,rgba(111,207,151,.2),transparent 70%);
+  box-shadow:0 0 24px rgba(111,207,151,.3);}
+.crest svg{width:36px;height:36px;}
+h1{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(1.5rem,4.5vw,2.3rem);
+  letter-spacing:.06em;color:var(--sand-1);text-shadow:0 2px 0 var(--rust),0 0 28px rgba(181,113,43,.5);}
+.sub{font-size:1.1rem;color:var(--sand-deep);font-style:italic;margin-top:4px;}
+.divider{height:2px;width:58%;margin:14px auto 0;background:linear-gradient(90deg,transparent,var(--ocre),transparent);}
+.panel{background:linear-gradient(160deg,rgba(240,223,184,.07),rgba(60,41,20,.15));
+  border:1px solid rgba(181,113,43,.45);border-radius:14px;padding:22px;margin-bottom:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,.45);}
+.panel h2{font-family:'Cinzel',serif;font-weight:700;color:var(--ocre);font-size:1.18rem;
+  letter-spacing:.05em;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.panel h2::before{content:"";width:7px;height:7px;background:var(--ocre);transform:rotate(45deg);}
+.btn{font-family:'Cinzel',serif;font-weight:700;letter-spacing:.05em;cursor:pointer;border:none;
+  border-radius:9px;padding:12px 22px;font-size:.92rem;text-transform:uppercase;
+  background:linear-gradient(160deg,var(--ocre),var(--ocre-deep));color:#fff5e6;
+  box-shadow:0 5px 0 var(--rust);transition:transform .12s;}
+.btn:hover{transform:translateY(-2px);}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--rust);}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important;}
+.btn.ghost{background:transparent;border:1px solid var(--ocre);box-shadow:none;color:var(--sand-1);font-size:.82rem;padding:7px 14px;}
+.controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:16px;}
+
+.progress-bar{display:flex;gap:6px;justify-content:center;margin-bottom:18px;}
+.pdot{width:28px;height:6px;border-radius:3px;background:rgba(181,113,43,.25);border:1px solid rgba(181,113,43,.35);transition:.3s;}
+.pdot.ok{background:var(--chakra);border-color:var(--chakra);}
+.pdot.bad{background:var(--blood-light);border-color:var(--blood-light);}
+.pdot.cur{background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(255,216,107,.5);}
+
+.score-bar{font-family:'Cinzel',serif;font-weight:700;font-size:1rem;color:var(--sand-deep);
+  text-align:center;margin-bottom:10px;letter-spacing:.04em;}
+.score-bar .val{color:var(--sand-1);}
+
+.case-box{background:rgba(20,12,4,.55);border:1px solid rgba(181,113,43,.35);border-radius:12px;
+  padding:18px 20px;margin-bottom:18px;}
+.case-label{font-family:'Cinzel',serif;font-weight:700;font-size:.78rem;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ocre);margin-bottom:6px;}
+.case-text{font-size:1.1rem;line-height:1.55;color:var(--parchment);}
+.case-symptoms{margin-top:10px;font-size:1rem;color:var(--sand-deep);font-style:italic;}
+
+.choice{display:block;width:100%;text-align:left;padding:13px 18px;margin-bottom:9px;
+  font-family:inherit;font-size:1.05rem;color:var(--parchment);cursor:pointer;
+  background:rgba(20,12,4,.45);border:1.5px solid rgba(181,113,43,.35);
+  border-radius:10px;transition:.18s;line-height:1.4;}
+.choice:hover{background:rgba(181,113,43,.12);border-color:var(--ocre);}
+.choice.sel{background:rgba(255,216,107,.12);border-color:var(--gold);color:var(--gold);}
+.choice.correct{background:rgba(61,220,132,.12);border-color:var(--chakra);color:var(--chakra-glow);}
+.choice.wrong{background:rgba(196,69,58,.12);border-color:var(--blood-light);color:#ffcaa0;}
+.choice.dis{cursor:default;opacity:.55;}
+.choice.dis.correct,.choice.dis.wrong{opacity:1;}
+
+.explain{background:rgba(20,12,4,.5);border:1px dashed var(--ocre);border-radius:10px;
+  padding:14px 16px;margin-top:14px;display:none;line-height:1.5;font-size:.98rem;}
+.explain.vis{display:block;}
+.explain strong{color:var(--sand-1);}
+
+#endScreen{display:none;}
+.final-score{font-family:'Cinzel',serif;font-weight:900;font-size:3rem;text-align:center;margin:10px 0;}
+.final-score.excellent{color:var(--chakra-glow);text-shadow:0 0 24px rgba(61,220,132,.6);}
+.final-score.good{color:var(--gold);text-shadow:0 0 18px rgba(255,216,107,.4);}
+.final-score.average{color:var(--sand-1);}
+.final-score.poor{color:var(--blood-light);}
+.final-verdict{text-align:center;font-size:1.12rem;margin-bottom:18px;line-height:1.5;}
+.recap-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;
+  border-bottom:1px solid rgba(181,113,43,.2);font-size:1rem;}
+.recap-item:last-child{border:none;}
+.recap-item .rname{color:var(--sand-deep);flex:1;}
+.recap-item .rtag{font-family:'Cinzel',serif;font-weight:700;font-size:.85rem;
+  padding:3px 10px;border-radius:5px;}
+.rok{background:rgba(61,220,132,.15);color:var(--chakra-glow);}
+.rfail{background:rgba(196,69,58,.15);color:#ffcaa0;}
+
+footer{text-align:center;margin-top:30px;color:var(--sand-deep);font-style:italic;}
+footer .seal{color:var(--ocre);font-family:'Cinzel',serif;}
+@media(max-width:480px){.panel{padding:16px 14px;}.case-text{font-size:1rem;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="back-btn"><a href="index.html">&larr; Retour au hub</a></div>
+  <header>
+    <div class="crest"><svg viewBox="0 0 24 24" fill="none" stroke="#6fcf97" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 3h6v4H9z"/><rect x="5" y="7" width="14" height="14" rx="2"/><path d="M12 11v6"/><path d="M9 14h6"/>
+    </svg></div>
+    <h1>Quiz Pharmacologie</h1>
+    <div class="sub">Section M&eacute;dicale Seimei &middot; Sunagakure</div>
+    <div class="divider"></div>
+  </header>
+
+  <div id="intro">
+    <div class="panel">
+      <h2>Briefing</h2>
+      <p style="font-size:1.08rem;line-height:1.55;">Un patient se pr&eacute;sente avec des sympt&ocirc;mes. &Agrave; toi de choisir le <strong>bon traitement</strong> parmi les rem&egrave;des et techniques du registre de la Seimei.</p>
+      <p style="margin-top:8px;font-size:.97rem;color:var(--sand-deep);font-style:italic;">10 cas cliniques tir&eacute;s al&eacute;atoirement. Choisis bien &mdash; chaque erreur compte.</p>
+    </div>
+    <div class="panel">
+      <h2>Identification</h2>
+      <div style="margin:10px 0;">
+        <label style="display:block;font-size:1.05rem;color:var(--sand-deep);margin-bottom:6px;">Nom de shinobi</label>
+        <input type="text" id="nameInput" placeholder="Ex : Artel Ga&iuml;a" maxlength="28" autocomplete="off"
+          style="width:100%;padding:13px 16px;font-family:inherit;font-size:1.15rem;background:rgba(20,12,4,.6);color:var(--sand-1);border:1px solid var(--ocre);border-radius:8px;outline:none;">
+      </div>
+      <div class="controls"><button class="btn" id="startBtn">Commencer le quiz</button></div>
+    </div>
+  </div>
+
+  <div id="game" style="display:none;">
+    <div class="progress-bar" id="pbar"></div>
+    <div class="score-bar">Score : <span class="val" id="scoreLbl">0 / 0</span></div>
+    <div class="panel">
+      <h2 id="caseTitle">Cas 1 / 10</h2>
+      <div class="case-box">
+        <div class="case-label">Situation clinique</div>
+        <div class="case-text" id="caseText"></div>
+        <div class="case-symptoms" id="caseSym"></div>
+      </div>
+      <div id="choicesBox"></div>
+      <div class="controls" id="valCtrl"><button class="btn" id="valBtn" disabled>Valider</button></div>
+      <div class="explain" id="explBox"></div>
+      <div class="controls" id="nextCtrl" style="display:none;"><button class="btn" id="nextBtn">Cas suivant</button></div>
+    </div>
+  </div>
+
+  <div id="endScreen">
+    <div class="panel" style="text-align:center;">
+      <h2 style="justify-content:center;">&Eacute;valuation termin&eacute;e</h2>
+      <div class="final-score" id="finalScore"></div>
+      <div class="final-verdict" id="finalVerdict"></div>
+    </div>
+    <div class="panel">
+      <h2>R&eacute;capitulatif</h2>
+      <div id="recapList"></div>
+    </div>
+    <div class="controls" style="margin-top:6px;"><button class="btn ghost" id="retryBtn">Recommencer</button></div>
+  </div>
+
+  <footer>Outil p&eacute;dagogique officiel &middot; <span class="seal">Seimei</span> &middot; Sunagakure</footer>
+</div>
+
+<script>
+(function(){
+var el=function(id){return document.getElementById(id);};
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+
+var POOL=[
+  {situation:"Un shinobi revient de mission avec des maux de tête et des douleurs musculaires légères.",
+   symptoms:"Céphalées, courbatures, température 37.8°C.",
+   answer:"Saule blanc",
+   opts:["Saule blanc","Pavot somnifère","Esmolol","Charbon actif"],
+   explain:"Douleurs légères et fièvre modérée : le Saule blanc (effet aspirine) est le traitement adapté. Le Pavot serait disproportionné."},
+
+  {situation:"Un chunin a été gravement blessé au combat. Il hurle de douleur malgré les premiers soins, plaie profonde au flanc.",
+   symptoms:"Douleur intense (9/10), agitation, sueurs froides.",
+   answer:"Pavot somnifère",
+   opts:["Pavot somnifère","Saule blanc","Cataplasme froid","Aloe vera"],
+   explain:"Douleur sévère post-combat : le Pavot somnifère (analgésique puissant) est nécessaire. Le Saule blanc serait insuffisant."},
+
+  {situation:"Un genin s'est brûlé l'avant-bras en s'approchant trop d'un jutsu Katon à l'entraînement.",
+   symptoms:"Brûlure 1er degré, peau rouge, sèche, douloureuse.",
+   answer:"Aloe vera",
+   opts:["Aloe vera","Miel médical","Pavot somnifère","Quinquina"],
+   explain:"Brûlure légère : l'Aloe vera (spécialité Suna) est le traitement de référence — anti-inflammatoire et cicatrisant naturel."},
+
+  {situation:"Un shinobi a ingéré un fruit empoisonné il y a 30 minutes lors d'une mission d'infiltration.",
+   symptoms:"Nausées, crampes abdominales, début de vomissements.",
+   answer:"Charbon actif",
+   opts:["Charbon actif","Dokunoki no Jutsu","Artemisia annua","Saule blanc"],
+   explain:"Poison ingéré récemment (< 2h) : le Charbon actif absorbe les toxines dans l'estomac. Le Dokunoki est plus adapté pour les poisons déjà dans le sang."},
+
+  {situation:"Un jonin a été piqué par un scorpion venimeux lors d'une mission dans le désert.",
+   symptoms:"Douleur locale intense, gonflement, fièvre légère montante.",
+   answer:"Quinquina",
+   opts:["Quinquina","Charbon actif","Cataplasme froid","Saule blanc"],
+   explain:"Piqûre venimeuse : le Quinquina (antiparasitaire/antitoxine) neutralise les toxines. Le Charbon actif ne fonctionne que par ingestion."},
+
+  {situation:"Un patient présente une entorse de la cheville après une mauvaise réception de saut.",
+   symptoms:"Gonflement, douleur à la palpation, pas de fracture visible.",
+   answer:"Cataplasme froid",
+   opts:["Cataplasme froid","Pavot somnifère","Aloe vera","Paume Mystique"],
+   explain:"Entorse avec gonflement : le Cataplasme froid (herbes broyées) est le traitement anti-inflammatoire adapté. Simple, accessible à tous les grades."},
+
+  {situation:"Un shinobi empoisonné par un kunai enduit. Le poison circule dans le sang depuis 20 minutes.",
+   symptoms:"Engourdissement progressif du bras, vertiges, vision trouble.",
+   answer:"Dokunoki no Jutsu",
+   opts:["Dokunoki no Jutsu","Charbon actif","Quinquina","Saule blanc"],
+   explain:"Poison dans le sang (pas ingéré) : le Dokunoki no Jutsu extrait le poison directement par bulle de chakra. Le Charbon actif ne fonctionne que par voie orale."},
+
+  {situation:"Un patient doit subir une suture au niveau du front après une coupure profonde.",
+   symptoms:"Plaie ouverte nette de 4 cm, saignement maîtrisé.",
+   answer:"Anesthésie locale par chakra",
+   opts:["Anesthésie locale par chakra","Pavot somnifère","Esmolol","Charbon actif"],
+   explain:"Avant une suture : l'Anesthésie locale par chakra engourdit la zone ciblée. Le Pavot (sédation générale) serait excessif pour un geste simple."},
+
+  {situation:"Un patient souffre de crampes abdominales après avoir mangé un repas trop épicé.",
+   symptoms:"Brûlures gastriques, ballonnements, inconfort digestif.",
+   answer:"Cactus / Opuntia",
+   opts:["Cactus / Opuntia","Charbon actif","Saule blanc","Artemisia annua"],
+   explain:"Inflammation digestive : le Cactus (Opuntia) forme un gel protecteur pour l'estomac. Spécialité de Sunagakure, abondant dans le désert."},
+
+  {situation:"Des éraflures et petites coupures superficielles après un entraînement au taijutsu.",
+   symptoms:"Multiples écorchures, hématomes légers, rien de grave.",
+   answer:"Paume Spirituelle",
+   opts:["Paume Spirituelle","Paume Mystique","Pavot somnifère","Esmolol"],
+   explain:"Blessures superficielles : la Paume Spirituelle (technique Aspirant) régénère les tissus légers. La Paume Mystique serait disproportionnée."},
+
+  {situation:"Un expert doit opérer une lésion interne et le patient doit être stabilisé pendant l'intervention.",
+   symptoms:"Chirurgie programmée, rythme cardiaque à contrôler.",
+   answer:"Esmolol",
+   opts:["Esmolol","Pavot somnifère","Saule blanc","Cataplasme froid"],
+   explain:"Contrôle cardiaque en chirurgie : l'Esmolol ralentit le rythme cardiaque. Réservé aux Experts — manipulation dangereuse."},
+
+  {situation:"Un shinobi revient d'une longue mission en zone marécageuse avec des fièvres récurrentes.",
+   symptoms:"Fièvre intermittente, frissons, sueurs, fatigue extrême.",
+   answer:"Artemisia annua",
+   opts:["Artemisia annua","Saule blanc","Aloe vera","Charbon actif"],
+   explain:"Fièvres parasitaires post-marécage : l'Artemisia annua (artémisinine) combat les parasites transmis par les insectes."},
+
+  {situation:"Une plaie chronique au mollet qui ne cicatrise pas depuis plusieurs jours malgré les soins.",
+   symptoms:"Plaie ouverte, pas d'infection, cicatrisation bloquée.",
+   answer:"Miel médical",
+   opts:["Miel médical","Aloe vera","Cataplasme froid","Saule blanc"],
+   explain:"Plaie chronique : le Miel médical est antiseptique et favorise la cicatrisation en milieu humide. L'Aloe vera est plus adapté aux plaies fraîches."},
+
+  {situation:"Un patient avec une lacération profonde au bras après un combat, les tissus internes sont exposés.",
+   symptoms:"Plaie profonde, muscles visibles, saignement important maîtrisé.",
+   answer:"Paume Mystique",
+   opts:["Paume Mystique","Paume Spirituelle","Aloe vera","Miel médical"],
+   explain:"Plaie profonde avec tissus exposés : la Paume Mystique (Expert) régénère les tissus internes. La Paume Spirituelle ne traite que le superficiel."},
+
+  {situation:"Un chirurgien doit opérer un patient pendant 2 heures. Il faut une sédation complète.",
+   symptoms:"Intervention longue programmée, patient conscient.",
+   answer:"Pavot somnifère (dose contrôlée)",
+   opts:["Pavot somnifère (dose contrôlée)","Anesthésie locale par chakra","Saule blanc","Cataplasme froid"],
+   explain:"Sédation pour chirurgie longue : le Pavot en dose contrôlée assure l'anesthésie générale. L'anesthésie par chakra ne suffit pas pour 2h d'intervention."}
+];
+
+var NB=10,playerName='',cases=[],ci=0,score=0,results=[],selected=null,validated=false;
+
+el('startBtn').addEventListener('click',start);
+el('valBtn').addEventListener('click',validate);
+el('nextBtn').addEventListener('click',next);
+el('retryBtn').addEventListener('click',function(){location.reload();});
+
+function start(){
+  var nm=el('nameInput').value.trim();
+  if(!nm){el('nameInput').style.borderColor='var(--blood-light)';setTimeout(function(){el('nameInput').style.borderColor='';},900);return;}
+  playerName=nm;
+  cases=shuffle(POOL).slice(0,NB);
+  ci=0;score=0;results=[];
+  el('intro').style.display='none';el('game').style.display='';el('endScreen').style.display='none';
+  buildBar();loadCase();
+}
+
+function buildBar(){var b=el('pbar');b.innerHTML='';for(var i=0;i<NB;i++){var d=document.createElement('div');d.className='pdot'+(i===0?' cur':'');d.id='pd'+i;b.appendChild(d);}}
+function updateBar(){for(var i=0;i<NB;i++){var d=el('pd'+i);d.className='pdot';if(i<results.length)d.className+=(results[i]?' ok':' bad');else if(i===ci)d.className+=' cur';}}
+
+function loadCase(){
+  var c=cases[ci];validated=false;selected=null;
+  el('caseTitle').textContent='Cas '+(ci+1)+' / '+NB;
+  el('caseText').textContent=c.situation;
+  el('caseSym').textContent='Symptômes : '+c.symptoms;
+  var box=el('choicesBox');box.innerHTML='';
+  var opts=shuffle(c.opts);
+  opts.forEach(function(o){
+    var btn=document.createElement('button');btn.className='choice';btn.textContent=o;
+    btn.setAttribute('data-val',o);
+    btn.addEventListener('click',function(){if(validated)return;selectChoice(o);});
+    box.appendChild(btn);
+  });
+  el('valBtn').disabled=true;
+  el('valCtrl').style.display='';el('nextCtrl').style.display='none';
+  el('explBox').className='explain';el('explBox').innerHTML='';
+  el('scoreLbl').textContent=score+' / '+ci;
+  updateBar();
+}
+
+function selectChoice(v){
+  selected=v;
+  var btns=el('choicesBox').children;
+  for(var i=0;i<btns.length;i++)btns[i].className='choice'+(btns[i].getAttribute('data-val')===v?' sel':'');
+  el('valBtn').disabled=false;
+}
+
+function validate(){
+  if(validated)return;validated=true;
+  var c=cases[ci];
+  var ok=(selected===c.answer);
+  if(ok)score++;
+  results.push(ok);
+  var btns=el('choicesBox').children;
+  for(var i=0;i<btns.length;i++){
+    var b=btns[i],v=b.getAttribute('data-val');
+    b.className='choice dis';
+    if(v===c.answer)b.className+=' correct';
+    else if(v===selected&&!ok)b.className+=' wrong';
+  }
+  var ex=el('explBox');
+  ex.innerHTML=(ok?'<p style="color:var(--chakra-glow);font-weight:600;margin-bottom:8px;">✔ Correct !</p>':'<p style="color:#ffcaa0;font-weight:600;margin-bottom:8px;">✘ Mauvais traitement.</p>')
+    +'<p><strong>Réponse :</strong> '+c.answer+'</p><p style="margin-top:6px;">'+c.explain+'</p>';
+  ex.className='explain vis';
+  el('valCtrl').style.display='none';
+  el('nextBtn').textContent=(ci===NB-1)?'Voir les résultats':'Cas suivant';
+  el('nextCtrl').style.display='';
+  el('scoreLbl').textContent=score+' / '+(ci+1);
+  updateBar();
+}
+
+function next(){
+  ci++;
+  if(ci>=NB){showEnd();return;}
+  loadCase();
+}
+
+function showEnd(){
+  el('game').style.display='none';el('endScreen').style.display='block';
+  var pct=Math.round((score/NB)*100);
+  var fs=el('finalScore');fs.textContent=score+' / '+NB;
+  if(pct>=90){fs.className='final-score excellent';el('finalVerdict').textContent='Excellent ! Tu connais parfaitement la pharmacologie Seimei.';}
+  else if(pct>=70){fs.className='final-score good';el('finalVerdict').textContent='Bon niveau. Quelques traitements à revoir.';}
+  else if(pct>=50){fs.className='final-score average';el('finalVerdict').textContent='Moyen. Revois les cours de pharmacologie avant ta prochaine garde.';}
+  else{fs.className='final-score poor';el('finalVerdict').textContent='Insuffisant. Reprends le registre des remèdes et recommence.';}
+
+  var list=el('recapList');list.innerHTML='';
+  for(var i=0;i<results.length;i++){
+    var d=document.createElement('div');d.className='recap-item';
+    var n=document.createElement('span');n.className='rname';n.textContent='Cas '+(i+1)+' — '+cases[i].answer;
+    var t=document.createElement('span');t.className='rtag '+(results[i]?'rok':'rfail');t.textContent=results[i]?'Correct':'Incorrect';
+    d.appendChild(n);d.appendChild(t);list.appendChild(d);
+  }
+
+  saveScore(pct);
+}
+
+function saveScore(pct){
+  var grade;
+  if(pct>=90)grade='S';else if(pct>=75)grade='A';else if(pct>=60)grade='B';
+  else if(pct>=40)grade='C';else grade='D';
+  if(typeof SUPABASE_URL==='undefined')return;
+  try{
+    var sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+    sb.from('pharma_scores').insert([{name:playerName,score:pct,grade:grade,correct:score,total:NB}]).then(function(){});
+  }catch(e){}
+}
+})();
+</script>
+</body>
+</html>
